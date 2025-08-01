@@ -1,20 +1,18 @@
-//register page
-
+import React from "react";
 import {
-  View,
-  Text,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
-import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 
-export default function Register() {
+export default function Profile() {
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" translucent={true} />
+      <StatusBar style="dark" translucent={false} />
 
       <KeyboardAvoidingView
         className="flex-1"
@@ -25,8 +23,8 @@ export default function Register() {
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View>
-            <Text>Register</Text>
+          <View className="flex-1 p-2">{/*  Es view ke ander hi chhedna if kre to  */}
+            <Text className="text-2xl font-bold text-gray-100">Profile</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

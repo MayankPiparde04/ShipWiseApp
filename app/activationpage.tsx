@@ -1,4 +1,4 @@
-//register page
+//ActivationPage page
 
 import {
   View,
@@ -11,10 +11,10 @@ import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 
-export default function Register() {
+export default function ActivationPage() {
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" translucent={true} />
+      <StatusBar style="dark" translucent={false} />
 
       <KeyboardAvoidingView
         className="flex-1"
@@ -26,7 +26,7 @@ export default function Register() {
           keyboardShouldPersistTaps="handled"
         >
           <View>
-            <Text>Register</Text>
+            <Text>ActivationPage</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
