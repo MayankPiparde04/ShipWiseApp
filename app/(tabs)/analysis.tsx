@@ -14,7 +14,7 @@ import { StatusBar } from "expo-status-bar";
 export default function Analysis() {
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" translucent={false} />
+      <StatusBar style="dark" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"
@@ -25,7 +25,8 @@ export default function Analysis() {
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="flex-1 p-2">{/*  Es view ke ander hi chhedna if kre to  */}
+          <View className="flex-1 p-2">
+            {/*  Es view ke ander hi chhedna if kre to  */}
             <Text className="text-2xl font-bold text-gray-100">Analysis</Text>
           </View>
         </ScrollView>

@@ -1,20 +1,20 @@
-// Dashboard / home / landing page layout / tab1
+// Dashboard / Home / landing page layout / tab1
 
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  ScrollView,
   Text,
+  TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
 
-import { MotiView, MotiText } from "moti";
+import { MotiText, MotiView } from "moti";
 import Feather from "react-native-vector-icons/Feather";
 
 const { width } = Dimensions.get("window");
@@ -46,7 +46,7 @@ export default function Home() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="light" translucent={false} />
+      <StatusBar style="light" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"

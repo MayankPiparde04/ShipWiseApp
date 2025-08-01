@@ -14,7 +14,7 @@ import { StatusBar } from "expo-status-bar";
 export default function Login() {
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" translucent={false} />
+      <StatusBar style="dark" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"
