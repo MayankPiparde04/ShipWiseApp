@@ -26,7 +26,7 @@ export default function Inventory() {
         >
           <View className="flex-1 p-2">
             {/*  Es view ke ander hi chhedna if kre to  */}
-            <Text className="text-2xl font-bold text-gray-100">Inventory</Text>
+            <Text className="text-2xl font-bold text-gray-900">Inventory</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -25,7 +25,7 @@ export default function Profile() {
         >
           <View className="flex-1 p-2">
             {/*  Es view ke ander hi chhedna if kre to  */}
-            <Text className="text-2xl font-bold text-gray-100">Profile</Text>
+            <Text className="text-2xl font-bold text-gray-900">Profile</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

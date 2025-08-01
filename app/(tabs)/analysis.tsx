@@ -27,7 +27,7 @@ export default function Analysis() {
         >
           <View className="flex-1 p-2">
             {/*  Es view ke ander hi chhedna if kre to  */}
-            <Text className="text-2xl font-bold text-gray-100">Analysis</Text>
+            <Text className="text-2xl font-bold text-gray-900">Analysis</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

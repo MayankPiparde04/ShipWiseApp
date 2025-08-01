@@ -28,11 +28,11 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="+not-found" />
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
         <Stack.Screen name="activationpage" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="+not-found" />
       </Stack>
     </ThemeProvider>
   );

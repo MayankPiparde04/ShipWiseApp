@@ -27,7 +27,7 @@ export default function Gemini() {
         >
           <View className="flex-1 p-2">
             {/*  Es view ke ander hi chhedna if kre to  */}
-            <Text className="text-2xl font-bold text-gray-100">Gemini</Text>
+            <Text className="text-2xl font-bold text-gray-900">Gemini</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
