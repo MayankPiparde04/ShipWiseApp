@@ -1,34 +1,31 @@
+import { useAuth } from "@/contexts/AuthContext";
 import React from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 
-export default function Profile() {
+export default function ProfileScreen() {
+  const { user, logout } = useAuth();
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" translucent={true} />
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <View className="flex-1 p-6">
+        <Text className="text-2xl font-bold text-gray-900 mb-4">Profile</Text>
 
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
+        <View className="bg-white p-6 rounded-lg shadow-sm mb-4">
+          <Text className="text-lg font-semibold text-gray-900 mb-2">
+            {user?.name}
+          </Text>
+          <Text className="text-gray-600 mb-1">{user?.email}</Text>
+          <Text className="text-gray-600">{user?.phone}</Text>
+        </View>
+
+        <TouchableOpacity
+          className="bg-red-600 p-4 rounded-lg"
+          onPress={logout}
         >
-          <View className="flex-1 p-2">
-            {/*  Es view ke ander hi chhedna if kre to  */}
-            <Text className="text-2xl font-bold text-gray-900">Profile</Text>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          <Text className="text-white text-center font-semibold">Logout</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }

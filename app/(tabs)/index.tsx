@@ -1,17 +1,18 @@
 // Dashboard / Home / landing page layout / tab1
 
+import { useAuth } from "@/contexts/AuthContext";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 import { MotiText, MotiView } from "moti";
@@ -35,6 +36,7 @@ const texts = [
 ];
 
 export default function Home() {
+  const { user, logout } = useAuth();
   const [textIndex, setTextIndex] = useState(0);
 
   useEffect(() => {
@@ -131,6 +133,36 @@ export default function Home() {
               >
                 <Text className="text-white font-semibold text-lg">
                   Subscribe
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Authenticated User Section */}
+          <View className="px-6 py-8 bg-gray-100 rounded-2xl mx-4 mb-20">
+            <Text className="text-2xl font-bold text-gray-900 text-center mb-4">
+              Welcome back, {user?.name}!
+            </Text>
+            <Text className="text-gray-700 text-center mb-6">
+              Ready to optimize your shipping?
+            </Text>
+
+            <View className="space-y-4">
+              <View className="bg-white p-6 rounded-lg shadow-sm">
+                <Text className="text-lg font-semibold text-gray-900 mb-2">
+                  Quick Actions
+                </Text>
+                <Text className="text-gray-600">
+                  Add items, calculate shipping, and more
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                className="bg-red-600 p-4 rounded-lg"
+                onPress={logout}
+              >
+                <Text className="text-white text-center font-semibold">
+                  Logout
                 </Text>
               </TouchableOpacity>
             </View>

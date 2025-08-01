@@ -1,39 +1,72 @@
 // app/_layout.tsx
-// Root Layout for screens
-
 import "react-native-reanimated";
 import "./global.css";
 
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { useEffect } from "react";
+import { ActivityIndicator, Text, View } from "react-native";
 
-export default function RootLayout() {
+function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { user, isLoading } = useAuth();
 
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
+  useEffect(() => {
+    if (!isLoading && loaded) {
+      if (user) {
+        router.replace("/(tabs)");
+      } else {
+        router.replace("/login");
+      }
+    }
+  }, [user, isLoading, loaded]);
+
   if (!loaded) return null;
-  // jo screen top pr rahegi wo show hogi sbse pahale
-  //tabs ki routing setup ho chuki he login, register, or activation ki kar de
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <ActivityIndicator size="large" color="#2563EB" />
+        <Text className="text-lg font-semibold text-gray-700 mt-4">Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
-        <Stack.Screen name="activationpage" />
-        <Stack.Screen name="(tabs)" />
+        <Stack.Screen 
+          name="activationpage" 
+          options={{
+            gestureEnabled: false, // Prevent going back during activation
+          }}
+        />
         <Stack.Screen name="+not-found" />
       </Stack>
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }
