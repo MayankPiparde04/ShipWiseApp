@@ -355,7 +355,9 @@ export default function Inventory() {
                 </Text>
               )}
               {selectedItem.brand && (
-                <Text className="text-zinc-500 mb-1">Brand: {selectedItem.brand}</Text>
+                <Text className="text-zinc-500 mb-1">
+                  Brand: {selectedItem.brand}
+                </Text>
               )}
             </ScrollView>
           )}
@@ -524,9 +526,7 @@ export default function Inventory() {
                   placeholder={`${dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)`}
                   placeholderTextColor="#aaa"
                   value={newBox[dim as keyof typeof newBox]}
-                  onChangeText={(text) =>
-                    setNewBox({ ...newBox, [dim]: text })
-                  }
+                  onChangeText={(text) => setNewBox({ ...newBox, [dim]: text })}
                   keyboardType="decimal-pad"
                 />
               ))}

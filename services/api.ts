@@ -303,6 +303,24 @@ class ApiService {
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
     return this.request(`/ai/prediction-history${query}`);
   }
+
+  // User Management
+  async updateUserProfile(userData: {
+    name?: string;
+    phone?: string;
+    company?: string;
+    address?: string;
+    profileImage?: string;
+  }) {
+    return this.request('/user/update', {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async getUserProfile() {
+    return this.request('/user/profile');
+  }
 }
 
 export const apiService = new ApiService();
