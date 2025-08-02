@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Device from 'expo-device';
 import { router } from 'expo-router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import * as Device from 'expo-device';
 
 interface User {
   _id: string;
@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // add more fields as needed
       };
 
-      const response = await fetch('http://192.168.29.177:5000/api/login', {
+      const response = await fetch('http://10.13.47.130:5000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, password: string, phone: string) => {
     try {
-      const response = await fetch('http://192.168.29.177:5000/api/register', {
+      const response = await fetch('http://10.13.47.130:5000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!refreshToken) return false;
 
-      const response = await fetch('http://192.168.29.177:5000/api/refresh-token', {
+      const response = await fetch('http://10.13.47.130:5000/api/refresh-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

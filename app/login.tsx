@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
@@ -85,7 +86,7 @@ export default function Login() {
             {/* Header */}
             <View className="mb-12 items-center">
               <View className="w-20 h-20 bg-blue-600 rounded-full items-center justify-center mb-6">
-                <Ionicons name="ship" size={32} color="white" />
+                <FontAwesome5 name="shipping-fast" size={24} color="white" />
               </View>
               <Text className="text-4xl font-bold text-gray-900 text-center mb-2">
                 Welcome Back
@@ -96,7 +97,7 @@ export default function Login() {
             </View>
 
             {/* Form */}
-            <View className="space-y-6">
+            <View className="space-y-10">
               <View>
                 <Text className="text-sm font-semibold text-gray-700 mb-2">
                   Email Address
@@ -156,7 +157,7 @@ export default function Login() {
               </View>
 
               <TouchableOpacity
-                className={`w-full p-4 rounded-xl ${
+                className={`w-full p-4 my-2 rounded-xl ${
                   isLoading ? "bg-gray-400" : "bg-blue-600"
                 } shadow-lg`}
                 onPress={handleLogin}
