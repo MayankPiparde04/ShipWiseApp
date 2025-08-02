@@ -6,13 +6,12 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   useWindowDimensions,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -56,10 +55,12 @@ export default function ProfileScreen() {
       });
 
       if (response.success) {
-        // Update context with new user data
-        updateUserContext({
-          ...user,
-          ...editedUser,
+        // Only update context with the new user data, do not pass the whole user object
+        await updateUserContext({
+          name: editedUser.name,
+          phone: editedUser.phone,
+          company: editedUser.company,
+          address: editedUser.address,
         });
 
         setIsEditing(false);
@@ -129,19 +130,13 @@ export default function ProfileScreen() {
           className="bg-indigo-900 px-6 pt-6 pb-12 items-center justify-center"
         >
           <View className="items-center">
-            {user?.profileImage ? (
-              <Image
-                source={{ uri: user.profileImage }}
-                className="w-24 h-24 rounded-full border-4 border-gray-950"
-              />
-            ) : (
+            
               <View className="w-24 h-24 rounded-full bg-gray-800 items-center justify-center">
                 <Text className="text-3xl font-semibold text-blue-400">
                   {getInitials(user?.name)}
                 </Text>
               </View>
-            )}
-
+          
             <Text className="text-xl font-bold text-white mt-3">
               {user?.name || "User"}
             </Text>

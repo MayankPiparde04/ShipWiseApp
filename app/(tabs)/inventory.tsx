@@ -1,7 +1,8 @@
-import { apiService } from "@/services/api";
+import { useBoxes } from "@/contexts/BoxContext";
+import { useInventory } from "@/contexts/InventoryContext";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -10,6 +11,7 @@ import {
   Platform,
   RefreshControl,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -30,7 +32,7 @@ interface Item {
 
 interface Box {
   _id: string;
-  boxName: string;
+  box_name: string;
   length: number;
   breadth: number;
   height: number;
@@ -48,7 +50,6 @@ export default function Inventory() {
   const [selectedBox, setSelectedBox] = useState<Box | null>(null);
 
   // Items state
-  const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -64,94 +65,48 @@ export default function Inventory() {
     category: "",
     brand: "",
   });
+  const [isAddingItem, setIsAddingItem] = useState(false);
 
-  // Boxes state
-  const [boxes, setBoxes] = useState<Box[]>([]);
-  const [isLoadingBoxes, setIsLoadingBoxes] = useState(true);
-  const [isRefreshingBoxes, setIsRefreshingBoxes] = useState(false);
-  const [searchBoxText, setSearchBoxText] = useState("");
+  // Boxes state - simplified with BoxContext
   const [showAddBoxForm, setShowAddBoxForm] = useState(false);
   const [newBox, setNewBox] = useState({
-    boxName: "",
+    box_name: "",
     length: "",
     breadth: "",
     height: "",
     quantity: "",
     max_weight: "",
   });
+  const [isAddingBox, setIsAddingBox] = useState(false);
 
-  // Fetch Items
-  const fetchItems = useCallback(
-    async (refresh = false) => {
-      try {
-        if (refresh) setIsRefreshing(true);
-        else setIsLoading(true);
+  const { items, isLoading: isLoadingItems, fetchItems, addItem, removeItem } =
+    useInventory();
 
-        const response = await apiService.getItems({
-          page: 1,
-          limit: 50,
-          search: searchText,
-          sortBy: "productName",
-          sortOrder: "asc",
-        });
-
-        if (response.success) {
-          setItems(response.data?.items || []);
-        }
-      } catch (error: any) {
-        Alert.alert("Error", error.message || "Failed to fetch items");
-      } finally {
-        setIsLoading(false);
-        setIsRefreshing(false);
-      }
-    },
-    [searchText]
-  );
-
-  // Fetch Boxes
-  const fetchBoxes = useCallback(
-    async (refresh = false) => {
-      try {
-        if (refresh) setIsRefreshingBoxes(true);
-        else setIsLoadingBoxes(true);
-
-        const response = await apiService.getBoxes({
-          page: 1,
-          limit: 50,
-          search: searchBoxText,
-          sortBy: "boxName",
-          sortOrder: "asc",
-        });
-
-        if (response.success) {
-          setBoxes(response.data?.boxes || []);
-        }
-      } catch (error: any) {
-        Alert.alert("Error", error.message || "Failed to fetch boxes");
-      } finally {
-        setIsLoadingBoxes(false);
-        setIsRefreshingBoxes(false);
-      }
-    },
-    [searchBoxText]
-  );
+  const { 
+    boxes, 
+    isLoading: isLoadingBoxes, 
+    fetchBoxes, 
+    addBox, 
+    removeBox 
+  } = useBoxes();
 
   useEffect(() => {
     fetchItems();
-  }, [fetchItems]);
+  }, []);
 
   useEffect(() => {
     if (activeTab === "boxes") {
       fetchBoxes();
     }
-  }, [fetchBoxes, activeTab]);
+  }, [activeTab, fetchBoxes]);
 
   const handleAddItem = async () => {
     try {
+      setIsAddingItem(true);
       const itemData = {
         productName: newItem.productName,
         quantity: parseInt(newItem.quantity),
-        weight: parseFloat(newItem.weight), // weight in grams
+        weight: parseFloat(newItem.weight),
         price: parseFloat(newItem.price),
         dimensions: {
           length: parseFloat(newItem.length),
@@ -161,33 +116,32 @@ export default function Inventory() {
         category: newItem.category,
         brand: newItem.brand,
       };
-
-      const response = await apiService.addOrUpdateItem(itemData);
-      if (response.success) {
-        Alert.alert("Success", "Item added");
-        setNewItem({
-          productName: "",
-          quantity: "",
-          weight: "",
-          price: "",
-          length: "",
-          breadth: "",
-          height: "",
-          category: "",
-          brand: "",
-        });
-        setShowAddForm(false);
-        fetchItems();
-      }
+      await addItem(itemData);
+      Alert.alert("Success", "Item added");
+      setNewItem({
+        productName: "",
+        quantity: "",
+        weight: "",
+        price: "",
+        length: "",
+        breadth: "",
+        height: "",
+        category: "",
+        brand: "",
+      });
+      setShowAddForm(false);
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to add item");
+    } finally {
+      setIsAddingItem(false);
     }
   };
 
   const handleAddBox = async () => {
     try {
+      setIsAddingBox(true);
       const boxData = {
-        boxName: newBox.boxName,
+        box_name: newBox.box_name,
         length: parseFloat(newBox.length),
         breadth: parseFloat(newBox.breadth),
         height: parseFloat(newBox.height),
@@ -195,22 +149,21 @@ export default function Inventory() {
         max_weight: parseFloat(newBox.max_weight),
       };
 
-      const response = await apiService.addBox(boxData);
-      if (response.success) {
-        Alert.alert("Success", "Box added");
-        setNewBox({
-          boxName: "",
-          length: "",
-          breadth: "",
-          height: "",
-          quantity: "",
-          max_weight: "",
-        });
-        setShowAddBoxForm(false);
-        fetchBoxes();
-      }
+      await addBox(boxData);
+      Alert.alert("Success", "Box added");
+      setNewBox({
+        box_name: "",
+        length: "",
+        breadth: "",
+        height: "",
+        quantity: "",
+        max_weight: "",
+      });
+      setShowAddBoxForm(false);
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to add box");
+    } finally {
+      setIsAddingBox(false);
     }
   };
 
@@ -222,8 +175,7 @@ export default function Inventory() {
         style: "destructive",
         onPress: async () => {
           try {
-            await apiService.deleteItem(id);
-            fetchItems();
+            await removeItem(id);
           } catch (error: any) {
             Alert.alert("Error", error.message || "Failed to delete");
           }
@@ -240,8 +192,7 @@ export default function Inventory() {
         style: "destructive",
         onPress: async () => {
           try {
-            await apiService.deleteBox(id);
-            fetchBoxes();
+            await removeBox(id);
           } catch (error: any) {
             Alert.alert("Error", error.message || "Failed to delete");
           }
@@ -290,7 +241,7 @@ export default function Inventory() {
     <View className="bg-zinc-900 p-4 mb-4 rounded-xl shadow-lg border border-zinc-700 h-32 flex-row justify-between">
       <View className="flex-1">
         <Text className="text-white text-xl font-bold" numberOfLines={1}>
-          {item.boxName}
+          {item.box_name}
         </Text>
         <Text className="text-zinc-300">Qty: {item.quantity}</Text>
         <Text className="text-zinc-300">Max Weight: {item.max_weight}kg</Text>
@@ -365,7 +316,7 @@ export default function Inventory() {
           {selectedBox && (
             <ScrollView className="max-h-96">
               <Text className="text-white text-xl font-bold mb-2">
-                {selectedBox.boxName}
+                {selectedBox.box_name}
               </Text>
               <Text className="text-zinc-300 mb-1">
                 Quantity: {selectedBox.quantity}
@@ -397,13 +348,16 @@ export default function Inventory() {
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
+        enabled={!isAddingItem}
       >
-        <ScrollView className="px-4 py-6">
+        <ScrollView className="px-4 py-6" scrollEnabled={!isAddingItem}>
           <View className="flex-row justify-between mb-6">
             <Text className="text-2xl text-white font-bold">Add Item</Text>
             <TouchableOpacity
               onPress={() => setShowAddForm(false)}
               className="bg-zinc-700 px-4 py-2 rounded-full"
+              disabled={isAddingItem}
+              style={isAddingItem ? { opacity: 0.5 } : undefined}
             >
               <Text className="text-white">Cancel</Text>
             </TouchableOpacity>
@@ -461,14 +415,44 @@ export default function Inventory() {
 
             <TouchableOpacity
               onPress={handleAddItem}
-              className="bg-green-600 py-4 rounded-lg mt-6"
+              className="bg-green-600 py-4 rounded-lg mt-6 flex-row items-center justify-center"
+              disabled={isAddingItem}
+              style={isAddingItem ? { opacity: 0.6 } : undefined}
             >
+              {isAddingItem && (
+                <Ionicons
+                  name="refresh"
+                  size={20}
+                  color="#fff"
+                  style={{ marginRight: 8, transform: [{ rotate: "90deg" }] }}
+                />
+              )}
               <Text className="text-white text-center font-bold text-lg">
-                Save Item
+                {isAddingItem ? "Saving..." : "Save Item"}
               </Text>
             </TouchableOpacity>
+            {isAddingItem && (
+              <View className="mt-6 items-center">
+                <Text className="text-green-400">Saving item, please wait...</Text>
+              </View>
+            )}
           </View>
         </ScrollView>
+        {isAddingItem && (
+          <View
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              backgroundColor: "rgba(0,0,0,0.5)",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 10,
+            }}
+            pointerEvents="auto"
+          >
+            <Ionicons name="hourglass" size={48} color="#22d3ee" />
+            <Text className="text-white mt-4 text-lg">Saving...</Text>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -479,13 +463,16 @@ export default function Inventory() {
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
+        enabled={!isAddingBox}
       >
-        <ScrollView className="px-4 py-6">
+        <ScrollView className="px-4 py-6" scrollEnabled={!isAddingBox}>
           <View className="flex-row justify-between mb-6">
             <Text className="text-2xl text-white font-bold">Add Box</Text>
             <TouchableOpacity
               onPress={() => setShowAddBoxForm(false)}
               className="bg-zinc-700 px-4 py-2 rounded-full"
+              disabled={isAddingBox}
+              style={isAddingBox ? { opacity: 0.5 } : undefined}
             >
               <Text className="text-white">Cancel</Text>
             </TouchableOpacity>
@@ -493,7 +480,7 @@ export default function Inventory() {
 
           <View className="space-y-4">
             {[
-              { key: "boxName", placeholder: "Box Name" },
+              { key: "box_name", placeholder: "Box Name" },
               {
                 key: "quantity",
                 placeholder: "Quantity",
@@ -534,17 +521,53 @@ export default function Inventory() {
 
             <TouchableOpacity
               onPress={handleAddBox}
-              className="bg-green-600 py-4 rounded-lg mt-6"
+              className="bg-green-600 py-4 rounded-lg mt-6 flex-row items-center justify-center"
+              disabled={isAddingBox}
+              style={isAddingBox ? { opacity: 0.6 } : undefined}
             >
+              {isAddingBox && (
+                <Ionicons
+                  name="refresh"
+                  size={20}
+                  color="#fff"
+                  style={{ marginRight: 8, transform: [{ rotate: "90deg" }] }}
+                />
+              )}
               <Text className="text-white text-center font-bold text-lg">
-                Save Box
+                {isAddingBox ? "Saving..." : "Save Box"}
               </Text>
             </TouchableOpacity>
+            {isAddingBox && (
+              <View className="mt-6 items-center">
+                <Text className="text-green-400">Saving box, please wait...</Text>
+              </View>
+            )}
           </View>
         </ScrollView>
+        {isAddingBox && (
+          <View
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0,0,0,0.5)",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 10,
+            }}
+            pointerEvents="auto"
+          >
+            <Ionicons name="hourglass" size={48} color="#22d3ee" />
+            <Text className="text-white mt-4 text-lg">Saving...</Text>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
+
+  // No changes needed here, as InventoryContext and apiService now use the correct endpoints and authentication
 
   if (showAddForm) return renderItemForm();
   if (showAddBoxForm) return renderBoxForm();
@@ -593,9 +616,9 @@ export default function Inventory() {
               onChangeText={setSearchText}
             />
 
-            {isLoading ? (
+            {isLoadingItems ? (
               <View className="flex-1 justify-center items-center">
-                <Text className="text-zinc-400">Loading...</Text>
+                <Text className="text-zinc-400">Loading items...</Text>
               </View>
             ) : (
               <FlatList
@@ -632,8 +655,8 @@ export default function Inventory() {
               className="mb-4 p-3 rounded-xl bg-zinc-800 text-white border border-zinc-700"
               placeholder="Search boxes..."
               placeholderTextColor="#aaa"
-              value={searchBoxText}
-              onChangeText={setSearchBoxText}
+              value={searchText}
+              onChangeText={setSearchText}
             />
 
             {isLoadingBoxes ? (
@@ -642,12 +665,14 @@ export default function Inventory() {
               </View>
             ) : (
               <FlatList
-                data={boxes}
+                data={boxes.filter(box => 
+                  box.box_name.toLowerCase().includes(searchText.toLowerCase())
+                )}
                 renderItem={renderBox}
                 keyExtractor={(item) => item._id}
                 refreshControl={
                   <RefreshControl
-                    refreshing={isRefreshingBoxes}
+                    refreshing={false}
                     onRefresh={() => fetchBoxes(true)}
                   />
                 }

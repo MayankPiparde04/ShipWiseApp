@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BASE_URL = "http://10.13.47.130:5000/api";
+const BASE_URL = "http://192.168.29.177:5000/api";
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -24,13 +24,32 @@ class ApiService {
   ): Promise<ApiResponse<T>> {
     try {
       const headers = await this.getAuthHeaders();
+      const normalizedEndpoint = endpoint.startsWith("/")
+        ? endpoint.slice(1)
+        : endpoint;
 
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
+      const response = await fetch(`${BASE_URL}/${normalizedEndpoint}`, {
         headers,
         ...options,
       });
 
-      const data = await response.json();
+      // Handle 304 Not Modified responses
+      if (response.status === 304) {
+        return {
+          success: true,
+          message: "Data not modified",
+          data: null as T
+        };
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonErr) {
+        // If response is not JSON, show raw text
+        const text = await response.text();
+        throw new Error(`Non-JSON response: ${text}`);
+      }
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -39,18 +58,37 @@ class ApiService {
           if (refreshed) {
             // Retry the request with new token
             const newHeaders = await this.getAuthHeaders();
-            const retryResponse = await fetch(`${BASE_URL}${endpoint}`, {
+            const retryResponse = await fetch(`${BASE_URL}/${normalizedEndpoint}`, {
               ...options,
               headers: newHeaders,
             });
-            return await retryResponse.json();
+            
+            if (retryResponse.status === 304) {
+              return {
+                success: true,
+                message: "Data not modified",
+                data: null as T
+              };
+            }
+
+            let retryData;
+            try {
+              retryData = await retryResponse.json();
+            } catch (retryJsonErr) {
+              const retryText = await retryResponse.text();
+              throw new Error(`Non-JSON response: ${retryText}`);
+            }
+            if (!retryResponse.ok) {
+              throw new Error(retryData.message || `API request failed: ${retryResponse.status} ${retryResponse.statusText}`);
+            }
+            return retryData;
           }
         }
-        throw new Error(data.message || "API request failed");
+        throw new Error(data.message || `API request failed: ${response.status} ${response.statusText}`);
       }
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error(`API Error for ${endpoint}:`, error);
       throw error;
     }
@@ -86,6 +124,7 @@ class ApiService {
     search?: string;
     sortBy?: string;
     sortOrder?: "asc" | "desc";
+    category?: string;
   }) {
     const queryParams = new URLSearchParams();
     if (params?.page) queryParams.append("page", params.page.toString());
@@ -93,13 +132,14 @@ class ApiService {
     if (params?.search) queryParams.append("search", params.search);
     if (params?.sortBy) queryParams.append("sortBy", params.sortBy);
     if (params?.sortOrder) queryParams.append("sortOrder", params.sortOrder);
+    if (params?.category) queryParams.append("category", params.category);
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : "";
-    return this.request(`/getitemdata${query}`);
+    return this.request(`getitemdata${query}`);
   }
 
   async getItemById(id: string) {
-    return this.request(`/getitem/${id}`);
+    return this.request(`getitem/${id}`);
   }
 
   async addOrUpdateItem(item: {
@@ -115,14 +155,14 @@ class ApiService {
     category?: string;
     brand?: string;
   }) {
-    return this.request("/senditemdata", {
+    return this.request("senditemdata", {
       method: "POST",
       body: JSON.stringify(item),
     });
   }
 
   async deleteItem(id: string) {
-    return this.request(`/deleteitem/${id}`, {
+    return this.request(`deleteitem/${id}`, {
       method: "DELETE",
     });
   }
@@ -145,32 +185,32 @@ class ApiService {
       queryParams.append("maxWeight", params.maxWeight.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : "";
-    return this.request(`/getboxes${query}`);
+    return this.request(`getboxes${query}`);
   }
 
   async addBox(box: {
-    boxName: string;
+    box_name: string;
     length: number;
     breadth: number;
     height: number;
     quantity: number;
     max_weight: number;
   }) {
-    return this.request("/addbox", {
+    return this.request("addbox", {
       method: "POST",
       body: JSON.stringify(box),
     });
   }
 
-  async updateBoxQuantity(boxName: string, additionalQuantity: number) {
-    return this.request("/updateboxquantity", {
+  async updateBoxQuantity(box_name: string, additionalQuantity: number) {
+    return this.request("updateboxquantity", {
       method: "POST",
-      body: JSON.stringify({ boxName, additionalQuantity }),
+      body: JSON.stringify({ box_name, additionalQuantity }),
     });
   }
 
   async deleteBox(id: string) {
-    return this.request(`/deletebox/${id}`, {
+    return this.request(`deletebox/${id}`, {
       method: "DELETE",
     });
   }
@@ -191,7 +231,7 @@ class ApiService {
       maxWeight: number;
     }[];
   }) {
-    return this.request("/optimal-packing2", {
+    return this.request("optimal-packing2", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -208,14 +248,14 @@ class ApiService {
       optimizeFor: string;
     };
   }) {
-    return this.request("/calculate-shipping", {
+    return this.request("calculate-shipping", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
   async getCartonSizes() {
-    return this.request("/carton-sizes");
+    return this.request("carton-sizes");
   }
 
   // Packing Data Management
@@ -226,7 +266,7 @@ class ApiService {
     quantity: number;
     price: number;
   }) {
-    return this.request("/sendPackagingData", {
+    return this.request("sendPackagingData", {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -246,15 +286,15 @@ class ApiService {
     if (params?.sortBy) queryParams.append("sortBy", params.sortBy);
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : "";
-    return this.request(`/getPackagingData${query}`);
+    return this.request(`getPackagingData${query}`);
   }
 
   async getPackagingStatistics() {
-    return this.request("/packaging-statistics");
+    return this.request("packaging-statistics");
   }
 
   async deletePackagingData(id: string) {
-    return this.request(`/deletePackaging/${id}`, {
+    return this.request(`deletePackaging/${id}`, {
       method: "DELETE",
     });
   }
@@ -305,7 +345,7 @@ class ApiService {
     if (params?.limit) queryParams.append("limit", params.limit.toString());
 
     const query = queryParams.toString() ? `?${queryParams.toString()}` : "";
-    return this.request(`/ai/prediction-history${query}`);
+    return this.request(`ai/prediction-history${query}`);
   }
 
   // User Management
@@ -316,14 +356,14 @@ class ApiService {
     address?: string;
     profileImage?: string;
   }) {
-    return this.request("/user/update", {
+    return this.request("user/update", {
       method: "PUT",
       body: JSON.stringify(userData),
     });
   }
 
   async getUserProfile() {
-    return this.request("/user/profile");
+    return this.request("user/profile");
   }
 }
 

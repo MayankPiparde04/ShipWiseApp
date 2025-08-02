@@ -3,6 +3,8 @@ import "react-native-reanimated";
 import "./global.css";
 
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { BoxProvider } from "@/contexts/BoxContext";
+import { InventoryProvider } from "@/contexts/InventoryContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
   DarkTheme,
@@ -10,7 +12,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { router, Stack } from "expo-router";
+import { router, Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
@@ -18,6 +20,7 @@ import { ActivityIndicator, Text, View } from "react-native";
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { user, isLoading } = useAuth();
+  const segments = useSegments();
 
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -25,13 +28,15 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (!isLoading && loaded) {
-      if (user) {
+      const inAuthGroup = segments[0] === "(tabs)";
+      
+      if (user && !inAuthGroup) {
         router.replace("/(tabs)");
-      } else {
+      } else if (!user && inAuthGroup) {
         router.replace("/login");
       }
     }
-  }, [user, isLoading, loaded]);
+  }, [user, isLoading, loaded, segments]);
 
   if (!loaded) return null;
 
@@ -66,7 +71,11 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <InventoryProvider>
+        <BoxProvider>
+          <RootLayoutNav />
+        </BoxProvider>
+      </InventoryProvider>
     </AuthProvider>
   );
 }

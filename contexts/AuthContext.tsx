@@ -10,6 +10,8 @@ interface User {
   role: string;
   phone?: string;
   lastLogin?: string;
+  company?: string;
+  address?: string;
 }
 
 interface AuthContextType {
@@ -21,9 +23,24 @@ interface AuthContextType {
   register: (name: string, email: string, password: string, phone: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshAuthToken: () => Promise<boolean>;
+  updateUserContext: (updateData: { name?: string; phone?: string; company?: string; address?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Helper to decode JWT and check expiry
+const isTokenExpired = (token: string | null) => {
+  if (!token) return true;
+  try {
+    const [, payload] = token.split(".");
+    const decoded = JSON.parse(atob(payload));
+    if (!decoded.exp) return true;
+    // exp is in seconds
+    return Date.now() >= decoded.exp * 1000;
+  } catch {
+    return true;
+  }
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -42,9 +59,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const storedUser = await AsyncStorage.getItem('user');
 
       if (storedAccessToken && storedRefreshToken && storedUser) {
-        setAccessToken(storedAccessToken);
-        setRefreshToken(storedRefreshToken);
-        setUser(JSON.parse(storedUser));
+        // Check if access token is expired
+        if (isTokenExpired(storedAccessToken)) {
+          // Try to refresh
+          const refreshed = await refreshAuthToken(storedRefreshToken);
+          if (!refreshed) {
+            await logout();
+            return;
+          }
+        } else {
+          setAccessToken(storedAccessToken);
+          setRefreshToken(storedRefreshToken);
+          setUser(JSON.parse(storedUser));
+        }
       }
     } catch (error) {
       console.error('Error loading stored auth:', error);
@@ -82,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // add more fields as needed
       };
 
-      const response = await fetch('http://10.13.47.130:5000/api/login', {
+      const response = await fetch('http://192.168.29.177:5000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, password: string, phone: string) => {
     try {
-      const response = await fetch('http://10.13.47.130:5000/api/register', {
+      const response = await fetch('http://192.168.29.177:5000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,16 +154,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const refreshAuthToken = async (): Promise<boolean> => {
+  // Accept refreshToken as param for startup refresh
+  const refreshAuthToken = async (tokenOverride?: string): Promise<boolean> => {
     try {
-      if (!refreshToken) return false;
+      const tokenToUse = tokenOverride || refreshToken;
+      if (!tokenToUse) return false;
 
-      const response = await fetch('http://10.13.47.130:5000/api/refresh-token', {
+      const response = await fetch('http://192.168.29.177:5000/api/refresh-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ refreshToken }),
+        body: JSON.stringify({ refreshToken: tokenToUse }),
       });
 
       const data = await response.json();
@@ -158,15 +187,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Wrap authenticated requests to always refresh token if needed
+  const authenticatedFetch = async (input: RequestInfo, init: RequestInit = {}) => {
+    if (isTokenExpired(accessToken)) {
+      const refreshed = await refreshAuthToken();
+      if (!refreshed) throw new Error("Session expired. Please log in again.");
+    }
+    const token = await AsyncStorage.getItem('accessToken');
+    const headers = {
+      ...(init.headers || {}),
+      'Authorization': `Bearer ${token}`,
+    };
+    return fetch(input, { ...init, headers });
+  };
+
   const logout = async () => {
     try {
-      await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user']);
+      await AsyncStorage.multiRemove([
+        'accessToken', 
+        'refreshToken', 
+        'user',
+        'inventory_items',
+        'inventory_items_timestamp',
+        'inventory_boxes',
+        'inventory_boxes_timestamp'
+      ]);
       setAccessToken(null);
       setRefreshToken(null);
       setUser(null);
+      
       router.replace('/login');
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  const updateUserContext = async (updateData: { name?: string; phone?: string; company?: string; address?: string }) => {
+    try {
+      // Use authenticatedFetch to ensure fresh token
+      const response = await authenticatedFetch('http://192.168.29.177:5000/api/user/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update profile');
+      }
+      setUser(data.data);
+      await AsyncStorage.setItem('user', JSON.stringify(data.data));
+      return data;
+    } catch (error) {
+      console.error('Update user error:', error);
+      throw error;
     }
   };
 
@@ -181,6 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout,
         refreshAuthToken,
+        updateUserContext, // add to context
       }}
     >
       {children}
