@@ -1,6 +1,6 @@
-import { useAuth } from '@/contexts/AuthContext';
-import { Redirect } from 'expo-router';
-import { Text, View } from 'react-native';
+import { useAuth } from "@/contexts/AuthContext";
+import { Redirect } from "expo-router";
+import { Text, View } from "react-native";
 
 export default function IndexScreen() {
   const { user, isLoading } = useAuth();

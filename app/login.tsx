@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
@@ -69,8 +69,8 @@ export default function Login() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-100">
-      <StatusBar style="dark" translucent={true} />
+    <SafeAreaView className="flex-1 bg-gradient-to-br from-gray-950 to-gray-900">
+      <StatusBar style="light" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"
@@ -85,26 +85,26 @@ export default function Login() {
           <View className="flex-1 justify-center px-6">
             {/* Header */}
             <View className="mb-12 items-center">
-              <View className="w-20 h-20 bg-blue-600 rounded-full items-center justify-center mb-6">
+              <View className="w-20 h-20 bg-blue-600 rounded-full items-center justify-center mb-6 shadow-lg shadow-blue-500/50">
                 <FontAwesome5 name="shipping-fast" size={24} color="white" />
               </View>
-              <Text className="text-4xl font-bold text-gray-900 text-center mb-2">
+              <Text className="text-4xl font-bold text-white text-center mb-2">
                 Welcome Back
               </Text>
-              <Text className="text-lg text-gray-600 text-center">
+              <Text className="text-lg text-gray-400 text-center">
                 Sign in to your ShipWise account
               </Text>
             </View>
 
             {/* Form */}
-            <View className="space-y-10">
+            <View className="space-y-8">
               <View>
-                <Text className="text-sm font-semibold text-gray-700 mb-2">
+                <Text className="text-sm font-semibold text-gray-300 mb-2">
                   Email Address
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 border border-gray-200 rounded-xl bg-white shadow-sm"
+                    className="w-full p-4 pl-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
                     placeholder="Enter your email"
                     value={email}
                     onChangeText={setEmail}
@@ -118,18 +118,18 @@ export default function Login() {
                     name="mail-outline"
                     size={20}
                     color="#9CA3AF"
-                    style={{ position: "absolute", left: 16, top: 16 }}
+                    style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
               </View>
 
               <View>
-                <Text className="text-sm font-semibold text-gray-700 mb-2">
+                <Text className="text-sm font-semibold text-gray-300 mb-2">
                   Password
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 pr-12 border border-gray-200 rounded-xl bg-white shadow-sm"
+                    className="w-full p-4 pl-12 pr-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
                     placeholder="Enter your password"
                     value={password}
                     onChangeText={setPassword}
@@ -141,7 +141,7 @@ export default function Login() {
                     name="lock-closed-outline"
                     size={20}
                     color="#9CA3AF"
-                    style={{ position: "absolute", left: 16, top: 16 }}
+                    style={{ position: "absolute", left: 14, top: 10 }}
                   />
                   <TouchableOpacity
                     className="absolute right-4 top-4"
@@ -158,7 +158,7 @@ export default function Login() {
 
               <TouchableOpacity
                 className={`w-full p-4 my-2 rounded-xl ${
-                  isLoading ? "bg-gray-400" : "bg-blue-600"
+                  isLoading ? "bg-gray-600" : "bg-blue-600"
                 } shadow-lg`}
                 onPress={handleLogin}
                 disabled={isLoading}
@@ -181,21 +181,21 @@ export default function Login() {
             {/* Footer */}
             <View className="mt-8 space-y-4">
               <TouchableOpacity>
-                <Text className="text-blue-600 text-center font-medium">
+                <Text className="text-blue-400 text-center font-medium">
                   Forgot your password?
                 </Text>
               </TouchableOpacity>
 
               <View className="flex-row justify-center items-center">
-                <View className="flex-1 h-px bg-gray-300" />
-                <Text className="mx-4 text-gray-500">or</Text>
-                <View className="flex-1 h-px bg-gray-300" />
+                <View className="flex-1 h-px bg-gray-700" />
+                <Text className="mx-4 text-gray-400">or</Text>
+                <View className="flex-1 h-px bg-gray-700" />
               </View>
 
               <View className="flex-row justify-center">
-                <Text className="text-gray-600">Don't have an account? </Text>
+                <Text className="text-gray-400">Don't have an account? </Text>
                 <TouchableOpacity onPress={() => router.push("/register")}>
-                  <Text className="text-blue-600 font-semibold">Sign Up</Text>
+                  <Text className="text-blue-400 font-semibold">Sign Up</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -205,4 +205,3 @@ export default function Login() {
     </SafeAreaView>
   );
 }
-

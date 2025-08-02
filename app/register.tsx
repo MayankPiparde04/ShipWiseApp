@@ -80,8 +80,8 @@ export default function Register() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-100">
-      <StatusBar style="dark" translucent={true} />
+    <SafeAreaView className="flex-1 bg-gradient-to-br from-gray-950 to-gray-900">
+      <StatusBar style="light" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"
@@ -96,26 +96,26 @@ export default function Register() {
           <View className="flex-1 justify-center px-6 py-8">
             {/* Header */}
             <View className="mb-8 items-center">
-              <View className="w-20 h-20 bg-blue-600 rounded-full items-center justify-center mb-6">
+              <View className="w-20 h-20 bg-blue-600 rounded-full items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
                 <Ionicons name="person-add" size={32} color="white" />
               </View>
-              <Text className="text-4xl font-bold text-gray-900 text-center mb-2">
+              <Text className="text-4xl font-bold text-white text-center mb-2">
                 Create Account
               </Text>
-              <Text className="text-lg text-gray-600 text-center">
+              <Text className="text-lg text-gray-400 text-center">
                 Join ShipWise today
               </Text>
             </View>
 
             {/* Form */}
             <View className="space-y-4">
-              <View>
-                <Text className="text-sm font-semibold text-gray-700 mb-2">
+              <View className="mt-2">
+                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Full Name
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 border border-gray-200 rounded-xl bg-white shadow-sm"
+                    className="w-full p-4 pl-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChangeText={(value) => updateField("name", value)}
@@ -126,18 +126,18 @@ export default function Register() {
                     name="person-outline"
                     size={20}
                     color="#9CA3AF"
-                    style={{ position: "absolute", left: 16, top: 16 }}
+                    style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
               </View>
 
-              <View>
-                <Text className="text-sm font-semibold text-gray-700 mb-2">
+              <View className="mt-2">
+                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Email Address
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 border border-gray-200 rounded-xl bg-white shadow-sm"
+                    className="w-full p-4 pl-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
                     placeholder="Enter your email"
                     value={formData.email}
                     onChangeText={(value) => updateField("email", value)}
@@ -151,18 +151,18 @@ export default function Register() {
                     name="mail-outline"
                     size={20}
                     color="#9CA3AF"
-                    style={{ position: "absolute", left: 16, top: 16 }}
+                    style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
               </View>
 
-              <View>
-                <Text className="text-sm font-semibold text-gray-700 mb-2">
+              <View className="mt-2">
+                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Phone Number
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 border border-gray-200 rounded-xl bg-white shadow-sm"
+                    className="w-full p-4 pl-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
                     placeholder="Enter your phone number"
                     value={formData.phone}
                     onChangeText={(value) => updateField("phone", value)}
@@ -174,18 +174,18 @@ export default function Register() {
                     name="call-outline"
                     size={20}
                     color="#9CA3AF"
-                    style={{ position: "absolute", left: 16, top: 16 }}
+                    style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
               </View>
 
-              <View>
-                <Text className="text-sm font-semibold text-gray-700 mb-2">
+              <View className="mt-2">
+                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Password
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 pr-12 border border-gray-200 rounded-xl bg-white shadow-sm"
+                    className="w-full p-4 pl-12 pr-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
                     placeholder="Enter your password"
                     value={formData.password}
                     onChangeText={(value) => updateField("password", value)}
@@ -197,7 +197,7 @@ export default function Register() {
                     name="lock-closed-outline"
                     size={20}
                     color="#9CA3AF"
-                    style={{ position: "absolute", left: 16, top: 16 }}
+                    style={{ position: "absolute", left: 14, top: 10 }}
                   />
                   <TouchableOpacity
                     className="absolute right-4 top-4"
@@ -212,16 +212,18 @@ export default function Register() {
                 </View>
               </View>
 
-              <View>
-                <Text className="text-sm font-semibold text-gray-700 mb-2">
+              <View className="mt-2">
+                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Confirm Password
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 border border-gray-200 rounded-xl bg-white shadow-sm"
+                    className="w-full p-4 pl-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
-                    onChangeText={(value) => updateField("confirmPassword", value)}
+                    onChangeText={(value) =>
+                      updateField("confirmPassword", value)
+                    }
                     secureTextEntry={!showPassword}
                     editable={!isLoading}
                     placeholderTextColor="#9CA3AF"
@@ -230,14 +232,14 @@ export default function Register() {
                     name="lock-closed-outline"
                     size={20}
                     color="#9CA3AF"
-                    style={{ position: "absolute", left: 16, top: 16 }}
+                    style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
               </View>
 
               <TouchableOpacity
                 className={`w-full p-4 rounded-xl ${
-                  isLoading ? "bg-gray-400" : "bg-blue-600"
+                  isLoading ? "bg-gray-600" : "bg-blue-600"
                 } shadow-lg mt-6`}
                 onPress={handleRegister}
                 disabled={isLoading}
@@ -260,14 +262,14 @@ export default function Register() {
             {/* Footer */}
             <View className="mt-8">
               <View className="flex-row justify-center items-center mb-4">
-                <View className="flex-1 h-px bg-gray-300" />
-                <Text className="mx-4 text-gray-500">or</Text>
-                <View className="flex-1 h-px bg-gray-300" />
+                <View className="flex-1 h-px bg-gray-700" />
+                <Text className="mx-4 text-gray-400">or</Text>
+                <View className="flex-1 h-px bg-gray-700" />
               </View>
               <View className="flex-row justify-center">
-                <Text className="text-gray-600">Already have an account? </Text>
+                <Text className="text-gray-400">Already have an account? </Text>
                 <TouchableOpacity onPress={() => router.push("/login")}>
-                  <Text className="text-blue-600 font-semibold">Sign In</Text>
+                  <Text className="text-blue-400 font-semibold">Sign In</Text>
                 </TouchableOpacity>
               </View>
             </View>

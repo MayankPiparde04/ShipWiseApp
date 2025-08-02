@@ -75,25 +75,25 @@ export default function Analysis() {
     if (isLoading) {
       return (
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#0000ff" />
-          <Text className="mt-4 text-gray-600">Loading analysis data...</Text>
+          <ActivityIndicator size="large" color="#60a5fa" />
+          <Text className="mt-4 text-gray-400">Loading analysis data...</Text>
         </View>
       );
     }
 
     if (error) {
       return (
-        <View className="bg-red-100 rounded-2xl p-4">
-          <Text className="text-red-600 font-medium">Error</Text>
-          <Text className="text-red-500 mt-1">{error}</Text>
+        <View className="bg-red-900/30 rounded-2xl p-4">
+          <Text className="text-red-400 font-medium">Error</Text>
+          <Text className="text-red-300 mt-1">{error}</Text>
         </View>
       );
     }
 
     if (!parsedResult) {
       return (
-        <View className="bg-yellow-100 rounded-2xl p-4">
-          <Text className="text-yellow-800">No data available.</Text>
+        <View className="bg-yellow-900/30 rounded-2xl p-4">
+          <Text className="text-yellow-300">No data available.</Text>
         </View>
       );
     }
@@ -101,8 +101,8 @@ export default function Analysis() {
     // For object/array, format it nicely
     if (typeof parsedResult === "object") {
       return (
-        <View className="bg-gray-100 rounded-2xl p-4 shadow-md">
-          <Text className="text-base text-gray-700 leading-relaxed">
+        <View className="bg-gray-800 rounded-2xl p-4 shadow-md">
+          <Text className="text-base text-gray-300 leading-relaxed">
             {JSON.stringify(parsedResult, null, 2)}
           </Text>
         </View>
@@ -111,8 +111,8 @@ export default function Analysis() {
 
     // For string or other primitive
     return (
-      <View className="bg-gray-100 rounded-2xl p-4 shadow-md">
-        <Text className="text-base text-gray-700 leading-relaxed">
+      <View className="bg-gray-800 rounded-2xl p-4 shadow-md">
+        <Text className="text-base text-gray-300 leading-relaxed">
           {String(parsedResult)}
         </Text>
       </View>
@@ -120,8 +120,8 @@ export default function Analysis() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <StatusBar style="dark" translucent={true} />
+    <SafeAreaView className="flex-1 bg-gray-950">
+      <StatusBar style="light" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"
@@ -139,9 +139,9 @@ export default function Analysis() {
                 onPress={() => navigation.goBack()}
                 className="p-2"
               >
-                <ArrowLeft size={24} color="#000" />
+                <ArrowLeft size={24} color="#e5e7eb" />
               </TouchableOpacity>
-              <Text className="text-2xl font-bold ml-2 text-gray-900">
+              <Text className="text-2xl font-bold ml-2 text-gray-200">
                 Analysis
               </Text>
             </View>
@@ -150,12 +150,12 @@ export default function Analysis() {
               onPress={() => setIsDebugVisible(!isDebugVisible)}
               className="p-2"
             >
-              <Bug size={20} color={isDebugVisible ? "#3B82F6" : "#6B7280"} />
+              <Bug size={20} color={isDebugVisible ? "#60a5fa" : "#9ca3af"} />
             </TouchableOpacity>
           </View>
 
           {isDebugVisible && (
-            <View className="mb-4 bg-gray-900 p-3 rounded-lg">
+            <View className="mb-4 bg-gray-800 p-3 rounded-lg">
               <Text className="text-white font-medium mb-1">Debug Info:</Text>
               <Text className="text-xs text-gray-300">
                 Params: {JSON.stringify(route.params, null, 2)}

@@ -41,7 +41,7 @@ export default function ActivationPage() {
       );
 
       const data = await response.json();
-      console.log(data)
+      console.log(data);
 
       if (data.success && data.verified) {
         setIsVerified(true);
@@ -184,7 +184,8 @@ export default function ActivationPage() {
                       Checking verification status...
                     </Text>
                     <Text className="text-gray-600 text-center">
-                      We're automatically checking if you've verified your email.
+                      We're automatically checking if you've verified your
+                      email.
                     </Text>
                   </>
                 ) : isVerified ? (
@@ -251,7 +252,8 @@ export default function ActivationPage() {
                     <Text className="text-xs font-bold text-blue-600">3</Text>
                   </View>
                   <Text className="flex-1 text-gray-700">
-                    Return to this app - we'll detect the verification automatically
+                    Return to this app - we'll detect the verification
+                    automatically
                   </Text>
                 </View>
               </View>
@@ -281,7 +283,8 @@ export default function ActivationPage() {
             {/* Footer */}
             <View className="mt-8">
               <Text className="text-sm text-gray-500 text-center">
-                Didn't receive the email? Check your spam folder or try resending.
+                Didn't receive the email? Check your spam folder or try
+                resending.
               </Text>
             </View>
           </View>

@@ -21,7 +21,8 @@ export default function TabLayout() {
           profile: "user",
         };
 
-        const iconName = iconMap[route.name as keyof typeof iconMap] || "circle";
+        const iconName =
+          iconMap[route.name as keyof typeof iconMap] || "circle";
         const isGemini = route.name === "gemini";
 
         const activeColor = "#7DD3FC";
