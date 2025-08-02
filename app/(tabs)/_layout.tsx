@@ -1,7 +1,8 @@
+// TabLayout.tsx
 import { Tabs } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { MotiView } from "moti";
-import { Platform, View } from "react-native";
+import { Platform } from "react-native";
 import clsx from "clsx";
 
 export default function TabLayout() {
@@ -13,12 +14,12 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({
           ios: {
             position: "absolute",
-            bottom: 16,
+            bottom: 14,
             left: 16,
             right: 16,
-            height: 74,
+            height: 68,
             borderRadius: 28,
-            backgroundColor: "#0F172Aee",
+            backgroundColor: "#0e1721fa",
             borderWidth: 1,
             borderColor: "#1E293B",
             shadowColor: "#0EA5E9",
@@ -30,12 +31,12 @@ export default function TabLayout() {
           android: {
             elevation: 20,
             position: "absolute",
-            bottom: 16,
+            bottom: 14,
             left: 16,
             right: 16,
-            height: 74,
-            borderRadius: 28,
-            backgroundColor: "#0F172Aee",
+            height: 68,
+            borderRadius: 36,
+            backgroundColor: "#0e1721fa",
             borderWidth: 1,
             borderColor: "#1E293B",
             paddingHorizontal: 12,
@@ -45,47 +46,42 @@ export default function TabLayout() {
           const iconMap = {
             index: "home",
             inventory: "archive",
-            Gemini: "camera",
+            gemini: "camera", // special tab
             analysis: "bar-chart",
             profile: "user",
           };
 
-          const isCamera = route.name === "Gemini";
-          const iconName = iconMap[route.name as keyof typeof iconMap] || "circle";
+          const iconName =
+            iconMap[route.name as keyof typeof iconMap] || "circle";
+          const isGemini = route.name === "gemini";
 
-          const activeColor = "#7DD3FC"; // sky-300
-          const inactiveColor = "#64748B"; // slate-500
+          const activeColor = "#7DD3FC";
+          const inactiveColor = "#64748B";
 
-          if (isCamera) {
+          if (isGemini) {
             return (
               <MotiView
                 from={{ scale: 1, translateY: 0, opacity: 0.8 }}
                 animate={{
                   scale: focused ? 1.2 : 1,
                   translateY: focused ? -12 : -8,
-                  opacity: 1,
+                  opacity: 0.9,
                 }}
                 transition={{
                   type: "spring",
                   damping: 15,
                   stiffness: 120,
                 }}
-                className={clsx(
-                  "p-4 rounded-full -mb-8 bg-sky-500 shadow-lg shadow-sky-300"
-                )}
+                className="rounded-full w-14 h-14 -mb-8 justify-center items-center bg-sky-600/60 shadow-lg shadow-sky-300/60"
               >
-                <Feather
-                  name={iconName}
-                  size={28}
-                  color="#FFFFFF"
-                />
+                <Feather name="camera" size={28} color="#FFFFFF" />
               </MotiView>
             );
           }
 
           return (
             <MotiView
-              from={{ scale: 1, translateY: 0, opacity: 0.8 }}
+              from={{ scale: 1, translateY: 0, opacity: 1 }}
               animate={{
                 scale: focused ? 1.15 : 1,
                 translateY: focused ? -8 : 0,
@@ -115,15 +111,7 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="index" options={{ title: "Home" }} />
       <Tabs.Screen name="inventory" options={{ title: "Inventory" }} />
-      <Tabs.Screen
-        name="gemini"
-        options={{
-          title: "Gemini",
-          tabBarIconStyle: {
-            top: -16,
-          },
-        }}
-      />
+      <Tabs.Screen name="gemini" options={{ title: "Gemini" }} />
       <Tabs.Screen name="analysis" options={{ title: "Analysis" }} />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
     </Tabs>
