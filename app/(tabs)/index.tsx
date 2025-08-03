@@ -1,53 +1,84 @@
-// Dashboard / Home / landing page layout / tab1
-
 import { useAuth } from "@/contexts/AuthContext";
+import { apiService } from "@/services/api";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   ScrollView,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
+  ActivityIndicator,
+  Dimensions,
 } from "react-native";
-
-import { MotiText, MotiView } from "moti";
-import Feather from "react-native-vector-icons/Feather";
-
-const { width } = Dimensions.get("window");
-
-const texts = [
-  {
-    title: "Your Smart Shipping Partner",
-    subtitle: "Shipping Smart, Reducing Waste.",
-    description:
-      "ShipWise makes shipping smarter by optimizing carton sizes and selecting cost-effective couriers to reduce costs and environmental impact.",
-  },
-  {
-    title: "ShipWise SmartFit: Rotate, Optimize, Ship Efficiently!",
-    subtitle: "The Best Fit, Every Time!",
-    description:
-      "Our algorithm analyzes all possible orientations to find the most space-efficient and secure packing strategy. Less waste, more efficiency—because every inch counts!",
-  },
-];
+import { Search, Package, BoxIcon, TrendingUp } from "lucide-react-native";
+import { BarChart } from "react-native-chart-kit";
 
 export default function Home() {
-  const { user, logout } = useAuth();
-  const [textIndex, setTextIndex] = useState(0);
+  const { user } = useAuth();
+  const [items, setItems] = useState<any[]>([]);
+  const [boxes, setBoxes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [addItemData] = useState([
+    { label: "Mon", count: 8 },
+    { label: "Tue", count: 14 },
+    { label: "Wed", count: 10 },
+    { label: "Thu", count: 12 },
+    { label: "Fri", count: 6 },
+    { label: "Sat", count: 11 },
+    { label: "Sun", count: 9 },
+  ]);
+
+  const [sellItemData] = useState([
+    { label: "Mon", count: 3 },
+    { label: "Tue", count: 5 },
+    { label: "Wed", count: 2 },
+    { label: "Thu", count: 6 },
+    { label: "Fri", count: 7 },
+    { label: "Sat", count: 4 },
+    { label: "Sun", count: 1 },
+  ]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTextIndex((prev) => (prev + 1) % texts.length);
-    }, 4000);
-    return () => clearInterval(interval);
+    async function fetchData() {
+      try {
+        const [itemRes, boxRes] = await Promise.all([
+          apiService.getItems({ limit: 10 }),
+          apiService.getBoxes({ limit: 10 }),
+        ]);
+
+        if (itemRes.success && Array.isArray(itemRes.data)) {
+          setItems(itemRes.data);
+        }
+
+        if (boxRes.success && Array.isArray(boxRes.data)) {
+          setBoxes(boxRes.data);
+        }
+      } catch (error) {
+        console.error("Home Fetch Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
   }, []);
 
+  const totalQuantity = Array.isArray(items)
+    ? items.reduce((sum, item) => sum + (item.quantity || 0), 0)
+    : 0;
+
+  const chartWidth = Dimensions.get("window").width - 40;
+
+  const formatChartData = (data: { label: string; count: number }[]) => ({
+    labels: data.map(d => d.label),
+    datasets: [{ data: data.map(d => d.count) }],
+  });
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gray-950">
       <StatusBar style="light" translucent={true} />
 
       <KeyboardAvoidingView
@@ -58,114 +89,106 @@ export default function Home() {
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
-          className="flex-1 bg-black"
+          className="flex-1 px-4 mt-6"
         >
-          <View className="flex items-center justify-center px-6 pt-20 pb-10">
-            <View className="w-full h-72 justify-center">
-              <MotiView
-                from={{ opacity: 0, translateY: 40 }}
-                animate={{ opacity: 1, translateY: 0 }}
-                transition={{ type: "spring", damping: 20 }}
-                className="mb-6 bg-indigo-950/20 border border-indigo-500/20 px-4 py-2 rounded-full"
-              >
-                <Text className="text-indigo-300 text-sm text-center">
-                  ✨ Minimizing Waste, Maximizing Savings
-                </Text>
-              </MotiView>
-
-              <MotiText
-                from={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-white text-3xl font-bold text-center mb-2"
-              >
-                {texts[textIndex].title}
-              </MotiText>
-
-              <Text className="text-indigo-100 text-xl text-center mb-4">
-                {texts[textIndex].subtitle}
+          <View className="flex-1 py-6 space-y-6">
+            <View>
+              <Text className="text-white text-xl font-semibold">
+                Hello, {user?.name || "User"}
               </Text>
-
-              <Text className="text-gray-300 text-base text-center px-2 leading-relaxed tracking-wide">
-                {texts[textIndex].description}
-              </Text>
+              <Text className="text-gray-300">Welcome back to ShipWise!</Text>
             </View>
 
-            {/* Buttons */}
-            <View className="flex-row space-x-4 mt-6">
-              <TouchableOpacity
-                onPress={() => console.log("Get Started pressed")}
-                className="bg-indigo-600 px-6 py-3 rounded-lg flex-row items-center space-x-2"
-              >
-                <Feather name="search" size={18} color="white" />
-                <Text className="text-white font-semibold">Get Started</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => console.log("Learn More pressed")}
-                className="border border-indigo-500 px-6 py-3 rounded-lg flex-row items-center space-x-2"
-              >
-                <Feather name="box" size={18} color="white" />
-                <Text className="text-white font-semibold">Learn More</Text>
-              </TouchableOpacity>
+            <View className="bg-gray-900 rounded-2xl p-4 flex-row items-center space-x-3">
+              <Search color="white" size={20} />
+              <Text className="text-gray-400">Search items, boxes...</Text>
             </View>
-          </View>
 
-          {/* Newsletter Section */}
-          <View className="px-6 py-8 bg-gray-900 rounded-2xl mx-4 mb-20">
-            <Text className="text-2xl font-bold text-white text-center">
-              Subscribe to our Newsletter
-            </Text>
-            <Text className="text-gray-400 text-center mt-2 leading-snug">
-              Stay updated with our latest news and updates.
-            </Text>
+            {loading ? (
+              <ActivityIndicator size="large" color="#6EE7B7" />
+            ) : (
+              <>
+                {/* KPIs */}
+                <View className="space-y-4">
+                  <Text className="text-white text-lg font-medium">KPIs</Text>
+                  <View className="flex-row justify-between">
+                    <View className="bg-gray-800 p-4 rounded-2xl w-[30%] items-center">
+                      <Package color="#6EE7B7" size={32} />
+                      <Text className="text-white text-xl font-bold">{items.length}</Text>
+                      <Text className="text-gray-400 text-sm">Items</Text>
+                    </View>
+                    <View className="bg-gray-800 p-4 rounded-2xl w-[30%] items-center">
+                      <BoxIcon color="#A5B4FC" size={32} />
+                      <Text className="text-white text-xl font-bold">{boxes.length}</Text>
+                      <Text className="text-gray-400 text-sm">Boxes</Text>
+                    </View>
+                    <View className="bg-gray-800 p-4 rounded-2xl w-[30%] items-center">
+                      <TrendingUp color="#F9E8C9" size={32} />
+                      <Text className="text-white text-xl font-bold">{totalQuantity}</Text>
+                      <Text className="text-gray-400 text-sm">Units in Stock</Text>
+                    </View>
+                  </View>
+                </View>
 
-            <View className="mt-6 space-y-4 items-center">
-              <TextInput
-                placeholder="Enter your email"
-                placeholderTextColor="#ccc"
-                keyboardType="email-address"
-                className="w-[90%] px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white"
-              />
-              <TouchableOpacity
-                onPress={() => {
-                  console.log("Subscribe clicked");
-                }}
-                className="bg-blue-600 px-6 py-3 rounded-lg"
-              >
-                <Text className="text-white font-semibold text-lg">
-                  Subscribe
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+                {/* Recent Activity */}
+                <View className="space-y-4">
+                  <Text className="text-white text-lg font-medium">Recent Activity</Text>
+                  <View className="bg-gray-800 p-4 rounded-2xl">
+                    <Text className="text-gray-300">No recent activity found.</Text>
+                  </View>
+                </View>
 
-          {/* Authenticated User Section */}
-          <View className="px-6 py-8 bg-gray-100 rounded-2xl mx-4 mb-20">
-            <Text className="text-2xl font-bold text-gray-900 text-center mb-4">
-              Welcome back, {user?.name}!
-            </Text>
-            <Text className="text-gray-700 text-center mb-6">
-              Ready to optimize your shipping?
-            </Text>
+                {/* Add Item Graph */}
+                <View className="space-y-4">
+                  <Text className="text-white text-lg font-medium">Items Added</Text>
+                  <View className="bg-gray-800 p-4 rounded-2xl">
+                    <BarChart
+                      data={formatChartData(addItemData)}
+                      width={chartWidth}
+                      height={220}
+                      yAxisLabel=""
+                      chartConfig={{
+                        backgroundColor: "#1F2937",
+                        backgroundGradientFrom: "#1F2937",
+                        backgroundGradientTo: "#1F2937",
+                        decimalPlaces: 0,
+                        color: () => `#6EE7B7`,
+                        labelColor: () => `#E5E7EB`,
+                        propsForBackgroundLines: {
+                          stroke: "#374151",
+                        },
+                      }}
+                      style={{ borderRadius: 12 }}
+                    />
+                  </View>
+                </View>
 
-            <View className="space-y-4">
-              <View className="bg-white p-6 rounded-lg shadow-sm">
-                <Text className="text-lg font-semibold text-gray-900 mb-2">
-                  Quick Actions
-                </Text>
-                <Text className="text-gray-600">
-                  Add items, calculate shipping, and more
-                </Text>
-              </View>
-
-              <TouchableOpacity
-                className="bg-red-600 p-4 rounded-lg"
-                onPress={logout}
-              >
-                <Text className="text-white text-center font-semibold">
-                  Logout
-                </Text>
-              </TouchableOpacity>
-            </View>
+                {/* Sell Item Graph */}
+                <View className="space-y-4">
+                  <Text className="text-white text-lg font-medium">Items Sold</Text>
+                  <View className="bg-gray-800 p-4 rounded-2xl">
+                    <BarChart
+                      data={formatChartData(sellItemData)}
+                      width={chartWidth}
+                      height={220}
+                      yAxisLabel=""
+                      chartConfig={{
+                        backgroundColor: "#1F2937",
+                        backgroundGradientFrom: "#1F2937",
+                        backgroundGradientTo: "#1F2937",
+                        decimalPlaces: 0,
+                        color: () => `#FCA5A5`,
+                        labelColor: () => `#E5E7EB`,
+                        propsForBackgroundLines: {
+                          stroke: "#374151",
+                        },
+                      }}
+                      style={{ borderRadius: 12 }}
+                    />
+                  </View>
+                </View>
+              </>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

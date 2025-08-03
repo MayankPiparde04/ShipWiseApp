@@ -49,7 +49,7 @@
 - **Endpoint:** `POST /api/activation`
 - **Request Body:**
   ```json
-  will give email and token on email http://192.168.29.177:5000/api/auth/activation/{token} when hitted return below
+  will give email and token on email http://10.13.47.130:5000/api/auth/activation/{token} when hitted return below
   ```
 - **Expected Response (200):**
   ```json
@@ -658,13 +658,13 @@
 ### Authentication Testing
 1. **Missing Token:**
    ```bash
-   curl -X GET http://192.168.29.177:5000/api/getitemdata
+   curl -X GET http://10.13.47.130:5000/api/getitemdata
    # Expected: 401 Unauthorized
    ```
 
 2. **Invalid Token:**
    ```bash
-   curl -X GET http://192.168.29.177:5000/api/getitemdata \
+   curl -X GET http://10.13.47.130:5000/api/getitemdata \
    -H "Authorization: Bearer invalid_token"
    # Expected: 401 Unauthorized
    ```
