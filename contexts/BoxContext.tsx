@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { apiService } from "@/services/api";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
@@ -34,6 +35,8 @@ export const BoxProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [lastFetch, setLastFetch] = useState<number | null>(null);
 
+  const { user } = useAuth(); // Use user from Auth context
+
   useEffect(() => {
     loadCachedBoxes();
   }, []);
@@ -54,11 +57,16 @@ export const BoxProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       }
       
-      // If no cache or expired, fetch fresh data
-      await fetchBoxes(true);
+      // Only fetch if user is present
+      if (user) {
+        await fetchBoxes(true);
+      }
     } catch (error) {
       console.error('Error loading cached boxes:', error);
-      await fetchBoxes(true);
+      // Only fetch if user is present
+      if (user) {
+        await fetchBoxes(true);
+      }
     }
   };
 

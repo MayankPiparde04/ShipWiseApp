@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { apiService } from "@/services/api";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
@@ -35,6 +36,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [lastFetch, setLastFetch] = useState<number | null>(null);
 
+  const { user } = useAuth(); // Get user from Auth context
+
   useEffect(() => {
     loadCachedItems();
   }, []);
@@ -55,11 +58,16 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
       }
       
-      // If no cache or expired, fetch fresh data
-      await fetchItems(true);
+      // Only fetch if user is present
+      if (user) {
+        await fetchItems(true);
+      }
     } catch (error) {
       console.error('Error loading cached items:', error);
-      await fetchItems(true);
+      // Only fetch if user is present
+      if (user) {
+        await fetchItems(true);
+      }
     }
   };
 
