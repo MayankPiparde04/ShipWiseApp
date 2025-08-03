@@ -48,6 +48,7 @@ export default function Inventory() {
   const [detailsModalVisible, setDetailsModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [selectedBox, setSelectedBox] = useState<Box | null>(null);
+  const { fetchItems } = useInventory();
 
   // Items state
   const [isLoading, setIsLoading] = useState(true);
@@ -79,7 +80,7 @@ export default function Inventory() {
   });
   const [isAddingBox, setIsAddingBox] = useState(false);
 
-  const { items, isLoading: isLoadingItems, fetchItems, addItem, removeItem } =
+  const { items, isLoading: isLoadingItems, addItem, removeItem } =
     useInventory();
 
   const { 
@@ -90,15 +91,16 @@ export default function Inventory() {
     removeBox 
   } = useBoxes();
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
+  // useEffect(() => {
+  //   fetchItems();
+  // }, []);
 
-  useEffect(() => {
-    if (activeTab === "boxes") {
-      fetchBoxes();
-    }
-  }, [activeTab, fetchBoxes]);
+  // useEffect(() => {
+  //   if (activeTab === "boxes") {
+  //     console.log("fetching boxes"
+  //     fetchBoxes();
+  //   }
+  // }, [activeTab, fetchBoxes]);
 
   const handleAddItem = async () => {
     try {

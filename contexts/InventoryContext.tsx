@@ -14,86 +14,88 @@ interface Item {
   brand?: string;
 }
 
+interface DailyData {
+  day: string;
+  quantity: number;
+}
+
 interface InventoryContextType {
   items: Item[];
   isLoading: boolean;
   lastFetch: number | null;
+  dailyData: DailyData[];
   fetchItems: (refresh?: boolean) => Promise<void>;
   addItem: (item: Omit<Item, "_id">) => Promise<void>;
   updateItem: (id: string, item: Partial<Item>) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
   clearCache: () => void;
+  
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const ITEMS_STORAGE_KEY = 'inventory_items';
-const ITEMS_TIMESTAMP_KEY = 'inventory_items_timestamp';
+const DAILY_DATA_STORAGE_KEY = 'daily_data';
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [lastFetch, setLastFetch] = useState<number | null>(null);
+  const [dailyData, setDailyData] = useState<DailyData[]>([]);
 
-  const { user } = useAuth(); // Get user from Auth context
+  const { user } = useAuth();
 
   useEffect(() => {
-    loadCachedItems();
+    loadItemsFromStorage();
+    loadDailyDataFromStorage();
   }, []);
 
-  const loadCachedItems = async () => {
+  const loadItemsFromStorage = async () => {
     try {
-      const cachedItems = await AsyncStorage.getItem(ITEMS_STORAGE_KEY);
-      const cachedTimestamp = await AsyncStorage.getItem(ITEMS_TIMESTAMP_KEY);
-      
-      if (cachedItems && cachedTimestamp) {
-        const timestamp = parseInt(cachedTimestamp);
-        const isExpired = Date.now() - timestamp > CACHE_DURATION;
-        
-        if (!isExpired) {
-          setItems(JSON.parse(cachedItems));
-          setLastFetch(timestamp);
-          return;
-        }
-      }
-      
-      // Only fetch if user is present
-      if (user) {
-        await fetchItems(true);
+      const storedItems = await AsyncStorage.getItem(ITEMS_STORAGE_KEY);
+      if (storedItems) {
+        setItems(JSON.parse(storedItems));
+      } else {
+        setItems([]);
       }
     } catch (error) {
-      console.error('Error loading cached items:', error);
-      // Only fetch if user is present
-      if (user) {
-        await fetchItems(true);
-      }
+      console.error('Error loading items from storage:', error);
+      setItems([]);
     }
   };
 
-  const saveCacheToStorage = async (itemsData: Item[], timestamp: number) => {
+  const loadDailyDataFromStorage = async () => {
+    try {
+      const storedDailyData = await AsyncStorage.getItem(DAILY_DATA_STORAGE_KEY);
+      if (storedDailyData) {
+        setDailyData(JSON.parse(storedDailyData));
+      } else {
+        setDailyData([]);
+      }
+    } catch (error) {
+      console.error('Error loading daily data from storage:', error);
+      setDailyData([]);
+    }
+  };
+
+  const saveItemsToStorage = async (itemsData: Item[]) => {
     try {
       await AsyncStorage.setItem(ITEMS_STORAGE_KEY, JSON.stringify(itemsData));
-      await AsyncStorage.setItem(ITEMS_TIMESTAMP_KEY, timestamp.toString());
     } catch (error) {
-      console.error('Error saving items cache:', error);
+      console.error('Error saving items to storage:', error);
     }
   };
 
-  const shouldRefreshCache = useCallback(() => {
-    if (!lastFetch) return true;
-    return Date.now() - lastFetch > CACHE_DURATION;
-  }, [lastFetch]);
-
-  const fetchItems = useCallback(async (refresh = false) => {
+  const saveDailyDataToStorage = async (data: DailyData[]) => {
     try {
-      // Use cache if available and not forcing refresh
-      if (!refresh && items.length > 0 && !shouldRefreshCache()) {
-        return;
-      }
+      await AsyncStorage.setItem(DAILY_DATA_STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Error saving daily data to storage:', error);
+    }
+  };
 
-      setIsLoading(true);
-
+  const fetchItems = useCallback(async () => {
+    setIsLoading(true);
+    try {
       const response = await apiService.getItems({
         page: 1,
         limit: 100,
@@ -101,42 +103,54 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         sortOrder: "asc",
       });
 
-      if (response.success) {
-        if (response.data && response.data.items) {
-          const timestamp = Date.now();
-          setItems(response.data.items);
-          setLastFetch(timestamp);
-          await saveCacheToStorage(response.data.items, timestamp);
-        } else if (response.data === null && items.length === 0) {
-          setItems([]);
-          const timestamp = Date.now();
-          setLastFetch(timestamp);
-          await saveCacheToStorage([], timestamp);
+      if (response.success && response.data && response.data.items) {
+        // Clean items to match Item interface
+        const cleanedItems = response.data.items.map((item: any) => ({
+          _id: item._id,
+          productName: item.productName,
+          quantity: item.quantity,
+          weight: item.weight,
+          price: item.price,
+          dimensions: {
+            length: item.dimensions?.length ?? 0,
+            breadth: item.dimensions?.breadth ?? 0,
+            height: item.dimensions?.height ?? 0,
+          },
+          category: item.category,
+          brand: item.brand,
+        }));
+        setItems(cleanedItems);
+        await saveItemsToStorage(cleanedItems);
+
+        // Handle dailyData if present
+        if (Array.isArray(response.data.dailyData)) {
+          setDailyData(response.data.dailyData);
+          await saveDailyDataToStorage(response.data.dailyData);
         }
+      } else if (response.data === null) {
+        setItems([]);
+        await saveItemsToStorage([]);
+        setDailyData([]);
+        await saveDailyDataToStorage([]);
       }
     } catch (error) {
       console.error("Error fetching items:", error);
-      if (items.length === 0) {
-        setItems([]);
-      }
+      await loadItemsFromStorage();
+      await loadDailyDataFromStorage();
     } finally {
       setIsLoading(false);
     }
-  }, [items.length, shouldRefreshCache]);
+  }, []);
 
   const addItem = async (item: Omit<Item, "_id">) => {
     const response = await apiService.addOrUpdateItem(item);
     if (response.success) {
-      // Add to local state immediately for better UX
       if (response.data && response.data.item) {
         const newItems = [...items, response.data.item];
         setItems(newItems);
-        const timestamp = Date.now();
-        setLastFetch(timestamp);
-        await saveCacheToStorage(newItems, timestamp);
+        await saveItemsToStorage(newItems);
       } else {
-        // Fallback: refresh from API
-        await fetchItems(true);
+        await fetchItems();
       }
     } else {
       throw new Error(response.message || "Failed to add item");
@@ -153,14 +167,11 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       dimensions: itemUpdate.dimensions || { length: 0, breadth: 0, height: 0 },
     });
     if (response.success) {
-      // Update local state immediately
       const updatedItems = items.map((item) =>
         item._id === id ? { ...item, ...itemUpdate } : item
       );
       setItems(updatedItems);
-      const timestamp = Date.now();
-      setLastFetch(timestamp);
-      await saveCacheToStorage(updatedItems, timestamp);
+      await saveItemsToStorage(updatedItems);
     } else {
       throw new Error(response.message || "Failed to update item");
     }
@@ -171,9 +182,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (response.success) {
       const filteredItems = items.filter((item) => item._id !== id);
       setItems(filteredItems);
-      const timestamp = Date.now();
-      setLastFetch(timestamp);
-      await saveCacheToStorage(filteredItems, timestamp);
+      await saveItemsToStorage(filteredItems);
     } else {
       throw new Error(response.message || "Failed to delete item");
     }
@@ -181,11 +190,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const clearCache = async () => {
     try {
-      await AsyncStorage.multiRemove([ITEMS_STORAGE_KEY, ITEMS_TIMESTAMP_KEY]);
+      await AsyncStorage.removeItem(ITEMS_STORAGE_KEY);
       setItems([]);
-      setLastFetch(null);
     } catch (error) {
-      console.error('Error clearing items cache:', error);
+      console.error('Error clearing items from storage:', error);
     }
   };
 
@@ -194,7 +202,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       value={{
         items,
         isLoading,
-        lastFetch,
+        lastFetch: null,
+        dailyData,
         fetchItems,
         addItem,
         updateItem,

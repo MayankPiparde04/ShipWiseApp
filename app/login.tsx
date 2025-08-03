@@ -1,6 +1,8 @@
 //Login page
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useBoxes } from "@/contexts/BoxContext";
+import { useInventory } from "@/contexts/InventoryContext";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useRouter } from "expo-router";
@@ -26,6 +28,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { fetchItems } = useInventory(); // <-- add this
+  const { fetchBoxes } = useBoxes();
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -36,6 +40,8 @@ export default function Login() {
     setIsLoading(true);
     try {
       await login(email.trim(), password);
+      await fetchItems();   // <-- add this
+      await fetchBoxes(); 
       // Navigation is now handled in AuthContext
     } catch (error: any) {
       if (

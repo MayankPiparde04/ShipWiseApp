@@ -1,35 +1,44 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useBoxes } from "@/contexts/BoxContext";
+import { useInventory } from "@/contexts/InventoryContext";
 import { apiService } from "@/services/api";
 import { StatusBar } from "expo-status-bar";
+import { BoxIcon, Package, Search, TrendingUp } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Dimensions,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   ScrollView,
   Text,
   View,
-  ActivityIndicator,
-  Dimensions,
 } from "react-native";
-import { Search, Package, BoxIcon, TrendingUp } from "lucide-react-native";
 import { BarChart } from "react-native-chart-kit";
 
 export default function Home() {
   const { user } = useAuth();
-  const [items, setItems] = useState<any[]>([]);
-  const [boxes, setBoxes] = useState<any[]>([]);
+  const { items, dailyData } = useInventory();
+  const { boxes } = useBoxes();
   const [loading, setLoading] = useState(true);
 
-  const [addItemData] = useState([
-    { label: "Mon", count: 8 },
-    { label: "Tue", count: 14 },
-    { label: "Wed", count: 10 },
-    { label: "Thu", count: 12 },
-    { label: "Fri", count: 6 },
-    { label: "Sat", count: 11 },
-    { label: "Sun", count: 9 },
-  ]);
+  // Always provide an array for addItemData
+  const addItemData =
+    Array.isArray(dailyData) && dailyData.length === 7
+      ? dailyData.map((d) => ({
+          label: d.day.slice(0, 3),
+          count: d.quantity,
+        }))
+      : [
+          { label: "Mon", count: 0 },
+          { label: "Tue", count: 0 },
+          { label: "Wed", count: 0 },
+          { label: "Thu", count: 0 },
+          { label: "Fri", count: 0 },
+          { label: "Sat", count: 0 },
+          { label: "Sun", count: 0 },
+        ];
 
   const [sellItemData] = useState([
     { label: "Mon", count: 3 },
@@ -73,8 +82,8 @@ export default function Home() {
   const chartWidth = Dimensions.get("window").width - 40;
 
   const formatChartData = (data: { label: string; count: number }[]) => ({
-    labels: data.map(d => d.label),
-    datasets: [{ data: data.map(d => d.count) }],
+    labels: Array.isArray(data) ? data.map(d => d.label) : [],
+    datasets: [{ data: Array.isArray(data) ? data.map(d => d.count) : [] }],
   });
 
   return (
@@ -139,9 +148,16 @@ export default function Home() {
                 </View>
 
                 {/* Add Item Graph */}
-                <View className="space-y-4">
+                <View className="space-y-4" style={{ alignItems: "center" }}>
                   <Text className="text-white text-lg font-medium">Items Added</Text>
-                  <View className="bg-gray-800 p-4 rounded-2xl">
+                  <View
+                    className="bg-gray-800 p-4 rounded-2xl"
+                    style={{
+                      alignItems: "center",
+                      width: chartWidth + 16, // 16 = horizontal padding (p-4 = 8px left + 8px right)
+                    }}
+                  >
+                    
                     <BarChart
                       data={formatChartData(addItemData)}
                       width={chartWidth}
@@ -158,7 +174,7 @@ export default function Home() {
                           stroke: "#374151",
                         },
                       }}
-                      style={{ borderRadius: 12 }}
+                      style={{ borderRadius: 12 , width: chartWidth }}
                     />
                   </View>
                 </View>

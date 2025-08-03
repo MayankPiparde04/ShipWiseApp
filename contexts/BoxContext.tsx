@@ -26,114 +26,92 @@ interface BoxContextType {
 
 const BoxContext = createContext<BoxContextType | undefined>(undefined);
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 const BOXES_STORAGE_KEY = 'inventory_boxes';
-const BOXES_TIMESTAMP_KEY = 'inventory_boxes_timestamp';
 
 export const BoxProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [boxes, setBoxes] = useState<Box[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [lastFetch, setLastFetch] = useState<number | null>(null);
 
   const { user } = useAuth(); // Use user from Auth context
 
   useEffect(() => {
-    loadCachedBoxes();
+    loadBoxesFromStorage();
   }, []);
 
-  const loadCachedBoxes = async () => {
+  const loadBoxesFromStorage = async () => {
     try {
-      const cachedBoxes = await AsyncStorage.getItem(BOXES_STORAGE_KEY);
-      const cachedTimestamp = await AsyncStorage.getItem(BOXES_TIMESTAMP_KEY);
-      
-      if (cachedBoxes && cachedTimestamp) {
-        const timestamp = parseInt(cachedTimestamp);
-        const isExpired = Date.now() - timestamp > CACHE_DURATION;
-        
-        if (!isExpired) {
-          setBoxes(JSON.parse(cachedBoxes));
-          setLastFetch(timestamp);
-          return;
-        }
-      }
-      
-      // Only fetch if user is present
-      if (user) {
-        await fetchBoxes(true);
+      const storedBoxes = await AsyncStorage.getItem(BOXES_STORAGE_KEY);
+      if (storedBoxes) {
+        setBoxes(JSON.parse(storedBoxes));
+      } else {
+        setBoxes([]);
       }
     } catch (error) {
-      console.error('Error loading cached boxes:', error);
-      // Only fetch if user is present
-      if (user) {
-        await fetchBoxes(true);
-      }
+      console.error('Error loading boxes from storage:', error);
+      setBoxes([]);
     }
   };
 
-  const saveCacheToStorage = async (boxesData: Box[], timestamp: number) => {
+  const saveBoxesToStorage = async (boxesData: Box[]) => {
     try {
       await AsyncStorage.setItem(BOXES_STORAGE_KEY, JSON.stringify(boxesData));
-      await AsyncStorage.setItem(BOXES_TIMESTAMP_KEY, timestamp.toString());
     } catch (error) {
-      console.error('Error saving boxes cache:', error);
+      console.error('Error saving boxes to storage:', error);
     }
   };
 
-  const shouldRefreshCache = useCallback(() => {
-    if (!lastFetch) return true;
-    return Date.now() - lastFetch > CACHE_DURATION;
-  }, [lastFetch]);
-
-  const fetchBoxes = useCallback(async (refresh = false) => {
+  const fetchBoxes = useCallback(async () => {
+    setIsLoading(true);
     try {
-      // Use cache if available and not forcing refresh
-      if (!refresh && boxes.length > 0 && !shouldRefreshCache()) {
-        return;
-      }
+      type GetBoxesResponse = {
+        success: boolean;
+        message?: string;
+        data: {
+          boxes: any[]; // Accept any fields from API
+        } | null;
+      };
 
-      setIsLoading(true);
-
-      const response = await apiService.getBoxes({
+      const response: GetBoxesResponse = await apiService.getBoxes({
         page: 1,
         limit: 100,
+        // Add sort if needed, e.g. sortBy: 'box_name', sortOrder: 'asc'
       });
 
-      if (response.success) {
-        if (response.data && response.data.boxes) {
-          const timestamp = Date.now();
-          setBoxes(response.data.boxes);
-          setLastFetch(timestamp);
-          await saveCacheToStorage(response.data.boxes, timestamp);
-        } else if (response.data === null && boxes.length === 0) {
-          setBoxes([]);
-          const timestamp = Date.now();
-          setLastFetch(timestamp);
-          await saveCacheToStorage([], timestamp);
-        }
+      if (response.success && response.data && response.data.boxes) {
+        // Only keep fields defined in Box interface
+        const cleanedBoxes = response.data.boxes.map((box: any) => ({
+          _id: box._id,
+          box_name: box.box_name,
+          length: box.length,
+          breadth: box.breadth,
+          height: box.height,
+          quantity: box.quantity,
+          max_weight: box.max_weight,
+        }));
+        setBoxes(cleanedBoxes);
+        await saveBoxesToStorage(cleanedBoxes);
+      } else if (response.data === null) {
+        // Handle 304 responses - keep existing data
+        // Data not modified, so no need to update state
+        console.log('Data not modified, using cached data');
       }
     } catch (error) {
       console.error("Error fetching boxes:", error);
-      if (boxes.length === 0) {
-        setBoxes([]);
-      }
+      await loadBoxesFromStorage();
     } finally {
       setIsLoading(false);
     }
-  }, [boxes.length, shouldRefreshCache]);
+  }, []);
 
   const addBox = async (box: Omit<Box, "_id">) => {
     const response = await apiService.addBox(box);
     if (response.success) {
-      // Add to local state immediately for better UX
       if (response.data && response.data.box) {
         const newBoxes = [...boxes, response.data.box];
         setBoxes(newBoxes);
-        const timestamp = Date.now();
-        setLastFetch(timestamp);
-        await saveCacheToStorage(newBoxes, timestamp);
+        await saveBoxesToStorage(newBoxes);
       } else {
-        // Fallback: refresh from API
-        await fetchBoxes(true);
+        await fetchBoxes();
       }
     } else {
       throw new Error(response.message || "Failed to add box");
@@ -143,16 +121,13 @@ export const BoxProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const updateBoxQuantity = async (box_name: string, additionalQuantity: number) => {
     const response = await apiService.updateBoxQuantity(box_name, additionalQuantity);
     if (response.success) {
-      // Update local state immediately
       const updatedBoxes = boxes.map(box => 
         box.box_name === box_name 
           ? { ...box, quantity: box.quantity + additionalQuantity }
           : box
       );
       setBoxes(updatedBoxes);
-      const timestamp = Date.now();
-      setLastFetch(timestamp);
-      await saveCacheToStorage(updatedBoxes, timestamp);
+      await saveBoxesToStorage(updatedBoxes);
     } else {
       throw new Error(response.message || "Failed to update box quantity");
     }
@@ -163,9 +138,7 @@ export const BoxProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (response.success) {
       const filteredBoxes = boxes.filter(box => box._id !== id);
       setBoxes(filteredBoxes);
-      const timestamp = Date.now();
-      setLastFetch(timestamp);
-      await saveCacheToStorage(filteredBoxes, timestamp);
+      await saveBoxesToStorage(filteredBoxes);
     } else {
       throw new Error(response.message || "Failed to delete box");
     }
@@ -173,11 +146,10 @@ export const BoxProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const clearCache = async () => {
     try {
-      await AsyncStorage.multiRemove([BOXES_STORAGE_KEY, BOXES_TIMESTAMP_KEY]);
+      await AsyncStorage.removeItem(BOXES_STORAGE_KEY);
       setBoxes([]);
-      setLastFetch(null);
     } catch (error) {
-      console.error('Error clearing boxes cache:', error);
+      console.error('Error clearing boxes from storage:', error);
     }
   };
 
@@ -186,7 +158,7 @@ export const BoxProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       value={{
         boxes,
         isLoading,
-        lastFetch,
+        lastFetch: null,
         fetchBoxes,
         addBox,
         updateBoxQuantity,
