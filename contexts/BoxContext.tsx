@@ -22,6 +22,7 @@ interface BoxContextType {
   updateBoxQuantity: (box_name: string, additionalQuantity: number) => Promise<void>;
   removeBox: (id: string) => Promise<void>;
   clearCache: () => void;
+  updateBox: (id: string, boxUpdate: Partial<Box>) => Promise<void>; // <-- add this
 }
 
 const BoxContext = createContext<BoxContextType | undefined>(undefined);
@@ -153,6 +154,15 @@ export const BoxProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const updateBox = async (id: string, boxUpdate: Partial<Box>) => {
+    const response = await apiService.updateBox(id, boxUpdate);
+    if (response.success) {
+      await fetchBoxes();
+    } else {
+      throw new Error(response.message || "Failed to update box");
+    }
+  };
+
   return (
     <BoxContext.Provider
       value={{
@@ -164,6 +174,7 @@ export const BoxProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateBoxQuantity,
         removeBox,
         clearCache,
+        updateBox, // <-- add this
       }}
     >
       {children}

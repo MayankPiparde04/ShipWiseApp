@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BASE_URL = "http://192.168.29.177:5000/api";
+const BASE_URL = "http://10.11.47.241:5000/api";
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -62,7 +62,7 @@ class ApiService {
               ...options,
               headers: newHeaders,
             });
-            
+
             if (retryResponse.status === 304) {
               return {
                 success: true,
@@ -364,6 +364,22 @@ class ApiService {
 
   async getUserProfile() {
     return this.request("user/profile");
+  }
+  async updateBox(
+    id: string,
+    boxUpdate: Partial<{
+      box_name: string;
+      length: number;
+      breadth: number;
+      height: number;
+      quantity: number;
+      max_weight: number;
+    }>
+  ) {
+    return this.request("updatebox", {
+      method: "PUT",
+      body: JSON.stringify({ id, ...boxUpdate }),
+    });
   }
 }
 

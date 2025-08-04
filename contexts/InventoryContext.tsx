@@ -29,7 +29,7 @@ interface InventoryContextType {
   updateItem: (id: string, item: Partial<Item>) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
   clearCache: () => void;
-  
+  updateBox: (id: string, boxUpdate: Partial<Item>) => Promise<void>;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -167,11 +167,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       dimensions: itemUpdate.dimensions || { length: 0, breadth: 0, height: 0 },
     });
     if (response.success) {
-      const updatedItems = items.map((item) =>
-        item._id === id ? { ...item, ...itemUpdate } : item
-      );
-      setItems(updatedItems);
-      await saveItemsToStorage(updatedItems);
+      await fetchItems(); // Refresh items and dailyData for dashboard/graph
     } else {
       throw new Error(response.message || "Failed to update item");
     }
@@ -196,6 +192,14 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.error('Error clearing items from storage:', error);
     }
   };
+  const updateBox = async (id: string, boxUpdate: Partial<Item>) => {
+    const response = await apiService.updateBox(id, boxUpdate);
+    if (response.success) {
+      await fetchItems();
+    } else {
+      throw new Error(response.message || "Failed to update box");
+    }
+  };
 
   return (
     <InventoryContext.Provider
@@ -209,6 +213,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateItem,
         removeItem,
         clearCache,
+        updateBox,
       }}
     >
       {children}
@@ -216,6 +221,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   );
 };
 
+// Make sure this is at the top level, not inside any function or block!
 export const useInventory = () => {
   const context = useContext(InventoryContext);
   if (!context) {
