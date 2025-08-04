@@ -2,10 +2,11 @@
 
 import { useInventory } from "@/contexts/InventoryContext";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -34,6 +35,14 @@ export default function App() {
   const router = useRouter();
   const { predictItemDimensions } = useInventory();
   const [isPredicting, setIsPredicting] = useState(false);
+
+  // Reset camera state when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      setCameraKey((prev) => prev + 1);
+      setCameraReady(false);
+    }, [])
+  );
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -185,11 +194,23 @@ export default function App() {
               prefill: JSON.stringify(prediction.data.prediction),
             },
           });
+          // Refresh state after prediction
+          setCapturedImages([]);
+          setCurrentImageIndex(null);
+          setViewMode("capture");
+          setCameraKey((prev) => prev + 1); // Force camera re-mount
+          setCameraReady(false); // Reset camera ready state
         } else {
           Alert.alert(
             "Prediction Failed",
             prediction?.message || "Unable to analyze the image. Please try with a clearer image or different lighting."
           );
+          // Refresh state after failed prediction
+          setCapturedImages([]);
+          setCurrentImageIndex(null);
+          setViewMode("capture");
+          setCameraKey((prev) => prev + 1); // Force camera re-mount
+          setCameraReady(false); // Reset camera ready state
         }
       } catch (error: any) {
         setIsPredicting(false);
