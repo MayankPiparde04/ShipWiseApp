@@ -4,7 +4,7 @@ import { useInventory } from "@/contexts/InventoryContext";
 import { apiService } from "@/services/api";
 import { StatusBar } from "expo-status-bar";
 import { BoxIcon, Package, Search, TrendingUp } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -19,7 +19,7 @@ import { BarChart } from "react-native-chart-kit";
 
 export default function Home() {
   const { user } = useAuth();
-  const { items, dailyData } = useInventory();
+  const { items, dailyData, dailySold } = useInventory();
   const { boxes } = useBoxes();
   const [loading, setLoading] = useState(true);
 
@@ -40,15 +40,22 @@ export default function Home() {
           { label: "Sun", count: 0 },
         ];
 
-  const [sellItemData] = useState([
-    { label: "Mon", count: 3 },
-    { label: "Tue", count: 5 },
-    { label: "Wed", count: 2 },
-    { label: "Thu", count: 6 },
-    { label: "Fri", count: 7 },
-    { label: "Sat", count: 4 },
-    { label: "Sun", count: 1 },
-  ]);
+  // Always provide an array for sellItemData using dailySold
+  const sellItemData =
+    Array.isArray(dailySold) && dailySold.length === 7
+      ? dailySold.map((d) => ({
+          label: d.day.slice(0, 3),
+          count: d.quantity,
+        }))
+      : [
+          { label: "Mon", count: 0 },
+          { label: "Tue", count: 0 },
+          { label: "Wed", count: 0 },
+          { label: "Thu", count: 0 },
+          { label: "Fri", count: 0 },
+          { label: "Sat", count: 0 },
+          { label: "Sun", count: 0 },
+        ];
 
   useEffect(() => {
     async function fetchData() {
@@ -180,7 +187,7 @@ export default function Home() {
                 </View>
 
                 {/* Sell Item Graph */}
-                <View className="space-y-4">
+                <View className="space-y-4 mb-20">
                   <Text className="text-white text-lg font-medium">Items Sold</Text>
                   <View className="bg-gray-800 p-4 rounded-2xl">
                     <BarChart

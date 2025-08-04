@@ -16,6 +16,7 @@ import { router, Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
+import { OptimalProvider } from "@/contexts/OptimalContext";
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
@@ -73,7 +74,9 @@ export default function RootLayout() {
     <AuthProvider>
       <InventoryProvider>
         <BoxProvider>
+          <OptimalProvider>
           <RootLayoutNav />
+          </OptimalProvider>
         </BoxProvider>
       </InventoryProvider>
     </AuthProvider>

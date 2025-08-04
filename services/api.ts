@@ -222,6 +222,18 @@ class ApiService {
     });
   }
 
+  async removeBoxItem(data: {
+    boxId: string;
+    itemId: string;
+    boxQuantity: number;
+    itemQuantity: number;
+  }) {
+    return this.request("removeboxitem", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
   // Packing & Shipping
   async calculateOptimalPacking(data: {
     product: {
@@ -238,6 +250,18 @@ class ApiService {
       maxWeight: number;
     }[];
   }) {
+    return this.request("optimal-packing2", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Add this method for POST /api/optimal-packing2
+  /**
+   * Call POST /api/optimal-packing2 with productId and quantity.
+   * @param data { productId: string; quantity: number }
+   */
+  async optimalPacking2(data: { productId: string; quantity: number }) {
     return this.request("optimal-packing2", {
       method: "POST",
       body: JSON.stringify(data),
