@@ -1,12 +1,14 @@
-// backup 1
+// backup 2
 
-import { Ionicons } from "@expo/vector-icons"; // Added icons import
+import { useInventory } from "@/contexts/InventoryContext";
+import { Ionicons } from "@expo/vector-icons";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Button,
   Image,
   ScrollView,
@@ -30,6 +32,8 @@ export default function App() {
   );
   const [cameraKey, setCameraKey] = useState(1); // Add key to force re-render camera when needed
   const router = useRouter();
+  const { predictItemDimensions } = useInventory();
+  const [isPredicting, setIsPredicting] = useState(false);
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -154,19 +158,57 @@ export default function App() {
   };
 
   // Function to accept the image and proceed to analysis
-  const acceptImage = () => {
+  const acceptImage = async () => {
     if (currentImageIndex !== null && capturedImages[currentImageIndex]) {
-      // Navigate to analysis page with the selected image
       const imageUri = capturedImages[currentImageIndex];
-      console.log("Navigating to analysis with image:", imageUri);
+      setIsPredicting(true);
+      try {
+        // Provide default values for better prediction accuracy
+        const prediction = await predictItemDimensions(
+          imageUri,
+          'coin', // Default reference object
+          'cm',   // Default unit
+          'Product for shipping dimension analysis' // Default context
+        );
+        setIsPredicting(false);
 
-      router.push({
-        pathname: "/analysis",
-        params: { imageUri },
-      });
+        if (
+          prediction &&
+          prediction.success &&
+          prediction.data &&
+          prediction.data.prediction
+        ) {
+          // Redirect to inventory with pre-filled data
+          router.replace({
+            pathname: "/(tabs)/inventory",
+            params: {
+              prefill: JSON.stringify(prediction.data.prediction),
+            },
+          });
+        } else {
+          Alert.alert(
+            "Prediction Failed",
+            prediction?.message || "Unable to analyze the image. Please try with a clearer image or different lighting."
+          );
+        }
+      } catch (error: any) {
+        setIsPredicting(false);
+        console.error('Prediction error in component:', error);
+        
+        Alert.alert(
+          "AI Analysis Error", 
+          error?.message || "Failed to analyze the image. Please check your connection and try again.",
+          [
+            { text: "Retry", onPress: () => acceptImage() },
+            { text: "Cancel", style: "cancel" }
+          ]
+        );
+      }
     } else {
-      console.error("No image selected or image URI is invalid");
-      alert("There was a problem with the selected image. Please try again.");
+      Alert.alert(
+        "No Image Selected",
+        "Please capture or select an image before proceeding."
+      );
     }
   };
 
@@ -202,6 +244,14 @@ export default function App() {
 
   return (
     <View className="flex-1 bg-black">
+      {isPredicting && (
+        <View className="absolute inset-0 z-50 bg-black/80 justify-center items-center">
+          <ActivityIndicator size="large" color="#22d3ee" />
+          <Text className="text-white mt-4 text-lg">
+            Predicting item dimensions...
+          </Text>
+        </View>
+      )}
       {/* Camera or Review View - 80% of height */}
       <View className="h-[80%]">
         {viewMode === "capture" ? (

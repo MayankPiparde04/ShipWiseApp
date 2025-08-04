@@ -1,6 +1,7 @@
 import { useBoxes } from "@/contexts/BoxContext";
 import { useInventory } from "@/contexts/InventoryContext";
 import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import {
@@ -107,6 +108,32 @@ export default function Inventory() {
   const [editItemId, setEditItemId] = useState<string | null>(null);
   // Add/edit box state
   const [editBoxId, setEditBoxId] = useState<string | null>(null);
+
+  const params = useLocalSearchParams();
+
+  // Pre-fill form if prediction data is present
+  React.useEffect(() => {
+    if (params.prefill) {
+      try {
+        const prediction = JSON.parse(params.prefill as string);
+        setShowAddForm(true);
+        setNewItem({
+          productName: prediction.product_name || "",
+          quantity: "1",
+          weight: prediction.weight?.value ? String(prediction.weight.value) : "",
+          price: "",
+          length: prediction.dimensions?.length ? String(prediction.dimensions.length) : "",
+          breadth: prediction.dimensions?.breadth ? String(prediction.dimensions.breadth) : "",
+          height: prediction.dimensions?.height ? String(prediction.dimensions.height) : "",
+          category: prediction.category || "",
+          brand: "",
+        });
+      } catch (e) {
+        // ignore if parsing fails
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.prefill]);
 
   const handleAddItem = async () => {
     try {

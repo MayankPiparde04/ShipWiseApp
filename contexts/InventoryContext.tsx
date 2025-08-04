@@ -30,6 +30,12 @@ interface InventoryContextType {
   removeItem: (id: string) => Promise<void>;
   clearCache: () => void;
   updateBox: (id: string, boxUpdate: Partial<Item>) => Promise<void>;
+  predictItemDimensions: (
+    imageUri: string,
+    referenceObject?: string,
+    unit?: string,
+    additionalContext?: string
+  ) => Promise<any>;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -200,6 +206,41 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       throw new Error(response.message || "Failed to update box");
     }
   };
+  const predictItemDimensions = async (
+    imageUri: string,
+    referenceObject?: string,
+    unit?: string,
+    additionalContext?: string
+  ) => {
+    try {
+      console.log('Starting AI prediction with:', { imageUri, referenceObject, unit, additionalContext });
+      
+      // Set default values if not provided
+      const finalReferenceObject = referenceObject || 'coin';
+      const finalUnit = unit || 'cm';
+      const finalAdditionalContext = additionalContext || 'object for dimension measurement';
+      
+      const result = await apiService.predictDimensionsWithDetails(
+        imageUri,
+        finalReferenceObject,
+        finalUnit,
+        finalAdditionalContext
+      );
+      
+      console.log('AI prediction successful:', result);
+      return result;
+    } catch (error: any) {
+      console.error('AI prediction failed:', error);
+      
+      // Check if it's a network connectivity issue
+      if (error.message?.includes('Network request failed') || error.message?.includes('Unable to connect')) {
+        throw new Error('Unable to connect to the AI service. Please check your internet connection and ensure the server is running on the correct IP address.');
+      }
+      
+      throw new Error(error.message || 'Failed to predict dimensions. Please try again.');
+    }
+  };
+  
 
   return (
     <InventoryContext.Provider
@@ -214,6 +255,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         removeItem,
         clearCache,
         updateBox,
+        predictItemDimensions,
       }}
     >
       {children}

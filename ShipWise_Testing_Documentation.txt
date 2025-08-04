@@ -49,7 +49,7 @@
 - **Endpoint:** `POST /api/activation`
 - **Request Body:**
   ```json
-  will give email and token on email http://10.11.47.241:5000/api/auth/activation/{token} when hitted return below
+  will give email and token on email http://192.168.29.177:5000/api/auth/activation/{token} when hitted return below
   ```
 - **Expected Response (200):**
   ```json
@@ -587,7 +587,7 @@
 - **Endpoint:** `POST /api/ai/predict-dimensions`
 - **Headers:** 
   - `Authorization: Bearer <access_token>`
-  - `Content-Type: multipart/form-data`
+  - `Content-Type: multipart/form-data` (automatically set by client)
 - **Form Data:**
   - `image`: image file (JPEG, PNG, WebP, max 10MB)
   - `referenceObject`: "coin" (optional)
@@ -629,6 +629,8 @@
 - ❌ Invalid file format (400 Bad Request)
 - ❌ File size exceeds 10MB (400 Bad Request)
 - ❌ Invalid unit parameter (400 Bad Request)
+- ❌ Network connection issues (Network request failed)
+- ❌ Server timeout (408 Request Timeout)
 
 ### 2. Get Prediction History
 - **Endpoint:** `GET /api/ai/prediction-history?page=1&limit=10`
@@ -658,13 +660,13 @@
 ### Authentication Testing
 1. **Missing Token:**
    ```bash
-   curl -X GET http://10.11.47.241:5000/api/getitemdata
+   curl -X GET http://192.168.29.177:5000/api/getitemdata
    # Expected: 401 Unauthorized
    ```
 
 2. **Invalid Token:**
    ```bash
-   curl -X GET http://10.11.47.241:5000/api/getitemdata \
+   curl -X GET http://192.168.29.177:5000/api/getitemdata \
    -H "Authorization: Bearer invalid_token"
    # Expected: 401 Unauthorized
    ```

@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BASE_URL = "http://10.11.47.241:5000/api";
+const BASE_URL = "http://192.168.29.177:5000/api";
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -10,12 +10,19 @@ interface ApiResponse<T = any> {
 }
 
 class ApiService {
-  private async getAuthHeaders() {
+  private async getAuthHeaders(isFormData: boolean = false) {
     const token = await AsyncStorage.getItem("accessToken");
-    return {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
+    const headers: any = {};
+    
+    if (!isFormData) {
+      headers["Content-Type"] = "application/json";
+    }
+    
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return headers;
   }
 
   private async request<T>(
@@ -300,41 +307,130 @@ class ApiService {
   }
 
   // AI Integration
-  async predictDimensions(
+  async predictDimensionsWithDetails(
     imageUri: string,
     referenceObject?: string,
     unit?: string,
     additionalContext?: string
   ) {
-    const formData = new FormData();
-    formData.append("image", {
-      uri: imageUri,
-      type: "image/jpeg",
-      name: "image.jpg",
-    } as any);
-
-    if (referenceObject) formData.append("referenceObject", referenceObject);
-    if (unit) formData.append("unit", unit);
-    if (additionalContext)
-      formData.append("additionalContext", additionalContext);
-
-    const token = await AsyncStorage.getItem("accessToken");
     try {
+      const formData = new FormData();
+      
+      // Create proper file object for React Native
+      const filename = imageUri.split('/').pop() || 'image.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      
+      // For React Native, we need to append the file with proper metadata
+      formData.append("image", {
+        uri: imageUri,
+        type: type,
+        name: filename,
+      } as any);
+      
+      if (referenceObject) formData.append("referenceObject", referenceObject);
+      if (unit) formData.append("unit", unit);
+      if (additionalContext) formData.append("additionalContext", additionalContext);
+
+      const token = await AsyncStorage.getItem("accessToken");
+      const headers: any = {
+        'Accept': 'application/json',
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      // Don't set Content-Type for FormData - let fetch handle it
+
+      console.log('Making request to:', `${BASE_URL}/ai/predict-dimensions`);
+      console.log('FormData contents:', { imageUri, referenceObject, unit, additionalContext });
+
       const response = await fetch(`${BASE_URL}/ai/predict-dimensions`, {
         method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
+        headers,
         body: formData,
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Prediction failed");
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      // Handle 304 Not Modified responses
+      if (response.status === 304) {
+        return {
+          success: true,
+          message: "Data not modified",
+          data: null
+        };
       }
+
+      let data;
+      try {
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+        data = JSON.parse(responseText);
+      } catch (jsonErr) {
+        console.error('JSON parsing error:', jsonErr);
+        throw new Error(`Invalid JSON response from server`);
+      }
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Token expired, try to refresh
+          const refreshed = await this.refreshToken();
+          if (refreshed) {
+            // Retry the request with new token
+            const newToken = await AsyncStorage.getItem("accessToken");
+            const retryHeaders: any = {
+              'Accept': 'application/json',
+            };
+            if (newToken) {
+              retryHeaders.Authorization = `Bearer ${newToken}`;
+            }
+            
+            const retryResponse = await fetch(`${BASE_URL}/ai/predict-dimensions`, {
+              method: "POST",
+              headers: retryHeaders,
+              body: formData,
+            });
+
+            if (retryResponse.status === 304) {
+              return {
+                success: true,
+                message: "Data not modified",
+                data: null
+              };
+            }
+
+            let retryData;
+            try {
+              const retryText = await retryResponse.text();
+              retryData = JSON.parse(retryText);
+            } catch (retryJsonErr) {
+              throw new Error(`Invalid JSON response from server on retry`);
+            }
+            
+            if (!retryResponse.ok) {
+              throw new Error(retryData.message || `API request failed: ${retryResponse.status} ${retryResponse.statusText}`);
+            }
+            return retryData;
+          }
+        }
+        throw new Error(data.message || `API request failed: ${response.status} ${response.statusText}`);
+      }
+
       return data;
-    } catch (error) {
-      console.error("AI Predict Dimensions Error:", error);
+    } catch (error: any) {
+      console.error('AI Prediction Error:', error);
+      
+      // Provide more specific error messages
+      if (error.message === 'Network request failed') {
+        throw new Error('Unable to connect to server. Please check your internet connection and ensure the server is running.');
+      } else if (error.message.includes('timeout')) {
+        throw new Error('Request timed out. Please try again.');
+      } else if (error.message.includes('JSON')) {
+        throw new Error('Server returned invalid response. Please try again.');
+      }
+      
       throw error;
     }
   }
@@ -381,6 +477,7 @@ class ApiService {
       body: JSON.stringify({ id, ...boxUpdate }),
     });
   }
+
 }
 
 export const apiService = new ApiService();

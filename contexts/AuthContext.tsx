@@ -114,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // add more fields as needed
       };
 
-      const response = await fetch('http://10.11.47.241:5000/api/login', {
+      const response = await fetch('http://192.168.29.177:5000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, password: string, phone: string) => {
     try {
-      const response = await fetch('http://10.11.47.241:5000/api/register', {
+      const response = await fetch('http://192.168.29.177:5000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const tokenToUse = tokenOverride || refreshToken;
       if (!tokenToUse) return false;
 
-      const response = await fetch('http://10.11.47.241:5000/api/refresh-token', {
+      const response = await fetch('http://192.168.29.177:5000/api/refresh-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -232,7 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateUserContext = async (updateData: { name?: string; phone?: string; company?: string; address?: string }) => {
     try {
       // Use authenticatedFetch to ensure fresh token
-      const response = await authenticatedFetch('http://10.11.47.241:5000/api/user/update', {
+      const response = await authenticatedFetch('http://192.168.29.177:5000/api/user/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
