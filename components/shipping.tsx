@@ -1,15 +1,17 @@
-import React from 'react';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ShippingScreen() {
+  const theme = useAppTheme();
+  
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className={`flex-1 ${theme.bg}`}>
       <View className="flex-1 p-6">
-        <Text className="text-2xl font-bold text-gray-900 mb-4">
+        <Text className={`text-2xl font-bold ${theme.text} mb-4`}>
           Shipping Calculator
         </Text>
-        <Text className="text-gray-600">
+        <Text className={theme.textSecondary}>
           Calculate optimal shipping solutions
         </Text>
       </View>

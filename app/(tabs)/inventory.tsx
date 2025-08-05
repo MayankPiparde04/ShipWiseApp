@@ -1,5 +1,6 @@
 import { useBoxes } from "@/contexts/BoxContext";
 import { useInventory } from "@/contexts/InventoryContext";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -16,7 +17,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -133,7 +133,7 @@ export default function Inventory() {
         // ignore if parsing fails
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [params.prefill]);
 
   const handleAddItem = async () => {
@@ -360,28 +360,7 @@ export default function Inventory() {
     }
   };
 
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-  const theme = {
-    bg: isDark ? 'bg-gray-950' : 'bg-gray-50',
-    cardBg: isDark ? 'bg-zinc-900' : 'bg-white',
-    text: isDark ? 'text-white' : 'text-gray-900',
-    textSecondary: isDark ? 'text-zinc-300' : 'text-gray-600',
-    textMuted: isDark ? 'text-zinc-400' : 'text-gray-500',
-    border: isDark ? 'border-zinc-700' : 'border-gray-200',
-    modalBg: isDark ? 'bg-zinc-900' : 'bg-white',
-    modalOverlay: isDark ? 'bg-black/60' : 'bg-gray-900/50',
-    tabActive: isDark ? 'bg-zinc-800' : 'bg-blue-100',
-    tabInactive: isDark ? 'bg-zinc-900' : 'bg-gray-100',
-    tabTextActive: isDark ? 'text-white' : 'text-blue-700',
-    tabTextInactive: isDark ? 'text-zinc-400' : 'text-gray-500',
-    accent: 'bg-blue-600',
-    accentText: 'text-blue-400',
-    success: 'bg-green-600',
-    successText: 'text-green-400',
-    error: isDark ? 'bg-red-900/30' : 'bg-red-100',
-    errorText: isDark ? 'text-red-400' : 'text-red-700',
-  };
+  const theme = useAppTheme();
 
   const renderItem = ({ item }: { item: Item }) => (
     <View className={`${theme.cardBg} p-4 mb-4 rounded-xl shadow-lg ${theme.border} border h-32 flex-row justify-between`}>
@@ -580,7 +559,7 @@ export default function Inventory() {
                 <TextInput
                   className={`${theme.cardBg} ${theme.text} p-3 mb-3 rounded-lg ${theme.border} border`}
                   placeholder={field.placeholder}
-                  placeholderTextColor={isDark ? "#aaa" : "#888"}
+                  placeholderTextColor={theme.textMuted}
                   keyboardType={field.keyboardType as any}
                   value={newItem[field.key as keyof typeof newItem]}
                   onChangeText={(text) =>
@@ -599,7 +578,7 @@ export default function Inventory() {
                   <TextInput
                     className={`${theme.cardBg} ${theme.text} p-3 rounded-lg ${theme.border} border`}
                     placeholder={`${dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)`}
-                    placeholderTextColor={isDark ? "#aaa" : "#888"}
+                    placeholderTextColor={theme.textMuted}
                     value={newItem[dim as keyof typeof newItem]}
                     onChangeText={(text) =>
                       setNewItem({ ...newItem, [dim]: text })
@@ -706,7 +685,7 @@ export default function Inventory() {
                 <TextInput
                   className={`${theme.cardBg} ${theme.text} p-3 mb-3 rounded-lg ${theme.border} border`}
                   placeholder={field.placeholder}
-                  placeholderTextColor={isDark ? "#aaa" : "#888"}
+                  placeholderTextColor={theme.textMuted}
                   keyboardType={field.keyboardType as any}
                   value={newBox[field.key as keyof typeof newBox]}
                   onChangeText={(text) =>
@@ -725,7 +704,7 @@ export default function Inventory() {
                   <TextInput
                     className={`${theme.cardBg} ${theme.text} p-3 rounded-lg ${theme.border} border`}
                     placeholder={`${dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)`}
-                    placeholderTextColor={isDark ? "#aaa" : "#888"}
+                    placeholderTextColor={theme.textMuted}
                     value={newBox[dim as keyof typeof newBox]}
                     onChangeText={(text) => setNewBox({ ...newBox, [dim]: text })}
                     keyboardType="decimal-pad"
@@ -822,7 +801,7 @@ export default function Inventory() {
             <TextInput
               className={`mb-4 p-3 rounded-xl ${theme.cardBg} ${theme.text} ${theme.border} border`}
               placeholder="Search items..."
-              placeholderTextColor={isDark ? "#aaa" : "#888"}
+              placeholderTextColor={theme.textMuted}
               value={searchText}
               onChangeText={setSearchText}
             />
@@ -865,7 +844,7 @@ export default function Inventory() {
             <TextInput
               className={`mb-4 p-3 rounded-xl ${theme.cardBg} ${theme.text} ${theme.border} border`}
               placeholder="Search boxes..."
-              placeholderTextColor={isDark ? "#aaa" : "#888"}
+              placeholderTextColor={theme.textMuted}
               value={searchText}
               onChangeText={setSearchText}
             />

@@ -1,4 +1,4 @@
-// backup 2
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 import { useInventory } from "@/contexts/InventoryContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,6 +19,7 @@ import {
 } from "react-native";
 
 export default function App() {
+  const theme = useAppTheme();
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
@@ -267,7 +268,7 @@ export default function App() {
     <View className="flex-1 bg-black">
       {isPredicting && (
         <View className="absolute inset-0 z-50 bg-black/80 justify-center items-center">
-          <ActivityIndicator size="large" color="#22d3ee" />
+                              <ActivityIndicator size="large" color={theme.accent} />
           <Text className="text-white mt-4 text-lg">
             Predicting item dimensions...
           </Text>
@@ -337,12 +338,24 @@ export default function App() {
       </View>
 
       {/* Controls section - 20% of height */}
-      <View className="h-[20%] bg-gray-900 pt-2">
+      <View style={[{ backgroundColor: theme.overlay }, { height: '20%', paddingTop: 8 }]}>
         {viewMode === "capture" ? (
           // Camera controls for capture mode - improved alignment
           <View className="flex-row justify-around items-center px-4 py-3">
             <TouchableOpacity
-              className="w-14 h-14 rounded-full bg-gray-700/90 justify-center items-center shadow-md"
+              style={[
+                {
+                  width: 56,
+                  height: 56,
+                  borderRadius: 28,
+                  backgroundColor: theme.cardBg,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: 4,
+                }
+              ]}
               onPress={toggleCameraFacing}
             >
               <Ionicons name="camera-reverse" size={24} color="white" />
@@ -356,7 +369,19 @@ export default function App() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="w-14 h-14 rounded-full bg-gray-700/90 justify-center items-center shadow-md"
+              style={[
+                {
+                  width: 56,
+                  height: 56,
+                  borderRadius: 28,
+                  backgroundColor: theme.cardBg,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: 4,
+                }
+              ]}
               onPress={pickImage}
             >
               <Ionicons name="images" size={24} color="white" />
@@ -366,14 +391,38 @@ export default function App() {
           // Accept/Reject controls for review mode - better spacing and size
           <View className="flex-1 flex-row justify-center items-center px-4 gap-10">
             <TouchableOpacity
-              className="w-16 h-16 rounded-full bg-red-600 justify-center items-center shadow-lg"
+              style={[
+                {
+                  width: 64,
+                  height: 64,
+                  borderRadius: 32,
+                  backgroundColor: theme.errorBg,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: 4,
+                }
+              ]}
               onPress={rejectImage}
             >
               <Ionicons name="close" size={30} color="white" />
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="w-16 h-16 rounded-full bg-green-600 justify-center items-center shadow-lg"
+              style={[
+                {
+                  width: 64,
+                  height: 64,
+                  borderRadius: 32,
+                  backgroundColor: theme.successBg,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: 4,
+                }
+              ]}
               onPress={acceptImage}
             >
               <Ionicons name="checkmark" size={30} color="white" />

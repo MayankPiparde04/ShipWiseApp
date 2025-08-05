@@ -5,6 +5,8 @@ import "./global.css";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BoxProvider } from "@/contexts/BoxContext";
 import { InventoryProvider } from "@/contexts/InventoryContext";
+import { OptimalProvider } from "@/contexts/OptimalContext";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
   DarkTheme,
@@ -16,10 +18,10 @@ import { router, Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
-import { OptimalProvider } from "@/contexts/OptimalContext";
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const theme = useAppTheme();
   const { user, isLoading } = useAuth();
   const segments = useSegments();
 
@@ -43,16 +45,16 @@ function RootLayoutNav() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <ActivityIndicator size="large" color="#2563EB" />
-        <Text className="text-lg font-semibold text-gray-700 mt-4">Loading...</Text>
+      <View className={`flex-1 justify-center items-center ${theme.bg}`}>
+        <ActivityIndicator size="large" color={theme.accentBg} />
+        <Text className={`text-lg font-semibold ${theme.text} mt-4`}>Loading...</Text>
       </View>
     );
   }
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="login" />

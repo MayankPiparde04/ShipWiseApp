@@ -1,5 +1,6 @@
 import { useInventory } from "@/contexts/InventoryContext";
 import { useOptimal } from "@/contexts/OptimalContext";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
@@ -16,13 +17,11 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Analysis() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const theme = useAppTheme();
   const { items, isLoading: isLoadingItems, removeBoxItem } = useInventory();
   const { loading, error, result, fetchOptimalPacking, clearResult } = useOptimal();
 
@@ -32,28 +31,6 @@ export default function Analysis() {
   const [quantity, setQuantity] = useState<string>("1");
   const [quantityModalVisible, setQuantityModalVisible] = useState(false);
 
-  // Dynamic theme colors
-  const theme = {
-    bg: isDark ? 'bg-gray-950' : 'bg-gray-50',
-    cardBg: isDark ? 'bg-zinc-900' : 'bg-white',
-    text: isDark ? 'text-white' : 'text-gray-900',
-    textSecondary: isDark ? 'text-zinc-300' : 'text-gray-600',
-    textMuted: isDark ? 'text-zinc-400' : 'text-gray-500',
-    border: isDark ? 'border-zinc-700' : 'border-gray-200',
-    modalBg: isDark ? 'bg-zinc-900' : 'bg-white',
-    modalOverlay: isDark ? 'bg-black/60' : 'bg-gray-900/50',
-    tabActive: isDark ? 'bg-zinc-800' : 'bg-blue-100',
-    tabInactive: isDark ? 'bg-zinc-900' : 'bg-gray-100',
-    tabTextActive: isDark ? 'text-white' : 'text-blue-700',
-    tabTextInactive: isDark ? 'text-zinc-400' : 'text-gray-500',
-    accent: 'bg-blue-600',
-    accentText: 'text-blue-400',
-    success: 'bg-green-600',
-    successText: 'text-green-400',
-    error: isDark ? 'bg-red-900/30' : 'bg-red-100',
-    errorText: isDark ? 'text-red-400' : 'text-red-700',
-  };
-
   // Tab 1: Select Item
   const renderSelectItem = () => (
     <View style={{ flex: 1 }}>
@@ -61,7 +38,7 @@ export default function Analysis() {
       <Text className={`${theme.textMuted} mb-4`}>Select an item to calculate optimal packing</Text>
       {isLoadingItems ? (
         <View className="items-center py-8">
-          <ActivityIndicator size="large" color={isDark ? "#60a5fa" : "#3b82f6"} />
+          <ActivityIndicator size="large" color={theme.accentBg} />
           <Text className={`${theme.textMuted} mt-4`}>Loading items...</Text>
         </View>
       ) : (
@@ -78,11 +55,11 @@ export default function Analysis() {
                 setQuantity("1");
               }}
               style={{
-                shadowColor: isDark ? '#000' : '#000',
+                shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: isDark ? 0.3 : 0.1,
+                shadowOpacity: 0.1,
                 shadowRadius: 4,
-                elevation: 3,
+                elevation: 3
               }}
             >
               <Text className={`${theme.text} text-xl font-bold mb-2`}>{item.productName}</Text>
@@ -118,13 +95,18 @@ export default function Analysis() {
       >
         <View className={`flex-1 justify-center  ${theme.modalOverlay}`}>
           <View
-            className={`${theme.modalBg} p-8 rounded-3xl mx-4 border-2 border-blue-500 shadow-2xl`}
             style={{
+              backgroundColor: theme.modalBg,
+              padding: 32,
+              borderRadius: 24,
+              marginHorizontal: 16,
+              borderWidth: 2,
+              borderColor: theme.accentBg,
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 10 },
               shadowOpacity: 0.3,
               shadowRadius: 20,
-              elevation: 10,
+              elevation: 10
             }}
           >
             <Text className={`text-3xl font-bold ${theme.successText} mb-6 text-center`}>
@@ -137,24 +119,45 @@ export default function Analysis() {
               </Text>
             </View>
             <TextInput
-              className={`${isDark ? 'bg-zinc-800 text-white border-zinc-600' : 'bg-gray-50 text-gray-900 border-gray-300'} p-4 rounded-xl border-2 mb-6 text-center text-2xl font-bold`}
+              style={{
+                backgroundColor: theme.bg,
+                color: theme.text,
+                borderColor: theme.border,
+                borderWidth: 2,
+                padding: 16,
+                borderRadius: 12,
+                marginBottom: 24,
+                textAlign: 'center',
+                fontSize: 24,
+                fontWeight: 'bold'
+              }}
               keyboardType="numeric"
               value={quantity}
               onChangeText={val => {
                 setQuantity(val.replace(/[^0-9]/g, ""));
               }}
               placeholder="Enter quantity"
-              placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
+              placeholderTextColor={theme.textMuted}
             />
             <View className="flex-row space-x-4 gap-2">
               <TouchableOpacity
-                className={`flex-1 ${isDark ? 'bg-zinc-700' : 'bg-gray-200'} py-4 rounded-xl`}
+                style={{
+                  flex: 1,
+                  backgroundColor: theme.border,
+                  paddingVertical: 16,
+                  borderRadius: 12
+                }}
                 onPress={() => setQuantityModalVisible(false)}
               >
                 <Text className={`${theme.text} font-bold text-center text-lg`}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className={`flex-1 ${theme.success} py-4 rounded-xl`}
+                style={{
+                  flex: 1,
+                  backgroundColor: theme.success,
+                  paddingVertical: 16,
+                  borderRadius: 12
+                }}
                 onPress={async () => {
                   const num = parseInt(quantity, 10);
                   if (!quantity || isNaN(num) || num < 1 || num > maxQty) {
@@ -190,7 +193,7 @@ export default function Analysis() {
       <Text className={`text-3xl font-bold ${theme.text} mb-6`}>Packing Analysis</Text>
       {loading && (
         <View className="items-center py-8">
-          <ActivityIndicator size="large" color={isDark ? "#60a5fa" : "#3b82f6"} />
+          <ActivityIndicator size="large" color={theme.accentBg} />
           <Text className={`${theme.textMuted} mt-4 text-lg`}>Calculating optimal packing...</Text>
         </View>
       )}
@@ -278,10 +281,14 @@ export default function Analysis() {
                     <Text className={`${theme.textMuted}`}>Volume Efficiency</Text>
                     <Text className={`${theme.text} font-medium`}>{result.summary?.overallVolumeEfficiency || 0}%</Text>
                   </View>
-                  <View className={`${isDark ? 'bg-zinc-700' : 'bg-gray-200'} h-2 rounded-full`}>
+                  <View style={{ backgroundColor: theme.border, height: 8, borderRadius: 4 }}>
                     <View
-                      className="bg-blue-500 h-2 rounded-full"
-                      style={{ width: `${Math.min(result.summary?.overallVolumeEfficiency || 0, 100)}%` }}
+                      style={{ 
+                        backgroundColor: theme.accentBg, 
+                        height: 8, 
+                        borderRadius: 4,
+                        width: `${Math.min(result.summary?.overallVolumeEfficiency || 0, 100)}%` 
+                      }}
                     />
                   </View>
                 </View>
@@ -290,10 +297,14 @@ export default function Analysis() {
                     <Text className={`${theme.textMuted}`}>Packing Quality Score</Text>
                     <Text className={`${theme.text} font-medium`}>{result.analytics?.packingQuality?.overallScore || 0}/100</Text>
                   </View>
-                  <View className={`${isDark ? 'bg-zinc-700' : 'bg-gray-200'} h-2 rounded-full`}>
+                  <View style={{ backgroundColor: theme.border, height: 8, borderRadius: 4 }}>
                     <View
-                      className="bg-green-500 h-2 rounded-full"
-                      style={{ width: `${Math.min(result.analytics?.packingQuality?.overallScore || 0, 100)}%` }}
+                      style={{ 
+                        backgroundColor: theme.successBg, 
+                        height: 8, 
+                        borderRadius: 4,
+                        width: `${Math.min(result.analytics?.packingQuality?.overallScore || 0, 100)}%` 
+                      }}
                     />
                   </View>
                 </View>
@@ -480,14 +491,26 @@ export default function Analysis() {
               <View className={`${theme.cardBg} p-5 rounded-2xl ${theme.border} border mb-4`}>
                 <Text className={`${theme.text} text-xl font-bold mb-3`}>Recommendations</Text>
                 {result.analytics.recommendations.map((rec: any, index: number) => (
-                  <View key={index} className={`${isDark ? 'bg-amber-900/30' : 'bg-amber-50'} p-3 rounded-lg mb-2`}>
+                  <View key={index} style={{ 
+                    backgroundColor: theme.warningBg, 
+                    padding: 12, 
+                    borderRadius: 8, 
+                    marginBottom: 8 
+                  }}>
                     <View className="flex-row items-center mb-1">
                       <View className={`w-2 h-2 rounded-full ${rec.priority === 'HIGH' ? 'bg-red-500' : rec.priority === 'MEDIUM' ? 'bg-yellow-500' : 'bg-green-500'} mr-2`} />
-                      <Text className={`${isDark ? 'text-amber-200' : 'text-amber-800'} font-medium text-sm`}>
+                      <Text style={{ 
+                        color: theme.warningText, 
+                        fontWeight: '500', 
+                        fontSize: 14 
+                      }}>
                         {rec.priority} PRIORITY
                       </Text>
                     </View>
-                    <Text className={`${isDark ? 'text-amber-100' : 'text-amber-900'} text-sm`}>
+                    <Text style={{ 
+                      color: theme.warningText, 
+                      fontSize: 14 
+                    }}>
                       {rec.message}
                     </Text>
                   </View>
@@ -526,7 +549,12 @@ export default function Analysis() {
           {/* Action Buttons */}
           <View className="flex-row space-x-4 gap-2 mb-24">
             <TouchableOpacity
-              className={`flex-1 ${isDark ? 'bg-zinc-700' : 'bg-gray-200'} py-4 rounded-2xl`}
+              style={{
+                flex: 1,
+                backgroundColor: theme.border,
+                paddingVertical: 16,
+                borderRadius: 16
+              }}
               onPress={() => {
                 clearResult();
                 setTab(0);
@@ -589,7 +617,13 @@ export default function Analysis() {
 
   // Tab navigation bar
   const renderTabs = () => (
-    <View className={`flex-row mb-4 ${isDark ? 'bg-zinc-800' : 'bg-gray-100'} rounded-2xl p-1`}>
+    <View style={{ 
+      flexDirection: 'row', 
+      marginBottom: 16, 
+      backgroundColor: theme.border, 
+      borderRadius: 16, 
+      padding: 4 
+    }}>
       <Pressable
         className={`flex-1 py-3 rounded-xl ${tab === 0 ? theme.tabActive : 'transparent'}`}
         onPress={() => {
@@ -639,7 +673,7 @@ export default function Analysis() {
 
   return (
     <SafeAreaView className={`flex-1 ${theme.bg}`}>
-      <StatusBar style={isDark ? "light" : "dark"} translucent={true} />
+      <StatusBar style="auto" translucent={true} />
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}

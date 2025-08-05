@@ -1,23 +1,25 @@
 //ActivationPage page
 
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ActivationPage() {
   const router = useRouter();
+  const theme = useAppTheme();
   const { email } = useLocalSearchParams<{ email: string }>();
   const [isChecking, setIsChecking] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
@@ -140,8 +142,8 @@ export default function ActivationPage() {
   }, [email, router]);
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-100">
-      <StatusBar style="dark" translucent={true} />
+    <SafeAreaView style={{ backgroundColor: theme.bg, flex: 1 }}>
+      <StatusBar style="auto" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"
@@ -156,67 +158,101 @@ export default function ActivationPage() {
           <View className="flex-1 justify-center items-center px-6">
             {/* Header */}
             <View className="items-center mb-8">
-              <View className="w-24 h-24 bg-blue-600 rounded-full items-center justify-center mb-6">
-                <Ionicons name="mail" size={40} color="white" />
+              <View style={{ 
+                width: 96, 
+                height: 96, 
+                backgroundColor: theme.accentBg, 
+                borderRadius: 48, 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: 24 
+              }}>
+                <Ionicons name="mail" size={40} color={theme.accentText} />
               </View>
-              <Text className="text-3xl font-bold text-gray-900 text-center mb-2">
+              <Text style={{ fontSize: 30, fontWeight: 'bold', color: theme.text, textAlign: 'center', marginBottom: 8 }}>
                 Verify Your Email
               </Text>
-              <Text className="text-lg text-gray-600 text-center mb-4">
+              <Text style={{ fontSize: 18, color: theme.textSecondary, textAlign: 'center', marginBottom: 16 }}>
                 We've sent a verification link to:
               </Text>
-              <Text className="text-lg font-semibold text-blue-600 text-center">
+              <Text style={{ fontSize: 18, fontWeight: '600', color: theme.accentText, textAlign: 'center' }}>
                 {email}
               </Text>
             </View>
 
             {/* Status Card */}
-            <View className="w-full bg-white rounded-2xl shadow-lg p-6 mb-6">
+            <View style={{ 
+              width: '100%', 
+              backgroundColor: theme.cardBg, 
+              borderRadius: 16, 
+              shadowOpacity: 0.1, 
+              shadowOffset: { width: 0, height: 2 }, 
+              shadowRadius: 8, 
+              padding: 24, 
+              marginBottom: 24,
+              elevation: 3
+            }}>
               <View className="items-center">
                 {isChecking ? (
                   <>
                     <ActivityIndicator
                       size="large"
-                      color="#2563EB"
+                      color={theme.accentBg}
                       className="mb-4"
                     />
-                    <Text className="text-lg font-semibold text-gray-900 mb-2">
+                    <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text, marginBottom: 8 }}>
                       Checking verification status...
                     </Text>
-                    <Text className="text-gray-600 text-center">
-                      We're automatically checking if you've verified your
+                    <Text style={{ color: theme.textSecondary, textAlign: 'center' }}>
+                      We&apos;re automatically checking if you&apos;ve verified your
                       email.
                     </Text>
                   </>
                 ) : isVerified ? (
                   <>
-                    <View className="w-16 h-16 bg-green-100 rounded-full items-center justify-center mb-4">
+                    <View style={{ 
+                      width: 64, 
+                      height: 64, 
+                      backgroundColor: theme.successBg, 
+                      borderRadius: 32, 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      marginBottom: 16 
+                    }}>
                       <Ionicons
                         name="checkmark-circle"
                         size={32}
-                        color="#059669"
+                        color={theme.successText}
                       />
                     </View>
-                    <Text className="text-lg font-semibold text-green-600 mb-2">
+                    <Text style={{ fontSize: 18, fontWeight: '600', color: theme.successText, marginBottom: 8 }}>
                       Email Verified!
                     </Text>
-                    <Text className="text-gray-600 text-center">
+                    <Text style={{ color: theme.textSecondary, textAlign: 'center' }}>
                       Your account has been successfully activated.
                     </Text>
                   </>
                 ) : (
                   <>
-                    <View className="w-16 h-16 bg-yellow-100 rounded-full items-center justify-center mb-4">
-                      <Ionicons name="time-outline" size={32} color="#D97706" />
+                    <View style={{ 
+                      width: 64, 
+                      height: 64, 
+                      backgroundColor: theme.warningBg, 
+                      borderRadius: 32, 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      marginBottom: 16 
+                    }}>
+                      <Ionicons name="time-outline" size={32} color={theme.warningText} />
                     </View>
-                    <Text className="text-lg font-semibold text-gray-900 mb-2">
+                    <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text, marginBottom: 8 }}>
                       Waiting for verification...
                     </Text>
-                    <Text className="text-gray-600 text-center mb-4">
+                    <Text style={{ color: theme.textSecondary, textAlign: 'center', marginBottom: 16 }}>
                       Please check your email and click the activation link.
                     </Text>
                     {timeLeft > 0 && (
-                      <Text className="text-sm text-gray-500">
+                      <Text style={{ fontSize: 14, color: theme.textMuted }}>
                         Link expires in: {formatTime(timeLeft)}
                       </Text>
                     )}
@@ -226,33 +262,70 @@ export default function ActivationPage() {
             </View>
 
             {/* Instructions */}
-            <View className="w-full bg-white rounded-2xl shadow-lg p-6 mb-6">
-              <Text className="text-lg font-semibold text-gray-900 mb-4">
+            <View style={{ 
+              width: '100%', 
+              backgroundColor: theme.cardBg, 
+              borderRadius: 16, 
+              shadowOpacity: 0.1, 
+              shadowOffset: { width: 0, height: 2 }, 
+              shadowRadius: 8, 
+              padding: 24, 
+              marginBottom: 24,
+              elevation: 3
+            }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: theme.text, marginBottom: 16 }}>
                 What to do next:
               </Text>
               <View className="space-y-3">
                 <View className="flex-row items-start">
-                  <View className="w-6 h-6 bg-blue-100 rounded-full items-center justify-center mr-3 mt-0.5">
-                    <Text className="text-xs font-bold text-blue-600">1</Text>
+                  <View style={{ 
+                    width: 24, 
+                    height: 24, 
+                    backgroundColor: theme.infoBg, 
+                    borderRadius: 12, 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    marginRight: 12, 
+                    marginTop: 2 
+                  }}>
+                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: theme.infoText }}>1</Text>
                   </View>
-                  <Text className="flex-1 text-gray-700">
+                  <Text style={{ flex: 1, color: theme.textSecondary }}>
                     Check your email inbox (and spam folder)
                   </Text>
                 </View>
                 <View className="flex-row items-start">
-                  <View className="w-6 h-6 bg-blue-100 rounded-full items-center justify-center mr-3 mt-0.5">
-                    <Text className="text-xs font-bold text-blue-600">2</Text>
+                  <View style={{ 
+                    width: 24, 
+                    height: 24, 
+                    backgroundColor: theme.infoBg, 
+                    borderRadius: 12, 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    marginRight: 12, 
+                    marginTop: 2 
+                  }}>
+                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: theme.infoText }}>2</Text>
                   </View>
-                  <Text className="flex-1 text-gray-700">
-                    Click the "Activate Account" link in the email
+                  <Text style={{ flex: 1, color: theme.textSecondary }}>
+                    Click the &quot;Activate Account&quot; link in the email
                   </Text>
                 </View>
                 <View className="flex-row items-start">
-                  <View className="w-6 h-6 bg-blue-100 rounded-full items-center justify-center mr-3 mt-0.5">
-                    <Text className="text-xs font-bold text-blue-600">3</Text>
+                  <View style={{ 
+                    width: 24, 
+                    height: 24, 
+                    backgroundColor: theme.infoBg, 
+                    borderRadius: 12, 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    marginRight: 12, 
+                    marginTop: 2 
+                  }}>
+                    <Text style={{ fontSize: 12, fontWeight: 'bold', color: theme.infoText }}>3</Text>
                   </View>
-                  <Text className="flex-1 text-gray-700">
-                    Return to this app - we'll detect the verification
+                  <Text style={{ flex: 1, color: theme.textSecondary }}>
+                    Return to this app - we&apos;ll detect the verification
                     automatically
                   </Text>
                 </View>
@@ -262,19 +335,33 @@ export default function ActivationPage() {
             {/* Action Buttons */}
             <View className="w-full space-y-4">
               <TouchableOpacity
-                className="w-full bg-blue-600 p-4 rounded-xl shadow-lg"
+                style={{
+                  width: '100%',
+                  backgroundColor: theme.accentBg,
+                  padding: 16,
+                  borderRadius: 12,
+                  shadowOpacity: 0.2,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowRadius: 8,
+                  elevation: 3
+                }}
                 onPress={resendActivationEmail}
               >
-                <Text className="text-white text-center text-lg font-semibold">
+                <Text style={{ color: theme.accentText, textAlign: 'center', fontSize: 18, fontWeight: '600' }}>
                   Resend Activation Email
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="w-full bg-gray-200 p-4 rounded-xl"
+                style={{
+                  width: '100%',
+                  backgroundColor: theme.border,
+                  padding: 16,
+                  borderRadius: 12
+                }}
                 onPress={() => router.replace("/login")}
               >
-                <Text className="text-gray-700 text-center text-lg font-semibold">
+                <Text style={{ color: theme.textSecondary, textAlign: 'center', fontSize: 18, fontWeight: '600' }}>
                   Back to Login
                 </Text>
               </TouchableOpacity>
@@ -282,8 +369,8 @@ export default function ActivationPage() {
 
             {/* Footer */}
             <View className="mt-8">
-              <Text className="text-sm text-gray-500 text-center">
-                Didn't receive the email? Check your spam folder or try
+              <Text style={{ fontSize: 14, color: theme.textMuted, textAlign: 'center' }}>
+                Didn&apos;t receive the email? Check your spam folder or try
                 resending.
               </Text>
             </View>

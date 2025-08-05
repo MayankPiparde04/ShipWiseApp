@@ -1,16 +1,13 @@
-import { Tabs, usePathname } from "expo-router";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Feather } from "@expo/vector-icons";
+import { Tabs, usePathname } from "expo-router";
 import { MotiView } from "moti";
-import { useColorScheme, Pressable, Text } from "react-native";
-import clsx from "clsx";
+import { Text } from "react-native";
 
 export default function TabLayout() {
   const pathname = usePathname();
   const hideTabBar = pathname === "/gemini";
-
-  // Use system theme
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const theme = useAppTheme();
 
   const iconMap = {
     index: "home",
@@ -40,26 +37,13 @@ export default function TabLayout() {
                 paddingTop: 12,
                 height: 74,
                 paddingHorizontal: 8,
-                backgroundColor: isDark ? "#050d15" : "#ffffff",
-                borderColor: isDark ? "#1f2937" : "#e5e7eb",
+                backgroundColor: theme.cardBg,
+                borderColor: theme.border,
                 borderWidth: 1,
                 elevation: 12,
               },
 
-          // 🚫 Remove ripple effect
-          tabBarButton: (props) => (
-            <Pressable
-              android_ripple={null}
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-              {...props}
-            />
-          ),
-
-          // 💫 Animated tab icon + label pill
+          //  Animated tab icon + label pill
           tabBarIcon: ({ focused }) => (
             <MotiView
               from={{ scale: 0.95, opacity: 0.8 }}
@@ -71,34 +55,26 @@ export default function TabLayout() {
                 type: "timing",
                 duration: 250,
               }}
-              className={clsx(
-                "flex-col items-center justify-center rounded-full px-1 h-10 min-w-[74px] min-h-[48px]",
-                focused
-                  ? isDark
-                    ? "bg-[#102f46]" // dark mode active pill
-                    : "bg-[#e0f2ff]" // light mode active pill
-                  : "bg-transparent"
-              )}
+              style={[
+                {
+                  backgroundColor: focused ? theme.accentBg : 'transparent',
+                },
+              ]}
+              className="flex-col items-center justify-center rounded-full px-1 h-10 min-w-[74px] min-h-[48px]"
             >
               <Feather
-                name={iconName}
+                name={iconName as any}
                 size={20}
                 color={
                   focused
-                    ? isDark
-                      ? "#ffffff"
-                      : "#0c4a6e"
-                    : isDark
-                    ? "#6b7280"
-                    : "#9ca3af"
+                    ? theme.tabTextActive
+                    : theme.tabTextInactive
                 }
               />
               {focused && (
                 <Text
-                  className={clsx(
-                    "text-sm font-semibold",
-                    isDark ? "text-white" : "text-[#0c4a6e]"
-                  )}
+                  className="text-sm font-semibold"
+                  style={{ color: theme.tabTextActive }}
                 >
                   {route.name.charAt(0).toUpperCase() + route.name.slice(1)}
                 </Text>

@@ -1,25 +1,27 @@
 //register page
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Register() {
   const { register } = useAuth();
+  const theme = useAppTheme();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -80,8 +82,8 @@ export default function Register() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-br from-gray-950 to-gray-900">
-      <StatusBar style="light" translucent={true} />
+    <SafeAreaView className={`flex-1 ${theme.bg}`}>
+      <StatusBar style="auto" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"
@@ -96,13 +98,25 @@ export default function Register() {
           <View className="flex-1 justify-center px-6 py-8 gap-2">
             {/* Header */}
             <View className="mb-8 items-center">
-              <View className="w-20 h-20 bg-blue-600 rounded-full items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
-                <Ionicons name="person-add" size={32} color="white" />
+              <View style={{
+                width: 80,
+                height: 80,
+                backgroundColor: theme.accentBg,
+                borderRadius: 40,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 24,
+                shadowOpacity: 0.3,
+                shadowOffset: { width: 0, height: 4 },
+                shadowRadius: 8,
+                elevation: 6
+              }}>
+                <Ionicons name="person-add" size={32} color={theme.accentText} />
               </View>
-              <Text className="text-4xl font-bold text-white text-center mb-2">
+              <Text className={`text-4xl font-bold ${theme.text} text-center mb-2`}>
                 Create Account
               </Text>
-              <Text className="text-lg text-gray-400 text-center">
+              <Text className={`text-lg ${theme.textSecondary} text-center`}>
                 Join ShipWise today
               </Text>
             </View>
@@ -110,34 +124,34 @@ export default function Register() {
             {/* Form */}
             <View className="space-y-4">
               <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
+                <Text className={`text-sm font-semibold ${theme.textSecondary} ml-2 mt-1`}>
                   Full Name
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
+                    className={`w-full p-4 pl-12 ${theme.input} rounded-xl shadow-sm`}
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChangeText={(value) => updateField("name", value)}
                     editable={!isLoading}
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={theme.textMuted}
                   />
                   <Ionicons
                     name="person-outline"
                     size={20}
-                    color="#9CA3AF"
+                    color={theme.textMuted}
                     style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
               </View>
 
               <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
+                <Text className={`text-sm font-semibold ${theme.textSecondary} ml-2 mt-1`}>
                   Email Address
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
+                    className={`w-full p-4 pl-12 ${theme.input} rounded-xl shadow-sm`}
                     placeholder="Enter your email"
                     value={formData.email}
                     onChangeText={(value) => updateField("email", value)}
@@ -145,58 +159,58 @@ export default function Register() {
                     autoCapitalize="none"
                     autoCorrect={false}
                     editable={!isLoading}
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={theme.textMuted}
                   />
                   <Ionicons
                     name="mail-outline"
                     size={20}
-                    color="#9CA3AF"
+                    color={theme.textMuted}
                     style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
               </View>
 
               <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
+                <Text className={`text-sm font-semibold ${theme.textSecondary} ml-2 mt-1`}>
                   Phone Number
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
+                    className={`w-full p-4 pl-12 ${theme.input} rounded-xl shadow-sm`}
                     placeholder="Enter your phone number"
                     value={formData.phone}
                     onChangeText={(value) => updateField("phone", value)}
                     keyboardType="phone-pad"
                     editable={!isLoading}
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={theme.textMuted}
                   />
                   <Ionicons
                     name="call-outline"
                     size={20}
-                    color="#9CA3AF"
+                    color={theme.textMuted}
                     style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
               </View>
 
               <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
+                <Text className={`text-sm font-semibold ${theme.textSecondary} ml-2 mt-1`}>
                   Password
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 pr-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
+                    className={`w-full p-4 pl-12 pr-12 ${theme.input} rounded-xl shadow-sm`}
                     placeholder="Enter your password"
                     value={formData.password}
                     onChangeText={(value) => updateField("password", value)}
                     secureTextEntry={!showPassword}
                     editable={!isLoading}
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={theme.textMuted}
                   />
                   <Ionicons
                     name="lock-closed-outline"
                     size={20}
-                    color="#9CA3AF"
+                    color={theme.textMuted}
                     style={{ position: "absolute", left: 14, top: 10 }}
                   />
                   <TouchableOpacity
@@ -206,19 +220,19 @@ export default function Register() {
                     <Ionicons
                       name={showPassword ? "eye-off-outline" : "eye-outline"}
                       size={20}
-                      color="#9CA3AF"
+                      color={theme.textMuted}
                     />
                   </TouchableOpacity>
                 </View>
               </View>
 
               <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
+                <Text className={`text-sm font-semibold ${theme.textSecondary} ml-2 mt-1`}>
                   Confirm Password
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className="w-full p-4 pl-12 border border-gray-700 rounded-xl bg-gray-800 text-white shadow-sm"
+                    className={`w-full p-4 pl-12 ${theme.input} rounded-xl shadow-sm`}
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChangeText={(value) =>
@@ -226,12 +240,12 @@ export default function Register() {
                     }
                     secureTextEntry={!showPassword}
                     editable={!isLoading}
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={theme.textMuted}
                   />
                   <Ionicons
                     name="lock-closed-outline"
                     size={20}
-                    color="#9CA3AF"
+                    color={theme.textMuted}
                     style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
@@ -239,20 +253,20 @@ export default function Register() {
 
               <TouchableOpacity
                 className={`w-full p-4 rounded-xl ${
-                  isLoading ? "bg-gray-600" : "bg-blue-600"
+                  isLoading ? theme.border : theme.buttonPrimary
                 } shadow-lg mt-6`}
                 onPress={handleRegister}
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <View className="flex-row items-center justify-center">
-                    <ActivityIndicator color="white" size="small" />
-                    <Text className="text-white text-center text-lg font-semibold ml-2">
+                    <ActivityIndicator color={theme.textInverted} size="small" />
+                    <Text className={`${theme.textInverted} text-center text-lg font-semibold ml-2`}>
                       Creating Account...
                     </Text>
                   </View>
                 ) : (
-                  <Text className="text-white text-center text-lg font-semibold">
+                  <Text className={`${theme.textInverted} text-center text-lg font-semibold`}>
                     Create Account
                   </Text>
                 )}
@@ -262,14 +276,14 @@ export default function Register() {
             {/* Footer */}
             <View className="mt-8">
               <View className="flex-row justify-center items-center mb-4">
-                <View className="flex-1 h-px bg-gray-700" />
-                <Text className="mx-4 text-gray-400">or</Text>
-                <View className="flex-1 h-px bg-gray-700" />
+                <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+                <Text className={`mx-4 ${theme.textMuted}`}>or</Text>
+                <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
               </View>
               <View className="flex-row justify-center">
-                <Text className="text-gray-400">Already have an account? </Text>
+                <Text className={theme.textMuted}>Already have an account? </Text>
                 <TouchableOpacity onPress={() => router.push("/login")}>
-                  <Text className="text-blue-400 font-semibold">Sign In</Text>
+                  <Text className={`${theme.accentText} font-semibold`}>Sign In</Text>
                 </TouchableOpacity>
               </View>
             </View>
