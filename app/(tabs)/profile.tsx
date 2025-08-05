@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { apiService } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -88,6 +88,20 @@ export default function ProfileScreen() {
       .substring(0, 2);
   };
 
+  // Utility to mask email and phone for privacy
+  const maskEmail = (email: string | undefined) => {
+    if (!email) return "";
+    const [name, domain] = email.split("@");
+    if (!name || !domain) return "****";
+    return name[0] + "****@" + domain;
+  };
+
+  const maskPhone = (phone: string | undefined) => {
+    if (!phone) return "";
+    if (phone.length <= 4) return "****";
+    return phone.slice(0, 2) + "****" + phone.slice(-2);
+  };
+
   // Render profile fields - either as text or input
   const renderField = (
     icon: string,
@@ -95,6 +109,11 @@ export default function ProfileScreen() {
     value: string | undefined,
     key: string
   ) => {
+    let displayValue = value;
+    if (!isEditing) {
+      if (key === "email") displayValue = maskEmail(value);
+      if (key === "phone") displayValue = maskPhone(value);
+    }
     return (
       <View className="mb-4">
         <Text className="text-gray-400 text-xs mb-1 flex-row items-center">
@@ -113,7 +132,7 @@ export default function ProfileScreen() {
           />
         ) : (
           <Text className="text-gray-200 ml-5">
-            {value || `No ${label.toLowerCase()} provided`}
+            {displayValue || `No ${label.toLowerCase()} provided`}
           </Text>
         )}
       </View>

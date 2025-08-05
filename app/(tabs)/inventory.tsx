@@ -552,9 +552,9 @@ export default function Inventory() {
               { key: "brand", label: "Brand (optional)", placeholder: "Brand (optional)" },
             ].map((field) => (
               <View key={field.key}>
-                <Text className="text-gray-300 mb-1">{field.label}</Text>
+                <Text className="text-gray-300 mb-2">{field.label}</Text>
                 <TextInput
-                  className="bg-zinc-800 text-white p-3 rounded-lg border border-zinc-700"
+                  className="bg-zinc-800 text-white p-3 mb-3 rounded-lg border border-zinc-700"
                   placeholder={field.placeholder}
                   placeholderTextColor="#aaa"
                   keyboardType={field.keyboardType as any}
@@ -566,7 +566,7 @@ export default function Inventory() {
               </View>
             ))}
 
-            <View className="flex-row space-x-2">
+            <View className="flex-row space-x-2 gap-3">
               {["length", "breadth", "height"].map((dim) => (
                 <View key={dim} className="flex-1">
                   <Text className="text-gray-300 mb-1">
@@ -678,9 +678,9 @@ export default function Inventory() {
               { key: "max_weight", label: "Max Weight (kg)", placeholder: "Max Weight (kg)", keyboardType: "decimal-pad" },
             ].map((field) => (
               <View key={field.key}>
-                <Text className="text-gray-300 mb-1">{field.label}</Text>
+                <Text className="text-gray-300 mb-2">{field.label}</Text>
                 <TextInput
-                  className="bg-zinc-800 text-white p-3 rounded-lg border border-zinc-700"
+                  className="bg-zinc-800 text-white p-3 mb-3 rounded-lg border border-zinc-700"
                   placeholder={field.placeholder}
                   placeholderTextColor="#aaa"
                   keyboardType={field.keyboardType as any}
@@ -692,7 +692,7 @@ export default function Inventory() {
               </View>
             ))}
 
-            <View className="flex-row space-x-2">
+            <View className="flex-row space-x-2 gap-3">
               {["length", "breadth", "height"].map((dim) => (
                 <View key={dim} className="flex-1">
                   <Text className="text-gray-300 mb-1">
@@ -766,7 +766,7 @@ export default function Inventory() {
   return (
     <SafeAreaView className="flex-1 bg-black">
       <StatusBar style="light" />
-      <View className="flex-1 px-4 py-6">
+      <View className="flex-1 px-4 py-6 mb-16">
         {/* Tabs */}
         <View className="flex-row mb-6 bg-zinc-900 rounded-full overflow-hidden">
           <TouchableOpacity

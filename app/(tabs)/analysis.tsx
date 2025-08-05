@@ -589,10 +589,16 @@ export default function Analysis() {
 
   // Tab navigation bar
   const renderTabs = () => (
-    <View className={`flex-row mb-6 ${isDark ? 'bg-zinc-800' : 'bg-gray-100'} rounded-2xl p-1`}>
+    <View className={`flex-row mb-4 ${isDark ? 'bg-zinc-800' : 'bg-gray-100'} rounded-2xl p-1`}>
       <Pressable
         className={`flex-1 py-3 rounded-xl ${tab === 0 ? theme.tabActive : 'transparent'}`}
-        onPress={() => setTab(0)}
+        onPress={() => {
+          // Always reset everything when going to Select Item
+          clearResult();
+          setTab(0);
+          setSelectedItem(null);
+          setQuantity("1");
+        }}
       >
         <Text className={`text-center font-bold text-sm ${tab === 0 ? theme.tabTextActive : theme.tabTextInactive}`}>
           Select Item
@@ -600,7 +606,15 @@ export default function Analysis() {
       </Pressable>
       <Pressable
         className={`flex-1 py-3 rounded-xl ${tab === 1 ? theme.tabActive : 'transparent'}`}
-        onPress={() => selectedItem && setTab(1)}
+        onPress={() => {
+          if (selectedItem) {
+            // If coming from Result, reset result
+            if (tab === 2) {
+              clearResult();
+            }
+            setTab(1);
+          }
+        }}
         disabled={!selectedItem}
       >
         <Text className={`text-center font-bold text-sm ${tab === 1 ? theme.tabTextActive : theme.tabTextInactive}`}>
@@ -609,7 +623,11 @@ export default function Analysis() {
       </Pressable>
       <Pressable
         className={`flex-1 py-3 rounded-xl ${tab === 2 ? theme.tabActive : 'transparent'}`}
-        onPress={() => result && setTab(2)}
+        onPress={() => {
+          if (result) {
+            setTab(2);
+          }
+        }}
         disabled={!result}
       >
         <Text className={`text-center font-bold text-sm ${tab === 2 ? theme.tabTextActive : theme.tabTextInactive}`}>
@@ -627,7 +645,7 @@ export default function Analysis() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-        <View className="px-6 py-4 flex-1">
+        <View className="px-6 py-4 flex-1 mb-20">
           <View className="mb-6">
             <Text className={`text-4xl font-bold ${theme.text} text-center`}>
               Packing Analysis
@@ -648,7 +666,12 @@ export default function Analysis() {
                 </Text>
                 <TouchableOpacity
                   className="mt-4 py-2 px-2 bg-blue-100 rounded-lg self-start"
-                  onPress={() => setTab(0)}
+                  onPress={() => {
+                    setTab(0);
+                    clearResult();
+                    setSelectedItem(null);
+                    setQuantity("1");
+                  }}
                 >
                   <Text className="text-blue-700 text-sm font-medium">Change Product</Text>
                 </TouchableOpacity>
@@ -660,11 +683,11 @@ export default function Analysis() {
                 <Text className="text-white font-bold text-center text-xl">Set Quantity</Text>
               </TouchableOpacity>
               {renderSelectQuantityModal()}
-            </View>
-          )}
-          {tab === 2 && renderResult()}
         </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          )}
+        {tab === 2 && renderResult()}
+      </View>
+    </KeyboardAvoidingView>
+    </SafeAreaView >
   );
 }

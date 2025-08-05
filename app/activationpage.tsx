@@ -3,7 +3,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -30,7 +30,7 @@ export default function ActivationPage() {
 
     try {
       const response = await fetch(
-        `http://192.168.29.177:5000/api/check-verified`,
+        `http://10.11.47.241:5000/api/check-verified`,
         {
           method: "POST",
           headers: {

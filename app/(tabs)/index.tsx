@@ -115,7 +115,7 @@ export default function Home() {
               <Text className="text-gray-300">Welcome back to ShipWise!</Text>
             </View>
 
-            <View className="bg-gray-900 rounded-2xl p-4 flex-row items-center space-x-3">
+            <View className="bg-gray-900 rounded-2xl p-4 flex-row items-center my-2 space-x-3">
               <Search color="white" size={20} />
               <Text className="text-gray-400">Search items, boxes...</Text>
             </View>
@@ -126,7 +126,7 @@ export default function Home() {
               <>
                 {/* KPIs */}
                 <View className="space-y-4">
-                  <Text className="text-white text-lg font-medium">KPIs</Text>
+                  <Text className="text-white text-lg font-medium text-center py-2">KPIs</Text>
                   <View className="flex-row justify-between">
                     <View className="bg-gray-800 p-4 rounded-2xl w-[30%] items-center">
                       <Package color="#6EE7B7" size={32} />
@@ -141,22 +141,22 @@ export default function Home() {
                     <View className="bg-gray-800 p-4 rounded-2xl w-[30%] items-center">
                       <TrendingUp color="#F9E8C9" size={32} />
                       <Text className="text-white text-xl font-bold">{totalQuantity}</Text>
-                      <Text className="text-gray-400 text-sm">Units in Stock</Text>
+                      <Text className="text-gray-400 text-xs">Units in Stock</Text>
                     </View>
                   </View>
                 </View>
 
                 {/* Recent Activity */}
-                <View className="space-y-4">
-                  <Text className="text-white text-lg font-medium">Recent Activity</Text>
+                {/* <View className="space-y-4">
+                  <Text className="text-white text-lg font-medium text-center py-2">Recent Activity</Text>
                   <View className="bg-gray-800 p-4 rounded-2xl">
                     <Text className="text-gray-300">No recent activity found.</Text>
                   </View>
-                </View>
+                </View> */}
 
                 {/* Add Item Graph */}
                 <View className="space-y-4" style={{ alignItems: "center" }}>
-                  <Text className="text-white text-lg font-medium">Items Added</Text>
+                  <Text className="text-white text-lg font-medium py-2">Items Added</Text>
                   <View
                     className="bg-gray-800 p-4 rounded-2xl"
                     style={{
@@ -188,7 +188,7 @@ export default function Home() {
 
                 {/* Sell Item Graph */}
                 <View className="space-y-4 mb-20">
-                  <Text className="text-white text-lg font-medium">Items Sold</Text>
+                  <Text className="text-white text-lg font-medium text-center py-2">Items Sold</Text>
                   <View className="bg-gray-800 p-4 rounded-2xl">
                     <BarChart
                       data={formatChartData(sellItemData)}
