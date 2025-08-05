@@ -30,7 +30,7 @@ export default function ActivationPage() {
 
     try {
       const response = await fetch(
-        `http://10.11.47.241:5000/api/check-verified`,
+        `http://93.127.199.146:3001/api/check-verified`,
         {
           method: "POST",
           headers: {

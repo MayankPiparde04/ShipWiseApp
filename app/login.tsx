@@ -105,7 +105,7 @@ export default function Login() {
             {/* Form */}
             <View className="space-y-8">
               <View>
-                <Text className="text-sm font-semibold text-gray-300 mb-2">
+                <Text className="text-sm font-semibold text-gray-300 mb-2 my-2">
                   Email Address
                 </Text>
                 <View className="relative">
@@ -130,7 +130,7 @@ export default function Login() {
               </View>
 
               <View>
-                <Text className="text-sm font-semibold text-gray-300 mb-2">
+                <Text className="text-sm font-semibold text-gray-300 mb-2 my-2">
                   Password
                 </Text>
                 <View className="relative">
@@ -163,7 +163,7 @@ export default function Login() {
               </View>
 
               <TouchableOpacity
-                className={`w-full p-4 my-2 rounded-xl ${
+                className={`w-full p-4 my-4 rounded-xl ${
                   isLoading ? "bg-gray-600" : "bg-blue-600"
                 } shadow-lg`}
                 onPress={handleLogin}

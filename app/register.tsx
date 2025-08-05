@@ -93,7 +93,7 @@ export default function Register() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View className="flex-1 justify-center px-6 py-8">
+          <View className="flex-1 justify-center px-6 py-8 gap-2">
             {/* Header */}
             <View className="mb-8 items-center">
               <View className="w-20 h-20 bg-blue-600 rounded-full items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
@@ -109,7 +109,7 @@ export default function Register() {
 
             {/* Form */}
             <View className="space-y-4">
-              <View className="mt-2">
+              <View className="mt-2 gap-2">
                 <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Full Name
                 </Text>
@@ -131,7 +131,7 @@ export default function Register() {
                 </View>
               </View>
 
-              <View className="mt-2">
+              <View className="mt-2 gap-2">
                 <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Email Address
                 </Text>
@@ -156,7 +156,7 @@ export default function Register() {
                 </View>
               </View>
 
-              <View className="mt-2">
+              <View className="mt-2 gap-2">
                 <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Phone Number
                 </Text>
@@ -179,7 +179,7 @@ export default function Register() {
                 </View>
               </View>
 
-              <View className="mt-2">
+              <View className="mt-2 gap-2">
                 <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Password
                 </Text>
@@ -212,7 +212,7 @@ export default function Register() {
                 </View>
               </View>
 
-              <View className="mt-2">
+              <View className="mt-2 gap-2">
                 <Text className="text-sm font-semibold text-gray-300 ml-2 mt-1">
                   Confirm Password
                 </Text>

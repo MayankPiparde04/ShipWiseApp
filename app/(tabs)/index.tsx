@@ -14,6 +14,7 @@ import {
   ScrollView,
   Text,
   View,
+  useColorScheme,
 } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 
@@ -22,40 +23,62 @@ export default function Home() {
   const { items, dailyData, dailySold } = useInventory();
   const { boxes } = useBoxes();
   const [loading, setLoading] = useState(true);
+  const isDark = useColorScheme() === "dark";
+
+  const theme = {
+    bg: isDark ? 'bg-gray-950' : 'bg-gray-50',
+    cardBg: isDark ? 'bg-zinc-900' : 'bg-white',
+    text: isDark ? 'text-white' : 'text-gray-900',
+    textSecondary: isDark ? 'text-zinc-300' : 'text-gray-600',
+    textMuted: isDark ? 'text-zinc-400' : 'text-gray-500',
+    border: isDark ? 'border-zinc-700' : 'border-gray-200',
+    modalBg: isDark ? 'bg-zinc-900' : 'bg-white',
+    modalOverlay: isDark ? 'bg-black/60' : 'bg-gray-900/50',
+    tabActive: isDark ? 'bg-zinc-800' : 'bg-blue-100',
+    tabInactive: isDark ? 'bg-zinc-900' : 'bg-gray-100',
+    tabTextActive: isDark ? 'text-white' : 'text-blue-700',
+    tabTextInactive: isDark ? 'text-zinc-400' : 'text-gray-500',
+    accent: 'bg-blue-600',
+    accentText: 'text-blue-400',
+    success: 'bg-green-600',
+    successText: 'text-green-400',
+    error: isDark ? 'bg-red-900/30' : 'bg-red-100',
+    errorText: isDark ? 'text-red-400' : 'text-red-700',
+  };
 
   // Always provide an array for addItemData
   const addItemData =
     Array.isArray(dailyData) && dailyData.length === 7
       ? dailyData.map((d) => ({
-          label: d.day.slice(0, 3),
-          count: d.quantity,
-        }))
+        label: d.day.slice(0, 3),
+        count: d.quantity,
+      }))
       : [
-          { label: "Mon", count: 0 },
-          { label: "Tue", count: 0 },
-          { label: "Wed", count: 0 },
-          { label: "Thu", count: 0 },
-          { label: "Fri", count: 0 },
-          { label: "Sat", count: 0 },
-          { label: "Sun", count: 0 },
-        ];
+        { label: "Mon", count: 0 },
+        { label: "Tue", count: 0 },
+        { label: "Wed", count: 0 },
+        { label: "Thu", count: 0 },
+        { label: "Fri", count: 0 },
+        { label: "Sat", count: 0 },
+        { label: "Sun", count: 0 },
+      ];
 
   // Always provide an array for sellItemData using dailySold
   const sellItemData =
     Array.isArray(dailySold) && dailySold.length === 7
       ? dailySold.map((d) => ({
-          label: d.day.slice(0, 3),
-          count: d.quantity,
-        }))
+        label: d.day.slice(0, 3),
+        count: d.quantity,
+      }))
       : [
-          { label: "Mon", count: 0 },
-          { label: "Tue", count: 0 },
-          { label: "Wed", count: 0 },
-          { label: "Thu", count: 0 },
-          { label: "Fri", count: 0 },
-          { label: "Sat", count: 0 },
-          { label: "Sun", count: 0 },
-        ];
+        { label: "Mon", count: 0 },
+        { label: "Tue", count: 0 },
+        { label: "Wed", count: 0 },
+        { label: "Thu", count: 0 },
+        { label: "Fri", count: 0 },
+        { label: "Sat", count: 0 },
+        { label: "Sun", count: 0 },
+      ];
 
   useEffect(() => {
     async function fetchData() {
@@ -94,9 +117,8 @@ export default function Home() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-950">
+    <SafeAreaView className={`flex-1 ${theme.bg}`}>
       <StatusBar style="light" translucent={true} />
-
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -109,15 +131,15 @@ export default function Home() {
         >
           <View className="flex-1 py-6 space-y-6">
             <View>
-              <Text className="text-white text-xl font-semibold">
+              <Text className={`${theme.text} text-xl font-semibold`}>
                 Hello, {user?.name || "User"}
               </Text>
-              <Text className="text-gray-300">Welcome back to ShipWise!</Text>
+              <Text className={`${theme.textMuted}`}>Welcome back to ShipWise!</Text>
             </View>
 
-            <View className="bg-gray-900 rounded-2xl p-4 flex-row items-center my-2 space-x-3">
-              <Search color="white" size={20} />
-              <Text className="text-gray-400">Search items, boxes...</Text>
+            <View className={`${theme.cardBg} rounded-2xl p-4 flex-row items-center my-2 space-x-3`}>
+              <Search color={isDark ? "white" : "#18181b"} size={20} />
+              <Text className={`${theme.textMuted}`}>Search items, boxes...</Text>
             </View>
 
             {loading ? (
@@ -126,89 +148,121 @@ export default function Home() {
               <>
                 {/* KPIs */}
                 <View className="space-y-4">
-                  <Text className="text-white text-lg font-medium text-center py-2">KPIs</Text>
+                  <Text className={`${theme.text} text-lg font-medium text-center py-2`}>KPIs</Text>
                   <View className="flex-row justify-between">
-                    <View className="bg-gray-800 p-4 rounded-2xl w-[30%] items-center">
+                    <View className={`${theme.cardBg} p-4 rounded-2xl w-[30%] items-center`}>
                       <Package color="#6EE7B7" size={32} />
-                      <Text className="text-white text-xl font-bold">{items.length}</Text>
-                      <Text className="text-gray-400 text-sm">Items</Text>
+                      <Text className={`${theme.text} text-xl font-bold`}>{items.length}</Text>
+                      <Text className={`${theme.textMuted} text-sm`}>Items</Text>
                     </View>
-                    <View className="bg-gray-800 p-4 rounded-2xl w-[30%] items-center">
+                    <View className={`${theme.cardBg} p-4 rounded-2xl w-[30%] items-center`}>
                       <BoxIcon color="#A5B4FC" size={32} />
-                      <Text className="text-white text-xl font-bold">{boxes.length}</Text>
-                      <Text className="text-gray-400 text-sm">Boxes</Text>
+                      <Text className={`${theme.text} text-xl font-bold`}>{boxes.length}</Text>
+                      <Text className={`${theme.textMuted} text-sm`}>Boxes</Text>
                     </View>
-                    <View className="bg-gray-800 p-4 rounded-2xl w-[30%] items-center">
+                    <View className={`${theme.cardBg} p-4 rounded-2xl w-[30%] items-center`}>
                       <TrendingUp color="#F9E8C9" size={32} />
-                      <Text className="text-white text-xl font-bold">{totalQuantity}</Text>
-                      <Text className="text-gray-400 text-xs">Units in Stock</Text>
+                      <Text className={`${theme.text} text-xl font-bold`}>{totalQuantity}</Text>
+                      <Text className={`${theme.textMuted} text-xs`}>Units in Stock</Text>
                     </View>
                   </View>
                 </View>
 
-                {/* Recent Activity */}
-                {/* <View className="space-y-4">
-                  <Text className="text-white text-lg font-medium text-center py-2">Recent Activity</Text>
-                  <View className="bg-gray-800 p-4 rounded-2xl">
-                    <Text className="text-gray-300">No recent activity found.</Text>
-                  </View>
-                </View> */}
-
                 {/* Add Item Graph */}
-                <View className="space-y-4" style={{ alignItems: "center" }}>
-                  <Text className="text-white text-lg font-medium py-2">Items Added</Text>
-                  <View
-                    className="bg-gray-800 p-4 rounded-2xl"
-                    style={{
-                      alignItems: "center",
-                      width: chartWidth + 16, // 16 = horizontal padding (p-4 = 8px left + 8px right)
-                    }}
-                  >
-                    
+                <View className="space-y-4">
+                  <Text className={`${theme.text} text-lg font-medium text-center py-2 `}>Items Added</Text>
+                  <View className={`${isDark ? "bg-#111827" : "bg-#F3F4F6"} rounded-2xl overflow-hidden`}>
                     <BarChart
                       data={formatChartData(addItemData)}
-                      width={chartWidth}
+                      width={chartWidth + 12}
                       height={220}
                       yAxisLabel=""
+                      yAxisSuffix=""
+                      fromZero={true}
                       chartConfig={{
-                        backgroundColor: "#1F2937",
-                        backgroundGradientFrom: "#1F2937",
-                        backgroundGradientTo: "#1F2937",
+                        backgroundColor: "transparent",
+                        backgroundGradientFrom: isDark ? "#111827" : "#F3F4F6",
+                        backgroundGradientTo: isDark ? "#111827" : "#F3F4F6",
                         decimalPlaces: 0,
-                        color: () => `#6EE7B7`,
-                        labelColor: () => `#E5E7EB`,
+                        color: (opacity = 1) => `rgba(110, 231, 183, ${opacity})`,
+                        labelColor: (opacity = 1) => `rgba(229, 231, 235, ${opacity})`,
+                        style: {
+                          borderRadius: 16,
+                        },
                         propsForBackgroundLines: {
                           stroke: "#374151",
+                          strokeWidth: 1,
+                          strokeDasharray: "0",
                         },
+                        propsForLabels: {
+                          fontSize: 12,
+                        },
+                        barPercentage: 0.6,
+                        fillShadowGradient: "#6EE7B7",
+                        fillShadowGradientOpacity: 1,
                       }}
-                      style={{ borderRadius: 12 , width: chartWidth }}
+                      style={{
+                        marginVertical: 0,
+                        borderRadius: 10,
+                        paddingRight: 0,
+                        paddingLeft: 4,
+                        marginLeft: 0,
+                      }}
+                      withInnerLines={false}
+                      showValuesOnTopOfBars={true}
+                      withHorizontalLabels={true}
+                      withVerticalLabels={true}
                     />
                   </View>
                 </View>
 
                 {/* Sell Item Graph */}
                 <View className="space-y-4 mb-20">
-                  <Text className="text-white text-lg font-medium text-center py-2">Items Sold</Text>
-                  <View className="bg-gray-800 p-4 rounded-2xl">
+                  <Text className={`${theme.text} text-lg font-medium text-center py-2`}>Items Sold</Text>
+                  <View className={`${isDark ? "bg-#111827" : "bg-#F3F4F6"} rounded-2xl overflow-hidden`}>
                     <BarChart
                       data={formatChartData(sellItemData)}
-                      width={chartWidth}
+                      width={chartWidth + 12}
                       height={220}
                       yAxisLabel=""
+                      yAxisSuffix=""
+                      fromZero={true}
                       chartConfig={{
-                        backgroundColor: "#1F2937",
-                        backgroundGradientFrom: "#1F2937",
-                        backgroundGradientTo: "#1F2937",
+                        backgroundColor: "transparent",
+                        backgroundGradientFrom: isDark ? "#111827" : "#F3F4F6",
+                        backgroundGradientTo: isDark ? "#111827" : "#F3F4F6",
                         decimalPlaces: 0,
-                        color: () => `#FCA5A5`,
-                        labelColor: () => `#E5E7EB`,
+                        color: (opacity = 1) => `rgba(110, 231, 183, ${opacity})`,
+                        labelColor: (opacity = 1) => `rgba(229, 231, 235, ${opacity})`,
+                        style: {
+                          borderRadius: 16,
+                        },
                         propsForBackgroundLines: {
                           stroke: "#374151",
+                          strokeWidth: 1,
+                          strokeDasharray: "0",
                         },
+                        propsForLabels: {
+                          fontSize: 12,
+                        },
+                        barPercentage: 0.6,
+                        fillShadowGradient: "#6EE7B7",
+                        fillShadowGradientOpacity: 1,
                       }}
-                      style={{ borderRadius: 12 }}
+                      style={{
+                        marginVertical: 0,
+                        borderRadius: 10,
+                        paddingRight: 0,
+                        paddingLeft: 4,
+                        marginLeft: 0,
+                      }}
+                      withInnerLines={false}
+                      showValuesOnTopOfBars={true}
+                      withHorizontalLabels={true}
+                      withVerticalLabels={true}
                     />
                   </View>
+
                 </View>
               </>
             )}
