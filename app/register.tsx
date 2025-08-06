@@ -5,7 +5,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -19,10 +19,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Register() {
+const Register = React.memo(() => {
   const { register } = useAuth();
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = colorScheme === "dark";
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -32,6 +32,11 @@ export default function Register() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Memoize update field to prevent recreation on each render
+  const updateField = useCallback((field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
   const handleRegister = async () => {
     const { name, email, password, confirmPassword, phone } = formData;
@@ -78,54 +83,49 @@ export default function Register() {
     }
   };
 
-  const updateField = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
+    <SafeAreaView className="flex-1 bg-white/70 dark:bg-gray-950">
       <StatusBar style="auto" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 80}
+        enabled
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: 120, // Extra padding to ensure content is above keyboard
+          }}
+          className="px-4 md:px-8 lg:px-12" // Responsive padding
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          keyboardDismissMode="on-drag"
         >
-          <View className="flex-1 justify-center px-6 py-8 gap-2">
-            {/* Header */}
-            <View className="mb-8 items-center">
-              <View style={{
-                width: 80,
-                height: 80,
-                backgroundColor: isDark ? '#a855f7' : '#8b5cf6',
-                borderRadius: 40,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 24,
-                shadowOpacity: 0.3,
-                shadowOffset: { width: 0, height: 4 },
-                shadowRadius: 8,
-                elevation: 6
-              }}>
-                <Ionicons name="person-add" size={32} color="white" />
+          <View className="flex-1 justify-center py-4 md:py-6 lg:py-8 gap-2">
+            {/* Header - Using NativeWind responsive classes */}
+            <View className="mb-6 md:mb-8 items-center">
+              <View className="w-20 h-20 md:w-24 md:h-24 bg-blue-600 dark:bg-blue-700 rounded-full items-center justify-center mb-6 shadow-lg">
+                <Ionicons
+                  name="person-add"
+                  size={32}
+                  className="text-3xl md:text-4xl"
+                  color="white"
+                />
               </View>
-              <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
+              <Text className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
                 Create Account
               </Text>
-              <Text className="text-lg text-gray-600 dark:text-gray-300 text-center">
+              <Text className="text-lg md:text-xl text-gray-600 dark:text-gray-300 text-center">
                 Join ShipWise today
               </Text>
             </View>
 
             {/* Form */}
-            <View className="space-y-4">
-              <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
+            <View className="space-y-3 gap-2 px-2 md:space-y-4 w-full max-w-md ">
+              <View className="mt-2 gap-2 ">
+                <Text className="text-lg font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
                   Full Name
                 </Text>
                 <View className="relative">
@@ -147,7 +147,7 @@ export default function Register() {
               </View>
 
               <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
+                <Text className="text-lg font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
                   Email Address
                 </Text>
                 <View className="relative">
@@ -172,7 +172,7 @@ export default function Register() {
               </View>
 
               <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
+                <Text className="text-lg font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
                   Phone Number
                 </Text>
                 <View className="relative">
@@ -195,7 +195,7 @@ export default function Register() {
               </View>
 
               <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
+                <Text className="text-lg font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
                   Password
                 </Text>
                 <View className="relative">
@@ -228,7 +228,7 @@ export default function Register() {
               </View>
 
               <View className="mt-2 gap-2">
-                <Text className="text-sm font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
+                <Text className="text-lg font-semibold text-gray-600 dark:text-gray-300 ml-2 mt-1">
                   Confirm Password
                 </Text>
                 <View className="relative">
@@ -254,7 +254,9 @@ export default function Register() {
 
               <TouchableOpacity
                 className={`w-full p-4 rounded-xl ${
-                  isLoading ? "bg-gray-300 dark:bg-gray-700" : "bg-blue-600 dark:bg-blue-500"
+                  isLoading
+                    ? "bg-gray-300 dark:bg-gray-700"
+                    : "bg-blue-700 dark:bg-blue-800"
                 } shadow-lg mt-6`}
                 onPress={handleRegister}
                 disabled={isLoading}
@@ -277,14 +279,20 @@ export default function Register() {
             {/* Footer */}
             <View className="mt-8">
               <View className="flex-row justify-center items-center mb-4">
-                <View style={{ flex: 1, height: 1, backgroundColor: isDark ? "#374151" : "#d1d5db" }} />
-                <Text className="mx-4 text-gray-500 dark:text-gray-400">or</Text>
-                <View style={{ flex: 1, height: 1, backgroundColor: isDark ? "#374151" : "#d1d5db" }} />
+                <View className="flex-1 h-[1px] bg-gray-300 dark:bg-gray-600" />
+                <Text className="mx-4 text-gray-500 dark:text-gray-400">
+                  or
+                </Text>
+                <View className="flex-1 h-[1px] bg-gray-300 dark:bg-gray-600" />
               </View>
               <View className="flex-row justify-center">
-                <Text className="text-gray-500 dark:text-gray-400">Already have an account? </Text>
+                <Text className="text-gray-500  text-lg dark:text-gray-400">
+                  Already have an account?{" "}
+                </Text>
                 <TouchableOpacity onPress={() => router.push("/login")}>
-                  <Text className="text-blue-600 dark:text-blue-400 font-semibold">Sign In</Text>
+                  <Text className="text-blue-600 text-lg dark:text-blue-400 font-semibold">
+                    Sign In
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -293,4 +301,7 @@ export default function Register() {
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-}
+});
+
+Register.displayName = "Register";
+export default Register;

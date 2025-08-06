@@ -8,7 +8,7 @@ export default function TabLayout() {
   const pathname = usePathname();
   const hideTabBar = pathname === "/gemini";
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = colorScheme === "dark";
 
   const iconMap = {
     index: "home",
@@ -38,9 +38,9 @@ export default function TabLayout() {
                 paddingTop: 12,
                 height: 74,
                 paddingHorizontal: 8,
-                backgroundColor: isDark ? '#1f2937' : '#ffffff',
-                borderColor: isDark ? '#374151' : '#e5e7eb',
-                borderWidth: 1,
+                backgroundColor: isDark ? "#030712" : "#fafafa",
+                borderColor: isDark ? "#242424" : "#e5e7eb",
+                borderTopWidth: 1,
                 elevation: 12,
               },
 
@@ -58,7 +58,11 @@ export default function TabLayout() {
               }}
               style={[
                 {
-                  backgroundColor: focused ? (isDark ? '#a855f7' : '#ede9fe') : 'transparent',
+                  backgroundColor: focused
+                    ? isDark
+                      ? "#3f2557"
+                      : "#e1e1fe"
+                    : "transparent",
                 },
               ]}
               className="flex-col items-center justify-center rounded-full px-1 h-10 min-w-[74px] min-h-[48px]"
@@ -68,14 +72,18 @@ export default function TabLayout() {
                 size={20}
                 color={
                   focused
-                    ? (isDark ? '#d8b4fe' : '#5b21b6')
-                    : (isDark ? '#6b7280' : '#9ca3af')
+                    ? isDark
+                      ? "#aaf"
+                      : "#125"
+                    : isDark
+                      ? "#aac"
+                      : "#44a"
                 }
               />
               {focused && (
                 <Text
                   className="text-sm font-semibold"
-                  style={{ color: isDark ? '#d8b4fe' : '#5b21b6' }}
+                  style={{ color: isDark ? "#ddf" : "#3a358e" }}
                 >
                   {route.name.charAt(0).toUpperCase() + route.name.slice(1)}
                 </Text>

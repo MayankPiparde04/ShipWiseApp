@@ -49,19 +49,13 @@ export default function Analysis() {
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <TouchableOpacity
-              className="bg-white dark:bg-gray-800 p-5 mb-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 shadow-sm"
+              className="bg-gray-100/40 dark:bg-gray-900 p-5 mb-4 rounded-3xl border border-gray-200 dark:border-gray-700 "
               onPress={() => {
                 setSelectedItem(item);
                 setTab(1);
                 setQuantity("1");
               }}
-              style={{
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-                elevation: 3
-              }}
+             
             >
               <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-2">{item.productName}</Text>
               <View className="flex-row justify-between mb-2">
@@ -103,10 +97,6 @@ export default function Analysis() {
               marginHorizontal: 16,
               borderWidth: 2,
               borderColor: isDark ? '#8b5cf6' : '#a855f7',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 10 },
-              shadowOpacity: 0.3,
-              shadowRadius: 20,
               elevation: 10
             }}
           >
@@ -191,7 +181,7 @@ export default function Analysis() {
   // Tab 3: Show Result
   const renderResult = () => (
     <View style={{ flex: 1 }}>
-      <Text className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Packing Analysis</Text>
+      <Text className="text-3xl font-bold text-gray-950 dark:text-gray-100/70 mb-6">Packing Analysis</Text>
       {loading && (
         <View className="items-center py-8">
           <ActivityIndicator size="large" color="#8b5cf6" />
@@ -212,13 +202,13 @@ export default function Analysis() {
           >
             {/* Summary Cards */}
             <View className="flex-row flex-wrap gap-3 mb-6">
-              <View className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-w-[140px]">
+              <View className="bg-gray-100/40 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-w-[140px]">
                 <Text className="text-green-600 dark:text-green-400 text-2xl font-bold">
                   {result.summary?.totalCartonsUsed || result.packingResults?.length || 0}
                 </Text>
                 <Text className="text-gray-500 dark:text-gray-400 text-sm">Cartons Used</Text>
               </View>
-              <View className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-w-[140px]">
+              <View className="bg-gray-100/40 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-w-[140px]">
                 <Text className="text-violet-600 dark:text-violet-400 text-2xl font-bold">
                   {result.summary?.packingRate || 100}%
                 </Text>
@@ -227,7 +217,7 @@ export default function Analysis() {
             </View>
 
             {/* Product Info */}
-            <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 mb-4">
+            <View className="bg-gray-100/40 dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 mb-4">
               <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Product Information</Text>
               <View className="space-y-2">
                 <View className="flex-row justify-between">
@@ -274,7 +264,7 @@ export default function Analysis() {
             </View>
 
             {/* Packing Efficiency */}
-            <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 mb-4">
+            <View className="bg-gray-100/40 dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 mb-4">
               <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Efficiency Analysis</Text>
               <View className="space-y-3">
                 <View>
@@ -314,7 +304,7 @@ export default function Analysis() {
 
             {/* Carton Breakdown */}
             {result.summary?.cartonTypeBreakdown?.map((carton: any, index: number) => (
-              <View key={index} className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+              <View key={index} className="bg-gray-100/40 dark:bg-gray-900 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
                 <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Carton Details #{index + 1}</Text>
                 <View className="space-y-2">
                   <View className="flex-row justify-between">
@@ -339,7 +329,7 @@ export default function Analysis() {
 
             {/* Individual Carton Details */}
             {result.packingResults && result.packingResults.length > 0 && (
-              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+              <View className="bg-gray-100/40 dark:bg-gray-900 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
                 <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Packing Orientation & Layout</Text>
                 {result.packingResults.slice(0, 3).map((carton: any, index: number) => (
                   <View key={index} className="mb-4">
@@ -420,7 +410,7 @@ export default function Analysis() {
 
             {/* Optimization Details */}
             {result.summary?.optimizationApplied && (
-              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+              <View className="bg-gray-100/40 dark:bg-gray-900 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
                 <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Optimization Features</Text>
                 <View className="space-y-2">
                   {Object.entries(result.summary.optimizationApplied).map(([key, value]: [string, any]) => (
@@ -445,7 +435,7 @@ export default function Analysis() {
 
             {/* Advanced Metrics */}
             {result.analytics?.packingQuality && (
-              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+              <View className="bg-gray-100/40 dark:bg-gray-900 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
                 <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Advanced Analytics</Text>
                 <View className="space-y-3">
                   <View>
@@ -489,7 +479,7 @@ export default function Analysis() {
 
             {/* Recommendations */}
             {result.analytics?.recommendations?.length > 0 && (
-              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+              <View className="bg-gray-100/40 dark:bg-gray-900 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
                 <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Recommendations</Text>
                 {result.analytics.recommendations.map((rec: any, index: number) => (
                   <View key={index} style={{ 
@@ -521,7 +511,7 @@ export default function Analysis() {
 
             {/* Environmental Impact */}
             {result.analytics?.sustainability && (
-              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+              <View className="bg-gray-100/40 dark:bg-gray-900 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
                 <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Environmental Impact</Text>
                 <View className="space-y-2">
                   <View className="flex-row justify-between">
@@ -673,7 +663,7 @@ export default function Analysis() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
+    <SafeAreaView className="flex-1 bg-white/40 dark:bg-gray-950">
       <StatusBar style="auto" translucent={true} />
       <KeyboardAvoidingView
         className="flex-1"
@@ -693,7 +683,7 @@ export default function Analysis() {
           {tab === 0 && renderSelectItem()}
           {tab === 1 && selectedItem && (
             <View className="flex-1 ">
-              <View className="bg-white dark:bg-gray-800 p-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 mb-6">
+              <View className="bg-gray-100/40 dark:bg-gray-900 p-4 rounded-2xl border border-gray-400 dark:border-gray-400 mb-6">
                 <Text className="text-gray-500 dark:text-gray-400 text-sm mb-2">Selected Product</Text>
                 <Text className="text-gray-900 dark:text-gray-100 text-2xl font-bold mb-2">{selectedItem.productName}</Text>
                 <Text className="text-gray-600 dark:text-gray-300">

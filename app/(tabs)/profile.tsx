@@ -127,7 +127,7 @@ export default function ProfileScreen() {
 
         {isEditing && key !== "email" ? (
           <TextInput
-            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg border-gray-200 dark:border-gray-700 border"
+            className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded-lg border-gray-200 dark:border-gray-700 border"
             value={editedUser[key as keyof typeof editedUser]}
             onChangeText={(text) =>
               setEditedUser({ ...editedUser, [key]: text })
@@ -145,16 +145,16 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <SafeAreaView className="flex-1 bg-gray-100/70 dark:bg-gray-950">
       <StatusBar style="light" translucent={true} />
       <ScrollView className="flex-1">
         {/* Header with avatar */}
         <View
           style={{ height: height * 0.25 }}
-          className="bg-white dark:bg-gray-800 px-6 pt-6 pb-12 items-center justify-center"
+          className="bg-gray-100/70 dark:bg-gray-950 px-6 pt-6 pb-12 items-center justify-center"
         >
           <View className="items-center">
-            <View className="w-24 h-24 rounded-full bg-white dark:bg-gray-800 items-center justify-center border-2 border-blue-500">
+            <View className="w-24 h-24 rounded-full bg-white dark:bg-gray-800 items-center justify-center border border-blue-700">
               <Text className="text-3xl font-semibold text-blue-600 dark:text-blue-400">
                 {getInitials(user?.name)}
               </Text>
@@ -177,7 +177,7 @@ export default function ProfileScreen() {
 
         <View className="px-6 pt-6 pb-10">
           {/* Profile Information Card */}
-          <View className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 mb-6 border-gray-200 dark:border-gray-700 border">
+          <View className="bg-white/40 dark:bg-gray-900 rounded-xl p-5 mb-6 border-gray-400/40 dark:border-gray-400/40 border">
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-row items-center">
                 {/* <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center">
@@ -220,7 +220,7 @@ export default function ProfileScreen() {
 
           {/* Logout Button */}
           <TouchableOpacity
-            className="bg-red-600 p-4 rounded-lg shadow-sm mb-6 border border-red-500"
+            className="bg-red-600 p-4 rounded-lg mb-6 border border-red-500"
             onPress={logout}
           >
             <View className="flex-row justify-center items-center">

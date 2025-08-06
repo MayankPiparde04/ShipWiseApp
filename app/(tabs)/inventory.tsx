@@ -1,10 +1,9 @@
 import { useBoxes } from "@/contexts/BoxContext";
 import { useInventory } from "@/contexts/InventoryContext";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -13,7 +12,6 @@ import {
   Platform,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -82,28 +80,22 @@ export default function Inventory() {
   });
   const [isAddingBox, setIsAddingBox] = useState(false);
 
-  const { items, isLoading: isLoadingItems, addItem, removeItem, updateItem } =
-    useInventory();
+  const {
+    items,
+    isLoading: isLoadingItems,
+    addItem,
+    removeItem,
+    updateItem,
+  } = useInventory();
 
-  const { 
-    boxes, 
-    isLoading: isLoadingBoxes, 
-    fetchBoxes, 
-    addBox, 
+  const {
+    boxes,
+    isLoading: isLoadingBoxes,
+    fetchBoxes,
+    addBox,
     removeBox,
-    updateBox 
+    updateBox,
   } = useBoxes();
-
-  // useEffect(() => {
-  //   fetchItems();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (activeTab === "boxes") {
-  //     console.log("fetching boxes"
-  //     fetchBoxes();
-  //   }
-  // }, [activeTab, fetchBoxes]);
 
   // Add/edit item state
   const [editItemId, setEditItemId] = useState<string | null>(null);
@@ -121,11 +113,19 @@ export default function Inventory() {
         setNewItem({
           productName: prediction.product_name || "",
           quantity: "1",
-          weight: prediction.weight?.value ? String(prediction.weight.value) : "",
+          weight: prediction.weight?.value
+            ? String(prediction.weight.value)
+            : "",
           price: "",
-          length: prediction.dimensions?.length ? String(prediction.dimensions.length) : "",
-          breadth: prediction.dimensions?.breadth ? String(prediction.dimensions.breadth) : "",
-          height: prediction.dimensions?.height ? String(prediction.dimensions.height) : "",
+          length: prediction.dimensions?.length
+            ? String(prediction.dimensions.length)
+            : "",
+          breadth: prediction.dimensions?.breadth
+            ? String(prediction.dimensions.breadth)
+            : "",
+          height: prediction.dimensions?.height
+            ? String(prediction.dimensions.height)
+            : "",
           category: prediction.category || "",
           brand: "",
         });
@@ -133,10 +133,18 @@ export default function Inventory() {
         // ignore if parsing fails
       }
     }
-     
   }, [params.prefill]);
 
-  const handleAddItem = async () => {
+  // Filtered boxes memoized for performance
+  const filteredBoxes = useMemo(
+    () =>
+      boxes.filter((box) =>
+        box.box_name.toLowerCase().includes(searchText.toLowerCase())
+      ),
+    [boxes, searchText]
+  );
+
+  const handleAddItem = useCallback(async () => {
     try {
       setIsAddingItem(true);
       const itemData = {
@@ -171,9 +179,9 @@ export default function Inventory() {
     } finally {
       setIsAddingItem(false);
     }
-  };
+  }, [newItem, addItem]);
 
-  const handleAddBox = async () => {
+  const handleAddBox = useCallback(async () => {
     try {
       setIsAddingBox(true);
       const boxData = {
@@ -201,56 +209,61 @@ export default function Inventory() {
     } finally {
       setIsAddingBox(false);
     }
-  };
+  }, [newBox, addBox]);
 
-  const handleDeleteItem = (id: string) => {
-    Alert.alert("Delete Item", "Are you sure?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await removeItem(id);
-          } catch (error: any) {
-            Alert.alert("Error", error.message || "Failed to delete");
-          }
+  const handleDeleteItem = useCallback(
+    (id: string) => {
+      Alert.alert("Delete Item", "Are you sure?", [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await removeItem(id);
+            } catch (error: any) {
+              Alert.alert("Error", error.message || "Failed to delete");
+            }
+          },
         },
-      },
-    ]);
-  };
+      ]);
+    },
+    [removeItem]
+  );
 
-  const handleDeleteBox = (id: string) => {
-    Alert.alert("Delete Box", "Are you sure?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await removeBox(id);
-          } catch (error: any) {
-            Alert.alert("Error", error.message || "Failed to delete");
-          }
+  const handleDeleteBox = useCallback(
+    (id: string) => {
+      Alert.alert("Delete Box", "Are you sure?", [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await removeBox(id);
+            } catch (error: any) {
+              Alert.alert("Error", error.message || "Failed to delete");
+            }
+          },
         },
-      },
-    ]);
-  };
+      ]);
+    },
+    [removeBox]
+  );
 
-  const showItemDetails = (item: Item) => {
+  const showItemDetails = useCallback((item: Item) => {
     setSelectedItem(item);
     setSelectedBox(null);
     setDetailsModalVisible(true);
-  };
+  }, []);
 
-  const showBoxDetails = (box: Box) => {
+  const showBoxDetails = useCallback((box: Box) => {
     setSelectedBox(box);
     setSelectedItem(null);
     setDetailsModalVisible(true);
-  };
+  }, []);
 
-  // Open add/edit item form (edit mode if item provided)
-  const handleEditItem = (item: Item) => {
+  const handleEditItem = useCallback((item: Item) => {
     setEditItemId(item._id);
     setNewItem({
       productName: item.productName,
@@ -264,10 +277,9 @@ export default function Inventory() {
       brand: item.brand || "",
     });
     setShowAddForm(true);
-  };
+  }, []);
 
-  // Save (add or update) item
-  const handleSaveItem = async () => {
+  const handleSaveItem = useCallback(async () => {
     try {
       setIsAddingItem(true);
       const itemData = {
@@ -308,10 +320,9 @@ export default function Inventory() {
     } finally {
       setIsAddingItem(false);
     }
-  };
+  }, [newItem, editItemId, updateItem, addItem]);
 
-  // Open add/edit box form (edit mode if box provided)
-  const handleEditBox = (box: Box) => {
+  const handleEditBox = useCallback((box: Box) => {
     setEditBoxId(box._id);
     setNewBox({
       box_name: box.box_name,
@@ -322,10 +333,9 @@ export default function Inventory() {
       max_weight: String(box.max_weight),
     });
     setShowAddBoxForm(true);
-  };
+  }, []);
 
-  // Save (add or update) box
-  const handleSaveBox = async () => {
+  const handleSaveBox = useCallback(async () => {
     try {
       setIsAddingBox(true);
       const boxData = {
@@ -358,459 +368,536 @@ export default function Inventory() {
     } finally {
       setIsAddingBox(false);
     }
-  };
+  }, [newBox, editBoxId, updateBox, addBox]);
 
-  // Theme integration
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const handleCancelAddItem = useCallback(() => {
+    setShowAddForm(false);
+    setEditItemId(null);
+    setNewItem({
+      productName: "",
+      quantity: "",
+      weight: "",
+      price: "",
+      length: "",
+      breadth: "",
+      height: "",
+      category: "",
+      brand: "",
+    });
+  }, []);
 
-  const renderItem = ({ item }: { item: Item }) => (
-    <View className="bg-white dark:bg-gray-800 p-4 mb-4 rounded-xl shadow-lg border-gray-200 dark:border-gray-700 border h-32 flex-row justify-between">
-      <View className="flex-1">
-        <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold" numberOfLines={1}>
-          {item.productName}
-        </Text>
-        <Text className="text-gray-700 dark:text-gray-300">Qty: {item.quantity}</Text>
-        <Text className="text-gray-700 dark:text-gray-300">Weight: {item.weight}g</Text>
-        <Text className="text-gray-700 dark:text-gray-300">Price: ₹{item.price}</Text>
-      </View>
-      <View className="justify-between items-end">
-        <View className="flex-row">
-          <TouchableOpacity
-            onPress={() => handleEditItem(item)}
-            className="bg-blue-600 dark:bg-blue-500 p-2 rounded-full mr-2"
+  const handleCancelAddBox = useCallback(() => {
+    setShowAddBoxForm(false);
+    setEditBoxId(null);
+    setNewBox({
+      box_name: "",
+      length: "",
+      breadth: "",
+      height: "",
+      quantity: "",
+      max_weight: "",
+    });
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }: { item: Item }) => (
+      <View className="bg-white/40 dark:bg-gray-900 p-4 mb-4 rounded-xl border border-gray-200 dark:border-gray-700 h-32 flex-row justify-between">
+        <View className="flex-1">
+          <Text
+            className="text-gray-900 dark:text-gray-100 text-xl font-bold"
+            numberOfLines={1}
           >
-            <Ionicons name="create-outline" size={18} color="#ffffff" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleDeleteItem(item._id)}
-            className="bg-red-600 p-2 rounded-full"
-          >
-            <Ionicons name="trash-outline" size={18} color="#ffffff" />
-          </TouchableOpacity>
+            {item.productName}
+          </Text>
+          <Text className="text-gray-700 dark:text-gray-300">
+            Qty: {item.quantity}
+          </Text>
+          <Text className="text-gray-700 dark:text-gray-300">
+            Weight: {item.weight}g
+          </Text>
+          <Text className="text-gray-700 dark:text-gray-300">
+            Price: ₹{item.price}
+          </Text>
         </View>
-        <TouchableOpacity onPress={() => showItemDetails(item)} className="p-2">
-          <Ionicons name="ellipsis-vertical" size={20} color="#ffffff" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  const renderBox = ({ item }: { item: Box }) => (
-    <View className="bg-white dark:bg-gray-800 p-4 mb-4 rounded-xl shadow-lg border-gray-200 dark:border-gray-700 border h-32 flex-row justify-between">
-      <View className="flex-1">
-        <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold" numberOfLines={1}>
-          {item.box_name}
-        </Text>
-        <Text className="text-gray-700 dark:text-gray-300">Qty: {item.quantity}</Text>
-        <Text className="text-gray-700 dark:text-gray-300">Max Weight: {item.max_weight}kg</Text>
-        <Text className="text-gray-500 dark:text-gray-400">
-          {item.length} × {item.breadth} × {item.height} cm
-        </Text>
-      </View>
-      <View className="justify-between items-end">
-        <View className="flex-row">
-          <TouchableOpacity
-            onPress={() => handleEditBox(item)}
-            className="bg-blue-600 dark:bg-blue-500 p-2 rounded-full mr-2"
-          >
-            <Ionicons name="create-outline" size={18} color="#ffffff" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleDeleteBox(item._id)}
-            className="bg-red-600 p-2 rounded-full"
-          >
-            <Ionicons name="trash-outline" size={18} color="#ffffff" />
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={() => showBoxDetails(item)} className="p-2">
-          <Ionicons name="ellipsis-vertical" size={20} color="#ffffff" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  const renderDetailsModal = () => (
-    <Modal
-      visible={detailsModalVisible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={() => setDetailsModalVisible(false)}
-    >
-      <View className="flex-1 justify-center items-center bg-black/50 dark:bg-black/70">
-        <View className="bg-white dark:bg-gray-800 w-[90%] rounded-xl p-6 border-gray-200 dark:border-gray-700 border">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-gray-900 dark:text-gray-100 text-2xl font-bold">
-              {selectedItem ? "Item Details" : "Box Details"}
-            </Text>
-            <TouchableOpacity onPress={() => setDetailsModalVisible(false)}>
-              <Ionicons name="close" size={24} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
-
-          {selectedItem && (
-            <ScrollView className="max-h-96">
-              <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-2">
-                {selectedItem.productName}
-              </Text>
-              <Text className="text-gray-700 dark:text-gray-300 mb-1">
-                Quantity: {selectedItem.quantity}
-              </Text>
-              <Text className="text-gray-700 dark:text-gray-300 mb-1">
-                Weight: {selectedItem.weight}g
-              </Text>
-              <Text className="text-gray-700 dark:text-gray-300 mb-1">
-                Price: ₹{selectedItem.price}
-              </Text>
-              <Text className="text-gray-500 dark:text-gray-400 mb-1">
-                Dimensions: {selectedItem.dimensions.length} ×{" "}
-                {selectedItem.dimensions.breadth} ×{" "}
-                {selectedItem.dimensions.height} cm
-              </Text>
-              {selectedItem.category && (
-                <Text className="text-gray-500 dark:text-gray-400 mb-1">
-                  Category: {selectedItem.category}
-                </Text>
-              )}
-              {selectedItem.brand && (
-                <Text className="text-gray-500 dark:text-gray-400 mb-1">
-                  Brand: {selectedItem.brand}
-                </Text>
-              )}
-            </ScrollView>
-          )}
-
-          {selectedBox && (
-            <ScrollView className="max-h-96">
-              <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-2">
-                {selectedBox.box_name}
-              </Text>
-              <Text className="text-gray-700 dark:text-gray-300 mb-1">
-                Quantity: {selectedBox.quantity}
-              </Text>
-              <Text className="text-gray-700 dark:text-gray-300 mb-1">
-                Maximum Weight: {selectedBox.max_weight}kg
-              </Text>
-              <Text className="text-gray-500 dark:text-gray-400 mb-1">
-                Dimensions: {selectedBox.length} × {selectedBox.breadth} ×{" "}
-                {selectedBox.height} cm
-              </Text>
-            </ScrollView>
-          )}
-
-          <TouchableOpacity
-            onPress={() => setDetailsModalVisible(false)}
-            className="bg-gray-200 dark:bg-gray-700 mt-4 py-3 rounded-lg"
-          >
-            <Text className="text-gray-900 dark:text-gray-100 text-center">Close</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
-
-  const renderItemForm = () => (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <StatusBar style="light" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-        enabled={!isAddingItem}
-      >
-        <ScrollView className="px-4 py-6" scrollEnabled={!isAddingItem}>
-          <View className="flex-row justify-between mb-6">
-            <Text className="text-2xl text-gray-900 dark:text-gray-100 font-bold">
-              {editItemId ? "Edit Item" : "Add Item"}
-            </Text>
+        <View className="justify-between items-end">
+          <View className="flex-row">
             <TouchableOpacity
-              onPress={() => {
-                setShowAddForm(false);
-                setEditItemId(null);
-                setNewItem({
-                  productName: "",
-                  quantity: "",
-                  weight: "",
-                  price: "",
-                  length: "",
-                  breadth: "",
-                  height: "",
-                  category: "",
-                  brand: "",
-                });
-              }}
-              className="border-gray-300 dark:border-gray-600 px-4 py-2 rounded-full"
-              disabled={isAddingItem}
-              style={isAddingItem ? { opacity: 0.5 } : undefined}
+              onPress={() => handleEditItem(item)}
+              className="bg-blue-600 dark:bg-blue-800 p-2 rounded-full mr-2"
             >
-              <Text className="text-gray-900 dark:text-gray-100">Cancel</Text>
+              <Ionicons name="create-outline" size={18} color="#ffffff" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleDeleteItem(item._id)}
+              className="bg-red-600 p-2 rounded-full"
+            >
+              <Ionicons name="trash-outline" size={18} color="#ffffff" />
             </TouchableOpacity>
           </View>
+          <TouchableOpacity
+            onPress={() => showItemDetails(item)}
+            className="p-2"
+          >
+            <Ionicons name="ellipsis-vertical" size={20} color="#999" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    ),
+    [handleEditItem, handleDeleteItem, showItemDetails]
+  );
 
-          <View className="space-y-4">
-            {/* Add field names above inputs */}
-            {[
-              { key: "productName", label: "Product Name", placeholder: "Product Name" },
-              { key: "quantity", label: "Quantity", placeholder: "Quantity", keyboardType: "numeric" },
-              { key: "weight", label: "Weight (grams)", placeholder: "Weight (grams)", keyboardType: "decimal-pad" },
-              { key: "price", label: "Price (₹)", placeholder: "Price (₹)", keyboardType: "decimal-pad" },
-              { key: "category", label: "Category (optional)", placeholder: "Category (optional)" },
-              { key: "brand", label: "Brand (optional)", placeholder: "Brand (optional)" },
-            ].map((field) => (
-              <View key={field.key}>
-                <Text className="text-gray-700 dark:text-gray-300 mb-2">{field.label}</Text>
-                <TextInput
-                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 mb-3 rounded-lg border-gray-200 dark:border-gray-700 border"
-                  placeholder={field.placeholder}
-                  placeholderTextColor={isDark ? "#9CA3AF" : "#6B7280"}
-                  keyboardType={field.keyboardType as any}
-                  value={newItem[field.key as keyof typeof newItem]}
-                  onChangeText={(text) =>
-                    setNewItem({ ...newItem, [field.key]: text })
-                  }
-                />
-              </View>
-            ))}
+  const renderBox = useCallback(
+    ({ item }: { item: Box }) => (
+      <View className="bg-white/40 dark:bg-gray-900 p-4 mb-4 rounded-xl border border-gray-200 dark:border-gray-700 h-32 flex-row justify-between">
+        <View className="flex-1">
+          <Text
+            className="text-gray-900 dark:text-gray-100 text-xl font-bold"
+            numberOfLines={1}
+          >
+            {item.box_name}
+          </Text>
+          <Text className="text-gray-700 dark:text-gray-300">
+            Qty: {item.quantity}
+          </Text>
+          <Text className="text-gray-700 dark:text-gray-300">
+            Max Weight: {item.max_weight}kg
+          </Text>
+          <Text className="text-gray-500 dark:text-gray-400">
+            {item.length} × {item.breadth} × {item.height} cm
+          </Text>
+        </View>
+        <View className="justify-between items-end">
+          <View className="flex-row">
+            <TouchableOpacity
+              onPress={() => handleEditBox(item)}
+              className="bg-blue-600 dark:bg-blue-800 p-2 rounded-full mr-2"
+            >
+              <Ionicons name="create-outline" size={18} color="#ffffff" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleDeleteBox(item._id)}
+              className="bg-red-600 p-2 rounded-full"
+            >
+              <Ionicons name="trash-outline" size={18} color="#ffffff" />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            onPress={() => showBoxDetails(item)}
+            className="p-2"
+          >
+            <Ionicons name="ellipsis-vertical" size={20} color="#999" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    ),
+    [handleEditBox, handleDeleteBox, showBoxDetails]
+  );
 
-            <View className="flex-row space-x-2 gap-3">
-              {["length", "breadth", "height"].map((dim) => (
-                <View key={dim} className="flex-1">
-                  <Text className="text-gray-700 dark:text-gray-300 mb-1">
-                    {dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)
+  const renderDetailsModal = useCallback(
+    () => (
+      <Modal
+        visible={detailsModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setDetailsModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 dark:bg-black/70">
+          <View className="bg-white dark:bg-gray-800 w-[90%] rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-gray-900 dark:text-gray-100 text-2xl font-bold">
+                {selectedItem ? "Item Details" : "Box Details"}
+              </Text>
+              <TouchableOpacity onPress={() => setDetailsModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#777" />
+              </TouchableOpacity>
+            </View>
+
+            {selectedItem && (
+              <ScrollView className="max-h-96">
+                <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-2">
+                  {selectedItem.productName}
+                </Text>
+                <Text className="text-gray-700 dark:text-gray-300 mb-1">
+                  Quantity: {selectedItem.quantity}
+                </Text>
+                <Text className="text-gray-700 dark:text-gray-300 mb-1">
+                  Weight: {selectedItem.weight}g
+                </Text>
+                <Text className="text-gray-700 dark:text-gray-300 mb-1">
+                  Price: ₹{selectedItem.price}
+                </Text>
+                <Text className="text-gray-500 dark:text-gray-400 mb-1">
+                  Dimensions: {selectedItem.dimensions.length} ×{" "}
+                  {selectedItem.dimensions.breadth} ×{" "}
+                  {selectedItem.dimensions.height} cm
+                </Text>
+                {selectedItem.category && (
+                  <Text className="text-gray-500 dark:text-gray-400 mb-1">
+                    Category: {selectedItem.category}
+                  </Text>
+                )}
+                {selectedItem.brand && (
+                  <Text className="text-gray-500 dark:text-gray-400 mb-1">
+                    Brand: {selectedItem.brand}
+                  </Text>
+                )}
+              </ScrollView>
+            )}
+
+            {selectedBox && (
+              <ScrollView className="max-h-96">
+                <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-2">
+                  {selectedBox.box_name}
+                </Text>
+                <Text className="text-gray-700 dark:text-gray-300 mb-1">
+                  Quantity: {selectedBox.quantity}
+                </Text>
+                <Text className="text-gray-700 dark:text-gray-300 mb-1">
+                  Maximum Weight: {selectedBox.max_weight}kg
+                </Text>
+                <Text className="text-gray-500 dark:text-gray-400 mb-1">
+                  Dimensions: {selectedBox.length} × {selectedBox.breadth} ×{" "}
+                  {selectedBox.height} cm
+                </Text>
+              </ScrollView>
+            )}
+
+            <TouchableOpacity
+              onPress={() => setDetailsModalVisible(false)}
+              className="bg-gray-200 dark:bg-gray-700 mt-4 py-3 rounded-lg"
+            >
+              <Text className="text-gray-900 dark:text-gray-100 text-center">
+                Close
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    ),
+    [detailsModalVisible, selectedItem, selectedBox]
+  );
+
+  const renderItemForm = useCallback(
+    () => (
+      <SafeAreaView className="flex-1 bg-gray-100/70 dark:bg-gray-950">
+        <StatusBar style="auto" />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1"
+          enabled={!isAddingItem}
+        >
+          <ScrollView className="px-4 py-6" scrollEnabled={!isAddingItem}>
+            <View className="flex-row justify-between mb-6">
+              <Text className="text-2xl text-gray-900 dark:text-gray-100 font-bold">
+                {editItemId ? "Edit Item" : "Add Item"}
+              </Text>
+
+              <TouchableOpacity
+                onPress={handleCancelAddItem}
+                disabled={isAddingItem}
+                className={`px-4 py-2 rounded-full border 
+      border-gray-300 dark:border-gray-600 
+      ${isAddingItem ? "opacity-50" : "opacity-100"}`}
+              >
+                <Text className="text-gray-900 dark:text-gray-100">Cancel</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View className="space-y-4">
+              {/* Add field names above inputs */}
+              {[
+                {
+                  key: "productName",
+                  label: "Product Name",
+                  placeholder: "Product Name",
+                },
+                {
+                  key: "quantity",
+                  label: "Quantity",
+                  placeholder: "Quantity",
+                  keyboardType: "numeric",
+                },
+                {
+                  key: "weight",
+                  label: "Weight (grams)",
+                  placeholder: "Weight (grams)",
+                  keyboardType: "decimal-pad",
+                },
+                {
+                  key: "price",
+                  label: "Price (₹)",
+                  placeholder: "Price (₹)",
+                  keyboardType: "decimal-pad",
+                },
+                {
+                  key: "category",
+                  label: "Category (optional)",
+                  placeholder: "Category (optional)",
+                },
+                {
+                  key: "brand",
+                  label: "Brand (optional)",
+                  placeholder: "Brand (optional)",
+                },
+              ].map((field) => (
+                <View key={field.key} className="mb-4">
+                  <Text className="text-gray-700 dark:text-gray-300 mb-2">
+                    {field.label}
                   </Text>
                   <TextInput
-                    className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg border-gray-200 dark:border-gray-700 border"
-                    placeholder={`${dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)`}
-                    placeholderTextColor={isDark ? "#9CA3AF" : "#6B7280"}
-                    value={newItem[dim as keyof typeof newItem]}
+                    className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 mb-3 rounded-lg border border-gray-200 dark:border-gray-700"
+                    placeholder={field.placeholder}
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType={field.keyboardType as any}
+                    value={newItem[field.key as keyof typeof newItem]}
                     onChangeText={(text) =>
-                      setNewItem({ ...newItem, [dim]: text })
+                      setNewItem({ ...newItem, [field.key]: text })
                     }
-                    keyboardType="decimal-pad"
                   />
                 </View>
               ))}
-            </View>
 
-            <TouchableOpacity
-              onPress={handleSaveItem}
-              className="bg-green-600 dark:bg-green-500 py-4 rounded-lg mt-6 flex-row items-center justify-center"
-              disabled={isAddingItem}
-              style={isAddingItem ? { opacity: 0.6 } : undefined}
-            >
-              {isAddingItem && (
-                <Ionicons
-                  name="refresh"
-                  size={20}
-                  color="#fff"
-                  style={{ marginRight: 8, transform: [{ rotate: "90deg" }] }}
-                />
-              )}
-              <Text className="text-center font-bold text-lg text-white">
-                {isAddingItem
-                  ? "Saving..."
-                  : editItemId
-                  ? "Save Changes"
-                  : "Save Item"}
-              </Text>
-            </TouchableOpacity>
-            {isAddingItem && (
-              <View className="mt-6 items-center">
-                <Text className="text-green-600 dark:text-green-400">
-                  {editItemId ? "Saving changes, please wait..." : "Saving item, please wait..."}
-                </Text>
+              <View className="flex-row gap-3">
+                {["length", "breadth", "height"].map((dim) => (
+                  <View key={dim} className="flex-1">
+                    <Text className="text-gray-700 dark:text-gray-300 mb-1">
+                      {dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)
+                    </Text>
+                    <TextInput
+                      className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg border border-gray-200 dark:border-gray-700"
+                      placeholder={`${dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)`}
+                      placeholderTextColor="#9CA3AF"
+                      value={newItem[dim as keyof typeof newItem]}
+                      onChangeText={(text) =>
+                        setNewItem({ ...newItem, [dim]: text })
+                      }
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                ))}
               </View>
-            )}
-          </View>
-        </ScrollView>
-        {isAddingItem && (
-          <View
-            style={{
-              ...StyleSheet.absoluteFillObject,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 10,
-            }}
-            pointerEvents="auto"
-          >
-            <Ionicons name="hourglass" size={48} color="#22d3ee" />
-            <Text className="text-gray-900 dark:text-gray-100 mt-4 text-lg">Saving...</Text>
-          </View>
-        )}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+
+              <TouchableOpacity
+                onPress={handleSaveItem}
+                className={`bg-green-600 dark:bg-green-700 py-4 rounded-lg mt-6 flex-row items-center justify-center ${isAddingItem ? "opacity-60" : ""}`}
+                disabled={isAddingItem}
+              >
+                {isAddingItem && (
+                  <Ionicons
+                    name="refresh"
+                    size={20}
+                    color="#fff"
+                    className="mr-2 rotate-90"
+                  />
+                )}
+                <Text className="text-center font-bold text-lg text-white">
+                  {isAddingItem
+                    ? "Saving..."
+                    : editItemId
+                      ? "Save Changes"
+                      : "Save Item"}
+                </Text>
+              </TouchableOpacity>
+              {isAddingItem && (
+                <View className="mt-6 items-center">
+                  <Text className="text-green-600 dark:text-green-400">
+                    {editItemId
+                      ? "Saving changes, please wait..."
+                      : "Saving item, please wait..."}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </ScrollView>
+          {isAddingItem && (
+            <View className="absolute inset-0 bg-black/50 justify-center items-center z-10">
+              <Ionicons name="hourglass" size={48} color="#22d3ee" />
+              <Text className="text-gray-100 mt-4 text-lg">Saving...</Text>
+            </View>
+          )}
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    ),
+    [editItemId, isAddingItem, newItem, handleCancelAddItem, handleSaveItem]
   );
 
-  const renderBoxForm = () => (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <StatusBar style="light" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-        enabled={!isAddingBox}
-      >
-        <ScrollView className="px-4 py-6" scrollEnabled={!isAddingBox}>
-          <View className="flex-row justify-between mb-6">
-            <Text className="text-2xl text-gray-900 dark:text-gray-100 font-bold">
-              {editBoxId ? "Edit Box" : "Add Box"}
-            </Text>
-            <TouchableOpacity
-              onPress={() => {
-                setShowAddBoxForm(false);
-                setEditBoxId(null);
-                setNewBox({
-                  box_name: "",
-                  length: "",
-                  breadth: "",
-                  height: "",
-                  quantity: "",
-                  max_weight: "",
-                });
-              }}
-              className="border-gray-300 dark:border-gray-600 px-4 py-2 rounded-full"
-              disabled={isAddingBox}
-              style={isAddingBox ? { opacity: 0.5 } : undefined}
-            >
-              <Text className="text-gray-900 dark:text-gray-100">Cancel</Text>
-            </TouchableOpacity>
-          </View>
+  const renderBoxForm = useCallback(
+    () => (
+      <SafeAreaView className="flex-1 bg-gray-100/70 dark:bg-gray-950">
+        <StatusBar style="auto" />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1"
+          enabled={!isAddingBox}
+        >
+          <ScrollView className="px-4 py-6" scrollEnabled={!isAddingBox}>
+            <View className="flex-row justify-between mb-6">
+              <Text className="text-2xl text-gray-900 dark:text-gray-100 font-bold">
+                {editBoxId ? "Edit Box" : "Add Box"}
+              </Text>
+              <TouchableOpacity
+                onPress={handleCancelAddBox}
+                className={`border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-full ${isAddingBox ? "opacity-50" : ""}`}
+                disabled={isAddingBox}
+              >
+                <Text className="text-gray-900 dark:text-gray-100">Cancel</Text>
+              </TouchableOpacity>
+            </View>
 
-          <View className="space-y-4">
-            {/* Add field names above inputs */}
-            {[
-              { key: "box_name", label: "Box Name", placeholder: "Box Name" },
-              { key: "quantity", label: "Quantity", placeholder: "Quantity", keyboardType: "numeric" },
-              { key: "max_weight", label: "Max Weight (kg)", placeholder: "Max Weight (kg)", keyboardType: "decimal-pad" },
-            ].map((field) => (
-              <View key={field.key}>
-                <Text className="text-gray-600 dark:text-gray-400 mb-2">{field.label}</Text>
-                <TextInput
-                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 mb-3 rounded-lg border-gray-200 dark:border-gray-700 border"
-                  placeholder={field.placeholder}
-                  placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
-                  keyboardType={field.keyboardType as any}
-                  value={newBox[field.key as keyof typeof newBox]}
-                  onChangeText={(text) =>
-                    setNewBox({ ...newBox, [field.key]: text })
-                  }
-                />
-              </View>
-            ))}
-
-            <View className="flex-row space-x-2 gap-3">
-              {["length", "breadth", "height"].map((dim) => (
-                <View key={dim} className="flex-1">
-                  <Text className="text-gray-600 dark:text-gray-400 mb-1">
-                    {dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)
+            <View className="space-y-4">
+              {/* Add field names above inputs */}
+              {[
+                {
+                  key: "box_name",
+                  label: "Box Name",
+                  placeholder: "Box Name",
+                },
+                {
+                  key: "quantity",
+                  label: "Quantity",
+                  placeholder: "Quantity",
+                  keyboardType: "numeric",
+                },
+                {
+                  key: "max_weight",
+                  label: "Max Weight (kg)",
+                  placeholder: "Max Weight (kg)",
+                  keyboardType: "decimal-pad",
+                },
+              ].map((field) => (
+                <View key={field.key}>
+                  <Text className="text-gray-600 dark:text-gray-400 mb-2">
+                    {field.label}
                   </Text>
                   <TextInput
-                    className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg border-gray-200 dark:border-gray-700 border"
-                    placeholder={`${dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)`}
-                    placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
-                    value={newBox[dim as keyof typeof newBox]}
-                    onChangeText={(text) => setNewBox({ ...newBox, [dim]: text })}
-                    keyboardType="decimal-pad"
+                    className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 mb-3 rounded-lg border border-gray-200 dark:border-gray-700"
+                    placeholder={field.placeholder}
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType={field.keyboardType as any}
+                    value={newBox[field.key as keyof typeof newBox]}
+                    onChangeText={(text) =>
+                      setNewBox({ ...newBox, [field.key]: text })
+                    }
                   />
                 </View>
               ))}
-            </View>
 
-            <TouchableOpacity
-              onPress={handleSaveBox}
-              className="bg-green-600 py-4 rounded-lg mt-6 flex-row items-center justify-center"
-              disabled={isAddingBox}
-              style={isAddingBox ? { opacity: 0.6 } : undefined}
-            >
-              {isAddingBox && (
-                <Ionicons
-                  name="refresh"
-                  size={20}
-                  color="#fff"
-                  style={{ marginRight: 8, transform: [{ rotate: "90deg" }] }}
-                />
-              )}
-              <Text className="text-center font-bold text-lg text-white">
-                {isAddingBox ? "Saving..." : "Save Box"}
-              </Text>
-            </TouchableOpacity>
-            {isAddingBox && (
-              <View className="mt-6 items-center">
-                <Text className="text-green-600">Saving box, please wait...</Text>
+              <View className="flex-row gap-3">
+                {["length", "breadth", "height"].map((dim) => (
+                  <View key={dim} className="flex-1">
+                    <Text className="text-gray-600 dark:text-gray-400 mb-1">
+                      {dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)
+                    </Text>
+                    <TextInput
+                      className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg border border-gray-200 dark:border-gray-700"
+                      placeholder={`${dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)`}
+                      placeholderTextColor="#9CA3AF"
+                      value={newBox[dim as keyof typeof newBox]}
+                      onChangeText={(text) =>
+                        setNewBox({ ...newBox, [dim]: text })
+                      }
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                ))}
               </View>
-            )}
-          </View>
-        </ScrollView>
-        {isAddingBox && (
-          <View
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 10,
-            }}
-            pointerEvents="auto"
-          >
-            <Ionicons name="hourglass" size={48} color="#22d3ee" />
-            <Text className="text-gray-900 dark:text-gray-100 mt-4 text-lg">Saving...</Text>
-          </View>
-        )}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
 
-  // No changes needed, just ensure updateBox is available from useBoxes and expects correct fields
+              <TouchableOpacity
+                onPress={handleSaveBox}
+                className={`bg-green-600 dark:bg-green-700 py-4 rounded-lg mt-6 flex-row items-center justify-center ${isAddingBox ? "opacity-60" : ""}`}
+                disabled={isAddingBox}
+              >
+                {isAddingBox && (
+                  <Ionicons
+                    name="refresh"
+                    size={20}
+                    color="#fff"
+                    className="mr-2 rotate-90"
+                  />
+                )}
+                <Text className="text-center font-bold text-lg text-white">
+                  {isAddingBox ? "Saving..." : "Save Box"}
+                </Text>
+              </TouchableOpacity>
+              {isAddingBox && (
+                <View className="mt-6 items-center">
+                  <Text className="text-green-600 dark:text-green-400">
+                    Saving box, please wait...
+                  </Text>
+                </View>
+              )}
+            </View>
+          </ScrollView>
+          {isAddingBox && (
+            <View className="absolute inset-0 bg-black/50 justify-center items-center z-10">
+              <Ionicons name="hourglass" size={48} color="#22d3ee" />
+              <Text className="text-gray-100 mt-4 text-lg">Saving...</Text>
+            </View>
+          )}
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    ),
+    [editBoxId, isAddingBox, newBox, handleCancelAddBox, handleSaveBox]
+  );
 
   if (showAddForm) return renderItemForm();
   if (showAddBoxForm) return renderBoxForm();
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
-      <StatusBar style="light" />
+    <SafeAreaView className="flex-1 bg-white/70 dark:bg-gray-950">
+      <StatusBar style="auto" />
       <View className="flex-1 px-4 py-6 mb-16">
         {/* Tabs */}
-        <View className="flex-row mb-6 bg-white dark:bg-gray-800 rounded-full overflow-hidden">
+        <View className="flex-row mb-6 bg-white dark:bg-gray-800 border border-gray-400/40 rounded-full overflow-hidden">
           <TouchableOpacity
             className={`flex-1 py-3 ${activeTab === "items" ? "bg-blue-100 dark:bg-blue-900" : "bg-gray-100 dark:bg-gray-900"}`}
             onPress={() => setActiveTab("items")}
           >
-            <Text className={`${activeTab === "items" ? "text-blue-700 dark:text-blue-300" : "text-gray-500 dark:text-gray-400"} text-center font-semibold`}>Items</Text>
+            <Text
+              className={`${activeTab === "items" ? "text-blue-700 dark:text-blue-300" : "text-gray-500 dark:text-gray-400"} text-center font-semibold`}
+            >
+              Items
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             className={`flex-1 py-3 ${activeTab === "boxes" ? "bg-blue-100 dark:bg-blue-900" : "bg-gray-100 dark:bg-gray-900"}`}
             onPress={() => setActiveTab("boxes")}
           >
-            <Text className={`${activeTab === "boxes" ? "text-blue-700 dark:text-blue-300" : "text-gray-500 dark:text-gray-400"} text-center font-semibold`}>Boxes</Text>
+            <Text
+              className={`${activeTab === "boxes" ? "text-blue-700 dark:text-blue-300" : "text-gray-500 dark:text-gray-400"} text-center font-semibold`}
+            >
+              Boxes
+            </Text>
           </TouchableOpacity>
         </View>
 
         {activeTab === "items" ? (
           <>
             <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">Inventory</Text>
+              <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Inventory
+              </Text>
               <TouchableOpacity
                 onPress={() => setShowAddForm(true)}
-                className="bg-green-600 dark:bg-green-500 px-4 py-2 rounded-full"
+                className="bg-green-600 dark:bg-green-700 px-4 py-2 rounded-full"
               >
                 <Text className="text-white font-semibold">+ Add Item</Text>
               </TouchableOpacity>
             </View>
 
             <TextInput
-              className="mb-4 p-3 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 border"
+              className="mb-4 p-3 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
               placeholder="Search items..."
-              placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
+              placeholderTextColor="#9CA3AF"
               value={searchText}
               onChangeText={setSearchText}
             />
 
             {isLoadingItems ? (
               <View className="flex-1 justify-center items-center">
-                <Text className="text-gray-500 dark:text-gray-400">Loading items...</Text>
+                <Text className="text-gray-500 dark:text-gray-400">
+                  Loading items...
+                </Text>
               </View>
             ) : (
               <FlatList
@@ -821,11 +908,15 @@ export default function Inventory() {
                   <RefreshControl
                     refreshing={isRefreshing}
                     onRefresh={() => fetchItems(true)}
+                    colors={["#1e40af"]}
+                    tintColor="#1e40af"
                   />
                 }
                 ListEmptyComponent={
                   <View className="flex-1 items-center py-8">
-                    <Text className="text-gray-500 dark:text-gray-400">No items found</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">
+                      No items found
+                    </Text>
                   </View>
                 }
               />
@@ -834,43 +925,49 @@ export default function Inventory() {
         ) : (
           <>
             <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">Boxes</Text>
+              <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                Boxes
+              </Text>
               <TouchableOpacity
                 onPress={() => setShowAddBoxForm(true)}
-                className="bg-green-600 px-4 py-2 rounded-full"
+                className="bg-green-600 dark:bg-green-700 px-4 py-2 rounded-full"
               >
                 <Text className="text-white font-semibold">+ Add Box</Text>
               </TouchableOpacity>
             </View>
 
             <TextInput
-              className="mb-4 p-3 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 border"
+              className="mb-4 p-3 rounded-xl bg-white/40 dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
               placeholder="Search boxes..."
-              placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
+              placeholderTextColor="#9CA3AF"
               value={searchText}
               onChangeText={setSearchText}
             />
 
             {isLoadingBoxes ? (
               <View className="flex-1 justify-center items-center">
-                <Text className="text-gray-500 dark:text-gray-400">Loading...</Text>
+                <Text className="text-gray-500 dark:text-gray-400">
+                  Loading...
+                </Text>
               </View>
             ) : (
               <FlatList
-                data={boxes.filter(box => 
-                  box.box_name.toLowerCase().includes(searchText.toLowerCase())
-                )}
+                data={filteredBoxes}
                 renderItem={renderBox}
                 keyExtractor={(item) => item._id}
                 refreshControl={
                   <RefreshControl
                     refreshing={false}
                     onRefresh={() => fetchBoxes(true)}
+                    colors={["#1e40af"]}
+                    tintColor="#1e40af"
                   />
                 }
                 ListEmptyComponent={
                   <View className="flex-1 items-center py-8">
-                    <Text className="text-gray-500 dark:text-gray-400">No boxes found</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">
+                      No boxes found
+                    </Text>
                   </View>
                 }
               />

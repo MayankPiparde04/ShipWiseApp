@@ -8,7 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -22,17 +22,53 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Login() {
+const Login = React.memo(() => {
   const { login } = useAuth();
   const router = useRouter();
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = colorScheme === "dark";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { fetchItems } = useInventory(); // <-- add this
+  const { fetchItems } = useInventory();
   const { fetchBoxes } = useBoxes();
+
+  // Memoize the header component using NativeWind responsive classes
+  const HeaderComponent = useMemo(
+    () => (
+      <View className="mb-8 md:mb-6 items-center">
+        <View className="w-20 h-20 md:w-24 md:h-24 bg-blue-600 dark:bg-blue-500 rounded-full items-center justify-center mb-6 shadow-lg">
+          <FontAwesome5
+            name="shipping-fast"
+            size={24}
+            className="md:text-3xl"
+            color="white"
+          />
+        </View>
+        <Text className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
+          Welcome Back
+        </Text>
+        <Text className="text-lg md:text-xl text-gray-600 dark:text-gray-300 text-center">
+          Sign in to your ShipWise account
+        </Text>
+      </View>
+    ),
+    []
+  );
+
+  // Optimize form input handling
+  const handleEmailChange = useCallback((text: string) => {
+    setEmail(text);
+  }, []);
+
+  const handlePasswordChange = useCallback((text: string) => {
+    setPassword(text);
+  }, []);
+
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword((prev) => !prev);
+  }, []);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -43,8 +79,8 @@ export default function Login() {
     setIsLoading(true);
     try {
       await login(email.trim(), password);
-      await fetchItems();   // <-- add this
-      await fetchBoxes(); 
+      await fetchItems();
+      await fetchBoxes();
       // Navigation is now handled in AuthContext
     } catch (error: any) {
       if (
@@ -78,37 +114,34 @@ export default function Login() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
+    <SafeAreaView className="flex-1 bg-white/70 dark:bg-gray-950">
       <StatusBar style="auto" translucent={true} />
 
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 80}
+        enabled
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: 120,
+            paddingHorizontal: 24,
+          }}
+          className="md:px-4 lg:px-8"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          keyboardDismissMode="on-drag"
         >
-          <View className="flex-1 justify-center px-6">
+          <View className="flex-1 justify-center px-2 md:px-6 lg:px-8">
             {/* Header */}
-            <View className="mb-12 items-center">
-              <View className="w-20 h-20 bg-blue-600 dark:bg-blue-500 rounded-full items-center justify-center mb-6 shadow-lg">
-                <FontAwesome5 name="shipping-fast" size={24} color="white" />
-              </View>
-              <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
-                Welcome Back
-              </Text>
-              <Text className="text-lg text-gray-600 dark:text-gray-300 text-center">
-                Sign in to your ShipWise account
-              </Text>
-            </View>
+            {HeaderComponent}
 
             {/* Form */}
-            <View className="space-y-8">
-              <View>
-                <Text className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 my-2">
+            <View className="space-y-8 md:space-y-6 gap-4 w-full max-w-md mx-auto">
+              <View className="space-y-4">
+                <Text className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2 my-2">
                   Email Address
                 </Text>
                 <View className="relative">
@@ -116,24 +149,25 @@ export default function Login() {
                     className="w-full p-4 pl-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl shadow-sm"
                     placeholder="Enter your email"
                     value={email}
-                    onChangeText={setEmail}
+                    onChangeText={handleEmailChange}
                     keyboardType="email-address"
                     autoCapitalize="none"
                     autoCorrect={false}
                     editable={!isLoading}
                     placeholderTextColor={isDark ? "#9ca3af" : "#6b7280"}
+                    style={{ fontSize: 14 }}
                   />
                   <Ionicons
                     name="mail-outline"
                     size={20}
                     color={isDark ? "#9ca3af" : "#6b7280"}
-                    style={{ position: "absolute", left: 14, top: 10 }}
+                    className="absolute left-4 top-4"
                   />
                 </View>
               </View>
 
               <View>
-                <Text className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 my-2">
+                <Text className="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2 my-2">
                   Password
                 </Text>
                 <View className="relative">
@@ -141,20 +175,21 @@ export default function Login() {
                     className="w-full p-4 pl-12 pr-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl shadow-sm"
                     placeholder="Enter your password"
                     value={password}
-                    onChangeText={setPassword}
+                    onChangeText={handlePasswordChange}
                     secureTextEntry={!showPassword}
                     editable={!isLoading}
                     placeholderTextColor={isDark ? "#9ca3af" : "#6b7280"}
+                    style={{ fontSize: 14 }}
                   />
                   <Ionicons
                     name="lock-closed-outline"
                     size={20}
                     color={isDark ? "#9ca3af" : "#6b7280"}
-                    style={{ position: "absolute", left: 14, top: 10 }}
+                    className="absolute left-4 top-4"
                   />
                   <TouchableOpacity
                     className="absolute right-4 top-4"
-                    onPress={() => setShowPassword(!showPassword)}
+                    onPress={togglePasswordVisibility}
                   >
                     <Ionicons
                       name={showPassword ? "eye-off-outline" : "eye-outline"}
@@ -166,12 +201,11 @@ export default function Login() {
               </View>
 
               <TouchableOpacity
-                style={[
-                  {
-                    backgroundColor: isLoading ? (isDark ? "#6b7280" : "#9ca3af") : (isDark ? "#3b82f6" : "#2563eb"),
-                  }
-                ]}
-                className="w-full p-4 my-4 rounded-xl shadow-lg"
+                className={`w-full p-4 my-4 rounded-xl shadow-lg ${
+                  isLoading
+                    ? "bg-gray-400 dark:bg-gray-700"
+                    : "bg-blue-700 dark:bg-blue-800"
+                }`}
                 onPress={handleLogin}
                 disabled={isLoading}
               >
@@ -193,21 +227,27 @@ export default function Login() {
             {/* Footer */}
             <View className="mt-8 space-y-4">
               <TouchableOpacity>
-                <Text className="text-violet-600 dark:text-violet-400 text-center font-medium">
+                <Text className="text-blue-600 dark:text-blue-400 text-center font-medium">
                   Forgot your password?
                 </Text>
               </TouchableOpacity>
 
               <View className="flex-row justify-center items-center">
                 <View className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
-                <Text className="mx-4 text-gray-500 dark:text-gray-400">or</Text>
+                <Text className="mx-4 text-gray-500 dark:text-gray-400">
+                  or
+                </Text>
                 <View className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
               </View>
 
               <View className="flex-row justify-center">
-                <Text className="text-gray-500 dark:text-gray-400">Don&apos;t have an account? </Text>
+                <Text className="text-gray-500 text-lg dark:text-gray-400">
+                  Don&apos;t have an account?{" "}
+                </Text>
                 <TouchableOpacity onPress={() => router.push("/register")}>
-                  <Text className="text-violet-600 dark:text-violet-400 font-semibold">Sign Up</Text>
+                  <Text className="text-blue-600 text-lg dark:text-blue-400 font-semibold">
+                    Sign Up
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -216,4 +256,7 @@ export default function Login() {
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-}
+});
+
+Login.displayName = "LoginScreen";
+export default Login;
