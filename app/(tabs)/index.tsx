@@ -134,7 +134,11 @@ export default function Home() {
 
   return (
     <SafeAreaView className="flex-1 bg-white/70 dark:bg-gray-950 top-2">
-      <StatusBar style="auto" translucent={true} className="bg-white/70 dark:bg-gray-950" />
+      <StatusBar
+        style="auto"
+        translucent={true}
+        className="bg-white/70 dark:bg-gray-950"
+      />
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -150,16 +154,16 @@ export default function Home() {
           <View className="flex-1 py-6 space-y-6">
             <View>
               <Text className="text-gray-900 dark:text-gray-100 text-2xl font-semibold">
-                Hello, {user?.name || "User"}
+                Hello, {user?.name?.split(" ")[0] || "User"}
               </Text>
               <Text className="text-gray-500 text-lg dark:text-gray-400">
-                Welcome back to ShipWise!
+                Welcome back to ShipWise
               </Text>
             </View>
 
-            <View className="bg-gray-100/40 dark:bg-gray-700/90 border border-gray-400 dark:border-gray-600 rounded-2xl p-4 flex-row items-center my-2 space-x-3">
+            <View className="bg-gray-100/40 dark:bg-gray-700/90 border border-gray-400 dark:border-gray-600 rounded-2xl p-3 flex-row items-center my-3 space-x-3">
               <Search color="#6b7280" size={20} />
-              <Text className="text-gray-500 dark:text-gray-400">
+              <Text className="text-gray-500 dark:text-gray-400 pl-2">
                 Search items, boxes...
               </Text>
             </View>
