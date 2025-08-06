@@ -33,7 +33,7 @@ export default function ActivationPage() {
 
     try {
       const response = await fetch(
-        `http://93.127.199.146:3001/api/check-verified`,
+        `https://shipwise.tech/api/check-verified`,
         {
           method: "POST",
           headers: {
