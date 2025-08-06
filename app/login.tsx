@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useBoxes } from "@/contexts/BoxContext";
 import { useInventory } from "@/contexts/InventoryContext";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useRouter } from "expo-router";
@@ -25,7 +25,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function Login() {
   const { login } = useAuth();
   const router = useRouter();
-  const theme = useAppTheme();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -77,7 +78,7 @@ export default function Login() {
   };
 
   return (
-    <SafeAreaView className={`flex-1 ${theme.bg}`}>
+    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
       <StatusBar style="auto" translucent={true} />
 
       <KeyboardAvoidingView
@@ -93,13 +94,13 @@ export default function Login() {
           <View className="flex-1 justify-center px-6">
             {/* Header */}
             <View className="mb-12 items-center">
-              <View className={`w-20 h-20 ${theme.buttonSecondary} rounded-full items-center justify-center mb-6 shadow-lg`}>
+              <View className="w-20 h-20 bg-blue-600 dark:bg-blue-500 rounded-full items-center justify-center mb-6 shadow-lg">
                 <FontAwesome5 name="shipping-fast" size={24} color="white" />
               </View>
-              <Text className={`text-4xl font-bold ${theme.text} text-center mb-2`}>
+              <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100 text-center mb-2">
                 Welcome Back
               </Text>
-              <Text className={`text-lg ${theme.textSecondary} text-center`}>
+              <Text className="text-lg text-gray-600 dark:text-gray-300 text-center">
                 Sign in to your ShipWise account
               </Text>
             </View>
@@ -107,12 +108,12 @@ export default function Login() {
             {/* Form */}
             <View className="space-y-8">
               <View>
-                <Text className={`text-sm font-semibold ${theme.textSecondary} mb-2 my-2`}>
+                <Text className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 my-2">
                   Email Address
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className={`w-full p-4 pl-12 ${theme.input} rounded-xl shadow-sm`}
+                    className="w-full p-4 pl-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl shadow-sm"
                     placeholder="Enter your email"
                     value={email}
                     onChangeText={setEmail}
@@ -120,35 +121,35 @@ export default function Login() {
                     autoCapitalize="none"
                     autoCorrect={false}
                     editable={!isLoading}
-                    placeholderTextColor={theme.textMuted}
+                    placeholderTextColor={isDark ? "#9ca3af" : "#6b7280"}
                   />
                   <Ionicons
                     name="mail-outline"
                     size={20}
-                    color={theme.textMuted}
+                    color={isDark ? "#9ca3af" : "#6b7280"}
                     style={{ position: "absolute", left: 14, top: 10 }}
                   />
                 </View>
               </View>
 
               <View>
-                <Text className={`text-sm font-semibold ${theme.textSecondary} mb-2 my-2`}>
+                <Text className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2 my-2">
                   Password
                 </Text>
                 <View className="relative">
                   <TextInput
-                    className={`w-full p-4 pl-12 pr-12 ${theme.input} rounded-xl shadow-sm`}
+                    className="w-full p-4 pl-12 pr-12 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl shadow-sm"
                     placeholder="Enter your password"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
                     editable={!isLoading}
-                    placeholderTextColor={theme.textMuted}
+                    placeholderTextColor={isDark ? "#9ca3af" : "#6b7280"}
                   />
                   <Ionicons
                     name="lock-closed-outline"
                     size={20}
-                    color={theme.textMuted}
+                    color={isDark ? "#9ca3af" : "#6b7280"}
                     style={{ position: "absolute", left: 14, top: 10 }}
                   />
                   <TouchableOpacity
@@ -158,7 +159,7 @@ export default function Login() {
                     <Ionicons
                       name={showPassword ? "eye-off-outline" : "eye-outline"}
                       size={20}
-                      color={theme.textMuted}
+                      color={isDark ? "#9ca3af" : "#6b7280"}
                     />
                   </TouchableOpacity>
                 </View>
@@ -167,7 +168,7 @@ export default function Login() {
               <TouchableOpacity
                 style={[
                   {
-                    backgroundColor: isLoading ? theme.textMuted : theme.buttonSecondary,
+                    backgroundColor: isLoading ? (isDark ? "#6b7280" : "#9ca3af") : (isDark ? "#3b82f6" : "#2563eb"),
                   }
                 ]}
                 className="w-full p-4 my-4 rounded-xl shadow-lg"
@@ -192,21 +193,21 @@ export default function Login() {
             {/* Footer */}
             <View className="mt-8 space-y-4">
               <TouchableOpacity>
-                <Text className={`${theme.accentText} text-center font-medium`}>
+                <Text className="text-violet-600 dark:text-violet-400 text-center font-medium">
                   Forgot your password?
                 </Text>
               </TouchableOpacity>
 
               <View className="flex-row justify-center items-center">
-                <View className={`flex-1 h-px ${theme.border.replace('border-', 'bg-')}`} />
-                <Text className={`mx-4 ${theme.textMuted}`}>or</Text>
-                <View className={`flex-1 h-px ${theme.border.replace('border-', 'bg-')}`} />
+                <View className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
+                <Text className="mx-4 text-gray-500 dark:text-gray-400">or</Text>
+                <View className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
               </View>
 
               <View className="flex-row justify-center">
-                <Text className={theme.textMuted}>Don&apos;t have an account? </Text>
+                <Text className="text-gray-500 dark:text-gray-400">Don&apos;t have an account? </Text>
                 <TouchableOpacity onPress={() => router.push("/register")}>
-                  <Text className={`${theme.accentText} font-semibold`}>Sign Up</Text>
+                  <Text className="text-violet-600 dark:text-violet-400 font-semibold">Sign Up</Text>
                 </TouchableOpacity>
               </View>
             </View>

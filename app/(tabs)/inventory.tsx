@@ -1,6 +1,6 @@
 import { useBoxes } from "@/contexts/BoxContext";
 import { useInventory } from "@/contexts/InventoryContext";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -360,23 +360,25 @@ export default function Inventory() {
     }
   };
 
-  const theme = useAppTheme();
+  // Theme integration
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const renderItem = ({ item }: { item: Item }) => (
-    <View className={`${theme.cardBg} p-4 mb-4 rounded-xl shadow-lg ${theme.border} border h-32 flex-row justify-between`}>
+    <View className="bg-white dark:bg-gray-800 p-4 mb-4 rounded-xl shadow-lg border-gray-200 dark:border-gray-700 border h-32 flex-row justify-between">
       <View className="flex-1">
-        <Text className={`${theme.text} text-xl font-bold`} numberOfLines={1}>
+        <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold" numberOfLines={1}>
           {item.productName}
         </Text>
-        <Text className={theme.textSecondary}>Qty: {item.quantity}</Text>
-        <Text className={theme.textSecondary}>Weight: {item.weight}g</Text>
-        <Text className={theme.textSecondary}>Price: ₹{item.price}</Text>
+        <Text className="text-gray-700 dark:text-gray-300">Qty: {item.quantity}</Text>
+        <Text className="text-gray-700 dark:text-gray-300">Weight: {item.weight}g</Text>
+        <Text className="text-gray-700 dark:text-gray-300">Price: ₹{item.price}</Text>
       </View>
       <View className="justify-between items-end">
         <View className="flex-row">
           <TouchableOpacity
             onPress={() => handleEditItem(item)}
-            className={`${theme.accent} p-2 rounded-full mr-2`}
+            className="bg-blue-600 dark:bg-blue-500 p-2 rounded-full mr-2"
           >
             <Ionicons name="create-outline" size={18} color="#ffffff" />
           </TouchableOpacity>
@@ -395,14 +397,14 @@ export default function Inventory() {
   );
 
   const renderBox = ({ item }: { item: Box }) => (
-    <View className={`${theme.cardBg} p-4 mb-4 rounded-xl shadow-lg ${theme.border} border h-32 flex-row justify-between`}>
+    <View className="bg-white dark:bg-gray-800 p-4 mb-4 rounded-xl shadow-lg border-gray-200 dark:border-gray-700 border h-32 flex-row justify-between">
       <View className="flex-1">
-        <Text className={`${theme.text} text-xl font-bold`} numberOfLines={1}>
+        <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold" numberOfLines={1}>
           {item.box_name}
         </Text>
-        <Text className={theme.textSecondary}>Qty: {item.quantity}</Text>
-        <Text className={theme.textSecondary}>Max Weight: {item.max_weight}kg</Text>
-        <Text className={theme.textMuted}>
+        <Text className="text-gray-700 dark:text-gray-300">Qty: {item.quantity}</Text>
+        <Text className="text-gray-700 dark:text-gray-300">Max Weight: {item.max_weight}kg</Text>
+        <Text className="text-gray-500 dark:text-gray-400">
           {item.length} × {item.breadth} × {item.height} cm
         </Text>
       </View>
@@ -410,7 +412,7 @@ export default function Inventory() {
         <View className="flex-row">
           <TouchableOpacity
             onPress={() => handleEditBox(item)}
-            className={`${theme.accent} p-2 rounded-full mr-2`}
+            className="bg-blue-600 dark:bg-blue-500 p-2 rounded-full mr-2"
           >
             <Ionicons name="create-outline" size={18} color="#ffffff" />
           </TouchableOpacity>
@@ -435,10 +437,10 @@ export default function Inventory() {
       animationType="slide"
       onRequestClose={() => setDetailsModalVisible(false)}
     >
-      <View className={`flex-1 justify-center items-center ${theme.modalOverlay}`}>
-        <View className={`${theme.modalBg} w-[90%] rounded-xl p-6 ${theme.border} border`}>
+      <View className="flex-1 justify-center items-center bg-black/50 dark:bg-black/70">
+        <View className="bg-white dark:bg-gray-800 w-[90%] rounded-xl p-6 border-gray-200 dark:border-gray-700 border">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className={`${theme.text} text-2xl font-bold`}>
+            <Text className="text-gray-900 dark:text-gray-100 text-2xl font-bold">
               {selectedItem ? "Item Details" : "Box Details"}
             </Text>
             <TouchableOpacity onPress={() => setDetailsModalVisible(false)}>
@@ -448,30 +450,30 @@ export default function Inventory() {
 
           {selectedItem && (
             <ScrollView className="max-h-96">
-              <Text className={`${theme.text} text-xl font-bold mb-2`}>
+              <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-2">
                 {selectedItem.productName}
               </Text>
-              <Text className={`${theme.textSecondary} mb-1`}>
+              <Text className="text-gray-700 dark:text-gray-300 mb-1">
                 Quantity: {selectedItem.quantity}
               </Text>
-              <Text className={`${theme.textSecondary} mb-1`}>
+              <Text className="text-gray-700 dark:text-gray-300 mb-1">
                 Weight: {selectedItem.weight}g
               </Text>
-              <Text className={`${theme.textSecondary} mb-1`}>
+              <Text className="text-gray-700 dark:text-gray-300 mb-1">
                 Price: ₹{selectedItem.price}
               </Text>
-              <Text className={`${theme.textMuted} mb-1`}>
+              <Text className="text-gray-500 dark:text-gray-400 mb-1">
                 Dimensions: {selectedItem.dimensions.length} ×{" "}
                 {selectedItem.dimensions.breadth} ×{" "}
                 {selectedItem.dimensions.height} cm
               </Text>
               {selectedItem.category && (
-                <Text className={`${theme.textMuted} mb-1`}>
+                <Text className="text-gray-500 dark:text-gray-400 mb-1">
                   Category: {selectedItem.category}
                 </Text>
               )}
               {selectedItem.brand && (
-                <Text className={`${theme.textMuted} mb-1`}>
+                <Text className="text-gray-500 dark:text-gray-400 mb-1">
                   Brand: {selectedItem.brand}
                 </Text>
               )}
@@ -480,16 +482,16 @@ export default function Inventory() {
 
           {selectedBox && (
             <ScrollView className="max-h-96">
-              <Text className={`${theme.text} text-xl font-bold mb-2`}>
+              <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-2">
                 {selectedBox.box_name}
               </Text>
-              <Text className={`${theme.textSecondary} mb-1`}>
+              <Text className="text-gray-700 dark:text-gray-300 mb-1">
                 Quantity: {selectedBox.quantity}
               </Text>
-              <Text className={`${theme.textSecondary} mb-1`}>
+              <Text className="text-gray-700 dark:text-gray-300 mb-1">
                 Maximum Weight: {selectedBox.max_weight}kg
               </Text>
-              <Text className={`${theme.textMuted} mb-1`}>
+              <Text className="text-gray-500 dark:text-gray-400 mb-1">
                 Dimensions: {selectedBox.length} × {selectedBox.breadth} ×{" "}
                 {selectedBox.height} cm
               </Text>
@@ -498,9 +500,9 @@ export default function Inventory() {
 
           <TouchableOpacity
             onPress={() => setDetailsModalVisible(false)}
-            className={`${theme.border} mt-4 py-3 rounded-lg`}
+            className="bg-gray-200 dark:bg-gray-700 mt-4 py-3 rounded-lg"
           >
-            <Text className={theme.text + " text-center"}>Close</Text>
+            <Text className="text-gray-900 dark:text-gray-100 text-center">Close</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -508,7 +510,7 @@ export default function Inventory() {
   );
 
   const renderItemForm = () => (
-    <SafeAreaView className={`flex-1 ${theme.bg}`}>
+    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -517,7 +519,7 @@ export default function Inventory() {
       >
         <ScrollView className="px-4 py-6" scrollEnabled={!isAddingItem}>
           <View className="flex-row justify-between mb-6">
-            <Text className={`text-2xl ${theme.text} font-bold`}>
+            <Text className="text-2xl text-gray-900 dark:text-gray-100 font-bold">
               {editItemId ? "Edit Item" : "Add Item"}
             </Text>
             <TouchableOpacity
@@ -536,11 +538,11 @@ export default function Inventory() {
                   brand: "",
                 });
               }}
-              className={`${theme.border} px-4 py-2 rounded-full`}
+              className="border-gray-300 dark:border-gray-600 px-4 py-2 rounded-full"
               disabled={isAddingItem}
               style={isAddingItem ? { opacity: 0.5 } : undefined}
             >
-              <Text className={theme.text}>Cancel</Text>
+              <Text className="text-gray-900 dark:text-gray-100">Cancel</Text>
             </TouchableOpacity>
           </View>
 
@@ -555,11 +557,11 @@ export default function Inventory() {
               { key: "brand", label: "Brand (optional)", placeholder: "Brand (optional)" },
             ].map((field) => (
               <View key={field.key}>
-                <Text className={`${theme.textSecondary} mb-2`}>{field.label}</Text>
+                <Text className="text-gray-700 dark:text-gray-300 mb-2">{field.label}</Text>
                 <TextInput
-                  className={`${theme.cardBg} ${theme.text} p-3 mb-3 rounded-lg ${theme.border} border`}
+                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 mb-3 rounded-lg border-gray-200 dark:border-gray-700 border"
                   placeholder={field.placeholder}
-                  placeholderTextColor={theme.textMuted}
+                  placeholderTextColor={isDark ? "#9CA3AF" : "#6B7280"}
                   keyboardType={field.keyboardType as any}
                   value={newItem[field.key as keyof typeof newItem]}
                   onChangeText={(text) =>
@@ -572,13 +574,13 @@ export default function Inventory() {
             <View className="flex-row space-x-2 gap-3">
               {["length", "breadth", "height"].map((dim) => (
                 <View key={dim} className="flex-1">
-                  <Text className={`${theme.textSecondary} mb-1`}>
+                  <Text className="text-gray-700 dark:text-gray-300 mb-1">
                     {dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)
                   </Text>
                   <TextInput
-                    className={`${theme.cardBg} ${theme.text} p-3 rounded-lg ${theme.border} border`}
+                    className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg border-gray-200 dark:border-gray-700 border"
                     placeholder={`${dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)`}
-                    placeholderTextColor={theme.textMuted}
+                    placeholderTextColor={isDark ? "#9CA3AF" : "#6B7280"}
                     value={newItem[dim as keyof typeof newItem]}
                     onChangeText={(text) =>
                       setNewItem({ ...newItem, [dim]: text })
@@ -591,7 +593,7 @@ export default function Inventory() {
 
             <TouchableOpacity
               onPress={handleSaveItem}
-              className={`${theme.success} py-4 rounded-lg mt-6 flex-row items-center justify-center`}
+              className="bg-green-600 dark:bg-green-500 py-4 rounded-lg mt-6 flex-row items-center justify-center"
               disabled={isAddingItem}
               style={isAddingItem ? { opacity: 0.6 } : undefined}
             >
@@ -603,7 +605,7 @@ export default function Inventory() {
                   style={{ marginRight: 8, transform: [{ rotate: "90deg" }] }}
                 />
               )}
-              <Text className={`text-center font-bold text-lg ${theme.text}`}>
+              <Text className="text-center font-bold text-lg text-white">
                 {isAddingItem
                   ? "Saving..."
                   : editItemId
@@ -613,7 +615,7 @@ export default function Inventory() {
             </TouchableOpacity>
             {isAddingItem && (
               <View className="mt-6 items-center">
-                <Text className={theme.successText}>
+                <Text className="text-green-600 dark:text-green-400">
                   {editItemId ? "Saving changes, please wait..." : "Saving item, please wait..."}
                 </Text>
               </View>
@@ -632,7 +634,7 @@ export default function Inventory() {
             pointerEvents="auto"
           >
             <Ionicons name="hourglass" size={48} color="#22d3ee" />
-            <Text className={`${theme.text} mt-4 text-lg`}>Saving...</Text>
+            <Text className="text-gray-900 dark:text-gray-100 mt-4 text-lg">Saving...</Text>
           </View>
         )}
       </KeyboardAvoidingView>
@@ -640,7 +642,7 @@ export default function Inventory() {
   );
 
   const renderBoxForm = () => (
-    <SafeAreaView className={`flex-1 ${theme.bg}`}>
+    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -649,7 +651,7 @@ export default function Inventory() {
       >
         <ScrollView className="px-4 py-6" scrollEnabled={!isAddingBox}>
           <View className="flex-row justify-between mb-6">
-            <Text className={`text-2xl ${theme.text} font-bold`}>
+            <Text className="text-2xl text-gray-900 dark:text-gray-100 font-bold">
               {editBoxId ? "Edit Box" : "Add Box"}
             </Text>
             <TouchableOpacity
@@ -665,11 +667,11 @@ export default function Inventory() {
                   max_weight: "",
                 });
               }}
-              className={`${theme.border} px-4 py-2 rounded-full`}
+              className="border-gray-300 dark:border-gray-600 px-4 py-2 rounded-full"
               disabled={isAddingBox}
               style={isAddingBox ? { opacity: 0.5 } : undefined}
             >
-              <Text className={theme.text}>Cancel</Text>
+              <Text className="text-gray-900 dark:text-gray-100">Cancel</Text>
             </TouchableOpacity>
           </View>
 
@@ -681,11 +683,11 @@ export default function Inventory() {
               { key: "max_weight", label: "Max Weight (kg)", placeholder: "Max Weight (kg)", keyboardType: "decimal-pad" },
             ].map((field) => (
               <View key={field.key}>
-                <Text className={`${theme.textSecondary} mb-2`}>{field.label}</Text>
+                <Text className="text-gray-600 dark:text-gray-400 mb-2">{field.label}</Text>
                 <TextInput
-                  className={`${theme.cardBg} ${theme.text} p-3 mb-3 rounded-lg ${theme.border} border`}
+                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 mb-3 rounded-lg border-gray-200 dark:border-gray-700 border"
                   placeholder={field.placeholder}
-                  placeholderTextColor={theme.textMuted}
+                  placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
                   keyboardType={field.keyboardType as any}
                   value={newBox[field.key as keyof typeof newBox]}
                   onChangeText={(text) =>
@@ -698,13 +700,13 @@ export default function Inventory() {
             <View className="flex-row space-x-2 gap-3">
               {["length", "breadth", "height"].map((dim) => (
                 <View key={dim} className="flex-1">
-                  <Text className={`${theme.textSecondary} mb-1`}>
+                  <Text className="text-gray-600 dark:text-gray-400 mb-1">
                     {dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)
                   </Text>
                   <TextInput
-                    className={`${theme.cardBg} ${theme.text} p-3 rounded-lg ${theme.border} border`}
+                    className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg border-gray-200 dark:border-gray-700 border"
                     placeholder={`${dim.charAt(0).toUpperCase() + dim.slice(1)} (cm)`}
-                    placeholderTextColor={theme.textMuted}
+                    placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
                     value={newBox[dim as keyof typeof newBox]}
                     onChangeText={(text) => setNewBox({ ...newBox, [dim]: text })}
                     keyboardType="decimal-pad"
@@ -715,7 +717,7 @@ export default function Inventory() {
 
             <TouchableOpacity
               onPress={handleSaveBox}
-              className={`${theme.success} py-4 rounded-lg mt-6 flex-row items-center justify-center`}
+              className="bg-green-600 py-4 rounded-lg mt-6 flex-row items-center justify-center"
               disabled={isAddingBox}
               style={isAddingBox ? { opacity: 0.6 } : undefined}
             >
@@ -727,13 +729,13 @@ export default function Inventory() {
                   style={{ marginRight: 8, transform: [{ rotate: "90deg" }] }}
                 />
               )}
-              <Text className={`text-center font-bold text-lg ${theme.text}`}>
+              <Text className="text-center font-bold text-lg text-white">
                 {isAddingBox ? "Saving..." : "Save Box"}
               </Text>
             </TouchableOpacity>
             {isAddingBox && (
               <View className="mt-6 items-center">
-                <Text className={theme.successText}>Saving box, please wait...</Text>
+                <Text className="text-green-600">Saving box, please wait...</Text>
               </View>
             )}
           </View>
@@ -754,7 +756,7 @@ export default function Inventory() {
             pointerEvents="auto"
           >
             <Ionicons name="hourglass" size={48} color="#22d3ee" />
-            <Text className={`${theme.text} mt-4 text-lg`}>Saving...</Text>
+            <Text className="text-gray-900 dark:text-gray-100 mt-4 text-lg">Saving...</Text>
           </View>
         )}
       </KeyboardAvoidingView>
@@ -767,48 +769,48 @@ export default function Inventory() {
   if (showAddBoxForm) return renderBoxForm();
 
   return (
-    <SafeAreaView className={`flex-1 ${theme.bg}`}>
+    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <StatusBar style="light" />
       <View className="flex-1 px-4 py-6 mb-16">
         {/* Tabs */}
-        <View className={`flex-row mb-6 ${theme.cardBg} rounded-full overflow-hidden`}>
+        <View className="flex-row mb-6 bg-white dark:bg-gray-800 rounded-full overflow-hidden">
           <TouchableOpacity
-            className={`flex-1 py-3 ${activeTab === "items" ? theme.tabActive : theme.tabInactive}`}
+            className={`flex-1 py-3 ${activeTab === "items" ? "bg-blue-100 dark:bg-blue-900" : "bg-gray-100 dark:bg-gray-900"}`}
             onPress={() => setActiveTab("items")}
           >
-            <Text className={`${activeTab === "items" ? theme.tabTextActive : theme.tabTextInactive} text-center font-semibold`}>Items</Text>
+            <Text className={`${activeTab === "items" ? "text-blue-700 dark:text-blue-300" : "text-gray-500 dark:text-gray-400"} text-center font-semibold`}>Items</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className={`flex-1 py-3 ${activeTab === "boxes" ? theme.tabActive : theme.tabInactive}`}
+            className={`flex-1 py-3 ${activeTab === "boxes" ? "bg-blue-100 dark:bg-blue-900" : "bg-gray-100 dark:bg-gray-900"}`}
             onPress={() => setActiveTab("boxes")}
           >
-            <Text className={`${activeTab === "boxes" ? theme.tabTextActive : theme.tabTextInactive} text-center font-semibold`}>Boxes</Text>
+            <Text className={`${activeTab === "boxes" ? "text-blue-700 dark:text-blue-300" : "text-gray-500 dark:text-gray-400"} text-center font-semibold`}>Boxes</Text>
           </TouchableOpacity>
         </View>
 
         {activeTab === "items" ? (
           <>
             <View className="flex-row justify-between items-center mb-4">
-              <Text className={`text-2xl font-bold ${theme.text}`}>Inventory</Text>
+              <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">Inventory</Text>
               <TouchableOpacity
                 onPress={() => setShowAddForm(true)}
-                className={`${theme.success} px-4 py-2 rounded-full`}
+                className="bg-green-600 dark:bg-green-500 px-4 py-2 rounded-full"
               >
                 <Text className="text-white font-semibold">+ Add Item</Text>
               </TouchableOpacity>
             </View>
 
             <TextInput
-              className={`mb-4 p-3 rounded-xl ${theme.cardBg} ${theme.text} ${theme.border} border`}
+              className="mb-4 p-3 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 border"
               placeholder="Search items..."
-              placeholderTextColor={theme.textMuted}
+              placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
               value={searchText}
               onChangeText={setSearchText}
             />
 
             {isLoadingItems ? (
               <View className="flex-1 justify-center items-center">
-                <Text className={theme.textMuted}>Loading items...</Text>
+                <Text className="text-gray-500 dark:text-gray-400">Loading items...</Text>
               </View>
             ) : (
               <FlatList
@@ -823,7 +825,7 @@ export default function Inventory() {
                 }
                 ListEmptyComponent={
                   <View className="flex-1 items-center py-8">
-                    <Text className={theme.textMuted}>No items found</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">No items found</Text>
                   </View>
                 }
               />
@@ -832,26 +834,26 @@ export default function Inventory() {
         ) : (
           <>
             <View className="flex-row justify-between items-center mb-4">
-              <Text className={`text-2xl font-bold ${theme.text}`}>Boxes</Text>
+              <Text className="text-2xl font-bold text-gray-900 dark:text-gray-100">Boxes</Text>
               <TouchableOpacity
                 onPress={() => setShowAddBoxForm(true)}
-                className={`${theme.success} px-4 py-2 rounded-full`}
+                className="bg-green-600 px-4 py-2 rounded-full"
               >
                 <Text className="text-white font-semibold">+ Add Box</Text>
               </TouchableOpacity>
             </View>
 
             <TextInput
-              className={`mb-4 p-3 rounded-xl ${theme.cardBg} ${theme.text} ${theme.border} border`}
+              className="mb-4 p-3 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 border"
               placeholder="Search boxes..."
-              placeholderTextColor={theme.textMuted}
+              placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
               value={searchText}
               onChangeText={setSearchText}
             />
 
             {isLoadingBoxes ? (
               <View className="flex-1 justify-center items-center">
-                <Text className={theme.textMuted}>Loading...</Text>
+                <Text className="text-gray-500 dark:text-gray-400">Loading...</Text>
               </View>
             ) : (
               <FlatList
@@ -868,7 +870,7 @@ export default function Inventory() {
                 }
                 ListEmptyComponent={
                   <View className="flex-1 items-center py-8">
-                    <Text className={theme.textMuted}>No boxes found</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">No boxes found</Text>
                   </View>
                 }
               />

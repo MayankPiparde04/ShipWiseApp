@@ -6,12 +6,11 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { BoxProvider } from "@/contexts/BoxContext";
 import { InventoryProvider } from "@/contexts/InventoryContext";
 import { OptimalProvider } from "@/contexts/OptimalContext";
-import { useAppTheme } from "@/hooks/useAppTheme";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { router, Stack, useSegments } from "expo-router";
@@ -21,7 +20,6 @@ import { ActivityIndicator, Text, View } from "react-native";
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const theme = useAppTheme();
   const { user, isLoading } = useAuth();
   const segments = useSegments();
 
@@ -45,9 +43,9 @@ function RootLayoutNav() {
 
   if (isLoading) {
     return (
-      <View className={`flex-1 justify-center items-center ${theme.bg}`}>
-        <ActivityIndicator size="large" color={theme.accentBg} />
-        <Text className={`text-lg font-semibold ${theme.text} mt-4`}>Loading...</Text>
+      <View className="flex-1 justify-center items-center bg-white dark:bg-gray-900">
+        <ActivityIndicator size="large" color="#8b5cf6" />
+        <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-4">Loading...</Text>
       </View>
     );
   }

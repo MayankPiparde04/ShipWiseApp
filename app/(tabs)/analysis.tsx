@@ -1,6 +1,6 @@
 import { useInventory } from "@/contexts/InventoryContext";
 import { useOptimal } from "@/contexts/OptimalContext";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
@@ -21,7 +21,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Analysis() {
-  const theme = useAppTheme();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const { items, isLoading: isLoadingItems, removeBoxItem } = useInventory();
   const { loading, error, result, fetchOptimalPacking, clearResult } = useOptimal();
 
@@ -34,12 +35,12 @@ export default function Analysis() {
   // Tab 1: Select Item
   const renderSelectItem = () => (
     <View style={{ flex: 1 }}>
-      <Text className={`text-3xl font-bold ${theme.text} mb-6`}>Choose Product</Text>
-      <Text className={`${theme.textMuted} mb-4`}>Select an item to calculate optimal packing</Text>
+      <Text className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Choose Product</Text>
+      <Text className="text-gray-500 dark:text-gray-400 mb-4">Select an item to calculate optimal packing</Text>
       {isLoadingItems ? (
         <View className="items-center py-8">
-          <ActivityIndicator size="large" color={theme.accentBg} />
-          <Text className={`${theme.textMuted} mt-4`}>Loading items...</Text>
+          <ActivityIndicator size="large" color="#8b5cf6" />
+          <Text className="text-gray-500 dark:text-gray-400 mt-4">Loading items...</Text>
         </View>
       ) : (
         <FlatList
@@ -48,7 +49,7 @@ export default function Analysis() {
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <TouchableOpacity
-              className={`${theme.cardBg} p-5 mb-4 rounded-2xl ${theme.border} border-2 shadow-sm`}
+              className="bg-white dark:bg-gray-800 p-5 mb-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 shadow-sm"
               onPress={() => {
                 setSelectedItem(item);
                 setTab(1);
@@ -62,20 +63,20 @@ export default function Analysis() {
                 elevation: 3
               }}
             >
-              <Text className={`${theme.text} text-xl font-bold mb-2`}>{item.productName}</Text>
+              <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-2">{item.productName}</Text>
               <View className="flex-row justify-between mb-2">
-                <Text className={`${theme.textSecondary} font-medium`}>Available: {item.quantity}</Text>
-                <Text className={`${theme.textSecondary} font-medium`}>Weight: {item.weight}g</Text>
+                <Text className="text-gray-600 dark:text-gray-300 font-medium">Available: {item.quantity}</Text>
+                <Text className="text-gray-600 dark:text-gray-300 font-medium">Weight: {item.weight}g</Text>
               </View>
-              <Text className={`${theme.textMuted}`}>
+              <Text className="text-gray-500 dark:text-gray-400">
                 Size: {item.dimensions.length} × {item.dimensions.breadth} × {item.dimensions.height} cm
               </Text>
             </TouchableOpacity>
           )}
           ListEmptyComponent={
             <View className="items-center py-12">
-              <Text className={`${theme.textMuted} text-lg text-center`}>No items found</Text>
-              <Text className={`${theme.textMuted} text-center mt-2`}>Add some products to get started</Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-lg text-center">No items found</Text>
+              <Text className="text-gray-500 dark:text-gray-400 text-center mt-2">Add some products to get started</Text>
             </View>
           }
         />
@@ -93,15 +94,15 @@ export default function Analysis() {
         animationType="slide"
         onRequestClose={() => setQuantityModalVisible(false)}
       >
-        <View className={`flex-1 justify-center  ${theme.modalOverlay}`}>
+        <View className="flex-1 justify-center bg-black/50 dark:bg-black/70">
           <View
             style={{
-              backgroundColor: theme.modalBg,
+              backgroundColor: isDark ? '#1f2937' : '#ffffff',
               padding: 32,
               borderRadius: 24,
               marginHorizontal: 16,
               borderWidth: 2,
-              borderColor: theme.accentBg,
+              borderColor: isDark ? '#8b5cf6' : '#a855f7',
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 10 },
               shadowOpacity: 0.3,
@@ -109,20 +110,20 @@ export default function Analysis() {
               elevation: 10
             }}
           >
-            <Text className={`text-3xl font-bold ${theme.successText} mb-6 text-center`}>
+            <Text className="text-3xl font-bold text-green-600 dark:text-green-400 mb-6 text-center">
               Set Quantity
             </Text>
             <View className="mb-6">
-              <Text className={`${theme.text} text-lg mb-2`}>Product: {selectedItem?.productName}</Text>
-              <Text className={`${theme.textSecondary} text-base`}>
-                Available: <Text className={`font-bold ${theme.successText}`}>{maxQty} units</Text>
+              <Text className="text-gray-900 dark:text-gray-100 text-lg mb-2">Product: {selectedItem?.productName}</Text>
+              <Text className="text-gray-600 dark:text-gray-300 text-base">
+                Available: <Text className="font-bold text-green-600 dark:text-green-400">{maxQty} units</Text>
               </Text>
             </View>
             <TextInput
               style={{
-                backgroundColor: theme.bg,
-                color: theme.text,
-                borderColor: theme.border,
+                backgroundColor: isDark ? '#374151' : '#f9fafb',
+                color: isDark ? '#f3f4f6' : '#111827',
+                borderColor: isDark ? '#6b7280' : '#d1d5db',
                 borderWidth: 2,
                 padding: 16,
                 borderRadius: 12,
@@ -137,24 +138,24 @@ export default function Analysis() {
                 setQuantity(val.replace(/[^0-9]/g, ""));
               }}
               placeholder="Enter quantity"
-              placeholderTextColor={theme.textMuted}
+              placeholderTextColor={isDark ? '#9ca3af' : '#6b7280'}
             />
             <View className="flex-row space-x-4 gap-2">
               <TouchableOpacity
                 style={{
                   flex: 1,
-                  backgroundColor: theme.border,
+                  backgroundColor: isDark ? '#6b7280' : '#e5e7eb',
                   paddingVertical: 16,
                   borderRadius: 12
                 }}
                 onPress={() => setQuantityModalVisible(false)}
               >
-                <Text className={`${theme.text} font-bold text-center text-lg`}>Cancel</Text>
+                <Text className="text-gray-900 dark:text-gray-100 font-bold text-center text-lg">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
                   flex: 1,
-                  backgroundColor: theme.success,
+                  backgroundColor: '#16a34a',
                   paddingVertical: 16,
                   borderRadius: 12
                 }}
@@ -190,17 +191,17 @@ export default function Analysis() {
   // Tab 3: Show Result
   const renderResult = () => (
     <View style={{ flex: 1 }}>
-      <Text className={`text-3xl font-bold ${theme.text} mb-6`}>Packing Analysis</Text>
+      <Text className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Packing Analysis</Text>
       {loading && (
         <View className="items-center py-8">
-          <ActivityIndicator size="large" color={theme.accentBg} />
-          <Text className={`${theme.textMuted} mt-4 text-lg`}>Calculating optimal packing...</Text>
+          <ActivityIndicator size="large" color="#8b5cf6" />
+          <Text className="text-gray-500 dark:text-gray-400 mt-4 text-lg">Calculating optimal packing...</Text>
         </View>
       )}
       {error && (
-        <View className={`${theme.error} rounded-2xl p-6 mb-6`}>
-          <Text className={`${theme.errorText} font-bold text-lg mb-2`}>Calculation Error</Text>
-          <Text className={`${theme.errorText}`}>{error}</Text>
+        <View className="bg-red-100 dark:bg-red-900/30 rounded-2xl p-6 mb-6">
+          <Text className="text-red-800 dark:text-red-400 font-bold text-lg mb-2">Calculation Error</Text>
+          <Text className="text-red-800 dark:text-red-400">{error}</Text>
         </View>
       )}
       {result && (
@@ -211,80 +212,80 @@ export default function Analysis() {
           >
             {/* Summary Cards */}
             <View className="flex-row flex-wrap gap-3 mb-6">
-              <View className={`${theme.cardBg} p-4 rounded-xl ${theme.border} border flex-1 min-w-[140px]`}>
-                <Text className={`${theme.successText} text-2xl font-bold`}>
+              <View className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-w-[140px]">
+                <Text className="text-green-600 dark:text-green-400 text-2xl font-bold">
                   {result.summary?.totalCartonsUsed || result.packingResults?.length || 0}
                 </Text>
-                <Text className={`${theme.textMuted} text-sm`}>Cartons Used</Text>
+                <Text className="text-gray-500 dark:text-gray-400 text-sm">Cartons Used</Text>
               </View>
-              <View className={`${theme.cardBg} p-4 rounded-xl ${theme.border} border flex-1 min-w-[140px]`}>
-                <Text className={`${theme.accentText} text-2xl font-bold`}>
+              <View className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-w-[140px]">
+                <Text className="text-violet-600 dark:text-violet-400 text-2xl font-bold">
                   {result.summary?.packingRate || 100}%
                 </Text>
-                <Text className={`${theme.textMuted} text-sm`}>Packing Success</Text>
+                <Text className="text-gray-500 dark:text-gray-400 text-sm">Packing Success</Text>
               </View>
             </View>
 
             {/* Product Info */}
-            <View className={`${theme.cardBg} p-5 rounded-2xl ${theme.border} border mb-4`}>
-              <Text className={`${theme.text} text-xl font-bold mb-3`}>Product Information</Text>
+            <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 mb-4">
+              <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Product Information</Text>
               <View className="space-y-2">
                 <View className="flex-row justify-between">
-                  <Text className={`${theme.textMuted}`}>Product Name</Text>
-                  <Text className={`${theme.text} font-medium flex-1 text-right`} numberOfLines={1}>
+                  <Text className="text-gray-500 dark:text-gray-400">Product Name</Text>
+                  <Text className="text-gray-900 dark:text-gray-100 font-medium flex-1 text-right" numberOfLines={1}>
                     {result.productInfo?.name || selectedItem?.productName || "N/A"}
                   </Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className={`${theme.textMuted}`}>Dimensions</Text>
-                  <Text className={`${theme.text} font-medium`}>{result.productInfo?.dimensions || "N/A"}</Text>
+                  <Text className="text-gray-500 dark:text-gray-400">Dimensions</Text>
+                  <Text className="text-gray-900 dark:text-gray-100 font-medium">{result.productInfo?.dimensions || "N/A"}</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className={`${theme.textMuted}`}>Weight</Text>
-                  <Text className={`${theme.text} font-medium`}>{result.productInfo?.weight || 0}g</Text>
+                  <Text className="text-gray-500 dark:text-gray-400">Weight</Text>
+                  <Text className="text-gray-900 dark:text-gray-100 font-medium">{result.productInfo?.weight || 0}g</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className={`${theme.textMuted}`}>Packing Orientation</Text>
-                  <Text className={`${theme.successText} font-medium`}>
+                  <Text className="text-gray-500 dark:text-gray-400">Packing Orientation</Text>
+                  <Text className="text-green-600 dark:text-green-400 font-medium">
                     {result.packingResults?.[0]?.orientation || "L×B×H"}
                   </Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className={`${theme.textMuted}`}>Can Rotate</Text>
-                  <Text className={`${result.productInfo?.canRotate ? theme.successText : theme.errorText} font-medium`}>
+                  <Text className="text-gray-500 dark:text-gray-400">Can Rotate</Text>
+                  <Text className={`${result.productInfo?.canRotate ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} font-medium`}>
                     {result.productInfo?.canRotate ? "Yes" : "No"}
                   </Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className={`${theme.textMuted}`}>Fragile Item</Text>
-                  <Text className={`${result.productInfo?.isFragile ? theme.errorText : theme.successText} font-medium`}>
+                  <Text className="text-gray-500 dark:text-gray-400">Fragile Item</Text>
+                  <Text className={`${result.productInfo?.isFragile ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'} font-medium`}>
                     {result.productInfo?.isFragile ? "Yes" : "No"}
                   </Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className={`${theme.textMuted}`}>Requested Qty</Text>
-                  <Text className={`${theme.text} font-medium`}>{result.productInfo?.requestedQuantity || result.summary?.totalItemsRequested || 0}</Text>
+                  <Text className="text-gray-500 dark:text-gray-400">Requested Qty</Text>
+                  <Text className="text-gray-900 dark:text-gray-100 font-medium">{result.productInfo?.requestedQuantity || result.summary?.totalItemsRequested || 0}</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className={`${theme.textMuted}`}>Packed Qty</Text>
-                  <Text className={`${theme.successText} font-bold`}>{result.summary?.totalItemsPacked || 0}</Text>
+                  <Text className="text-gray-500 dark:text-gray-400">Packed Qty</Text>
+                  <Text className="text-green-600 dark:text-green-400 font-bold">{result.summary?.totalItemsPacked || 0}</Text>
                 </View>
               </View>
             </View>
 
             {/* Packing Efficiency */}
-            <View className={`${theme.cardBg} p-5 rounded-2xl ${theme.border} border mb-4`}>
-              <Text className={`${theme.text} text-xl font-bold mb-3`}>Efficiency Analysis</Text>
+            <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 mb-4">
+              <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Efficiency Analysis</Text>
               <View className="space-y-3">
                 <View>
                   <View className="flex-row justify-between mb-1">
-                    <Text className={`${theme.textMuted}`}>Volume Efficiency</Text>
-                    <Text className={`${theme.text} font-medium`}>{result.summary?.overallVolumeEfficiency || 0}%</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">Volume Efficiency</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium">{result.summary?.overallVolumeEfficiency || 0}%</Text>
                   </View>
-                  <View style={{ backgroundColor: theme.border, height: 8, borderRadius: 4 }}>
+                  <View style={{ backgroundColor: isDark ? '#374151' : '#e5e7eb', height: 8, borderRadius: 4 }}>
                     <View
                       style={{ 
-                        backgroundColor: theme.accentBg, 
+                        backgroundColor: '#8b5cf6', 
                         height: 8, 
                         borderRadius: 4,
                         width: `${Math.min(result.summary?.overallVolumeEfficiency || 0, 100)}%` 
@@ -294,13 +295,13 @@ export default function Analysis() {
                 </View>
                 <View>
                   <View className="flex-row justify-between mb-1">
-                    <Text className={`${theme.textMuted}`}>Packing Quality Score</Text>
-                    <Text className={`${theme.text} font-medium`}>{result.analytics?.packingQuality?.overallScore || 0}/100</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">Packing Quality Score</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium">{result.analytics?.packingQuality?.overallScore || 0}/100</Text>
                   </View>
-                  <View style={{ backgroundColor: theme.border, height: 8, borderRadius: 4 }}>
+                  <View style={{ backgroundColor: isDark ? '#374151' : '#e5e7eb', height: 8, borderRadius: 4 }}>
                     <View
                       style={{ 
-                        backgroundColor: theme.successBg, 
+                        backgroundColor: '#16a34a', 
                         height: 8, 
                         borderRadius: 4,
                         width: `${Math.min(result.analytics?.packingQuality?.overallScore || 0, 100)}%` 
@@ -313,24 +314,24 @@ export default function Analysis() {
 
             {/* Carton Breakdown */}
             {result.summary?.cartonTypeBreakdown?.map((carton: any, index: number) => (
-              <View key={index} className={`${theme.cardBg} p-5 rounded-2xl ${theme.border} border mb-4`}>
-                <Text className={`${theme.text} text-xl font-bold mb-3`}>Carton Details #{index + 1}</Text>
+              <View key={index} className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+                <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Carton Details #{index + 1}</Text>
                 <View className="space-y-2">
                   <View className="flex-row justify-between">
-                    <Text className={`${theme.textMuted}`}>Carton Type</Text>
-                    <Text className={`${theme.text} font-medium`}>{carton.cartonType}</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">Carton Type</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium">{carton.cartonType}</Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text className={`${theme.textMuted}`}>Count</Text>
-                    <Text className={`${theme.text} font-medium`}>{carton.count}</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">Count</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium">{carton.count}</Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text className={`${theme.textMuted}`}>Items per Carton</Text>
-                    <Text className={`${theme.text} font-medium`}>{Math.floor(carton.totalItems / carton.count)}</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">Items per Carton</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium">{Math.floor(carton.totalItems / carton.count)}</Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text className={`${theme.textMuted}`}>Efficiency</Text>
-                    <Text className={`${theme.text} font-medium`}>{carton.avgEfficiency}%</Text>
+                    <Text className="text-gray-500 dark:text-gray-400">Efficiency</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium">{carton.avgEfficiency}%</Text>
                   </View>
                 </View>
               </View>
@@ -338,23 +339,23 @@ export default function Analysis() {
 
             {/* Individual Carton Details */}
             {result.packingResults && result.packingResults.length > 0 && (
-              <View className={`${theme.cardBg} p-5 rounded-2xl ${theme.border} border mb-4`}>
-                <Text className={`${theme.text} text-xl font-bold mb-3`}>Packing Orientation & Layout</Text>
+              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+                <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Packing Orientation & Layout</Text>
                 {result.packingResults.slice(0, 3).map((carton: any, index: number) => (
                   <View key={index} className="mb-4">
-                    <Text className={`${theme.textSecondary} font-bold mb-2`}>Carton #{index + 1}</Text>
+                    <Text className="text-gray-700 dark:text-gray-300 font-bold mb-2">Carton #{index + 1}</Text>
                     <View className="space-y-1">
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Items Packed</Text>
-                        <Text className={`${theme.text} text-sm font-medium`}>{carton.itemsPacked}</Text>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Items Packed</Text>
+                        <Text className="text-gray-900 dark:text-gray-100 text-sm font-medium">{carton.itemsPacked}</Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Selected Orientation</Text>
-                        <Text className={`${theme.successText} text-sm font-bold`}>{carton.orientation}</Text>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Selected Orientation</Text>
+                        <Text className="text-green-600 dark:text-green-400 text-sm font-bold">{carton.orientation}</Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Dimensions Used</Text>
-                        <Text className={`${theme.text} text-sm font-medium`}>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Dimensions Used</Text>
+                        <Text className="text-gray-900 dark:text-gray-100 text-sm font-medium">
                           {carton.orientationDetails?.dimensionsUsed ?
                             `${carton.orientationDetails.dimensionsUsed.length}×${carton.orientationDetails.dimensionsUsed.breadth}×${carton.orientationDetails.dimensionsUsed.height}` :
                             "N/A"
@@ -362,55 +363,55 @@ export default function Analysis() {
                         </Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Arrangement Pattern</Text>
-                        <Text className={`${theme.text} text-sm font-medium`}>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Arrangement Pattern</Text>
+                        <Text className="text-gray-900 dark:text-gray-100 text-sm font-medium">
                           {carton.orientationDetails?.arrangementPattern || `${carton.layout?.arrangement?.lengthwise || 0} × ${carton.layout?.arrangement?.breadthwise || 0} × ${carton.layout?.arrangement?.layers || 0}`}
                         </Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Stacking Pattern</Text>
-                        <Text className={`${theme.text} text-sm font-medium`}>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Stacking Pattern</Text>
+                        <Text className="text-gray-900 dark:text-gray-100 text-sm font-medium">
                           {carton.orientationDetails?.stackingPattern?.itemsPerLayer || carton.layout?.itemsPerLayer || 0} items/layer, {carton.orientationDetails?.stackingPattern?.totalLayers || carton.layout?.layers || 0} layers
                         </Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Optimal Stacking</Text>
-                        <Text className={`${carton.orientationDetails?.stackingPattern?.isOptimalStacking ? theme.successText : theme.errorText} text-sm font-medium`}>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Optimal Stacking</Text>
+                        <Text className={`${carton.orientationDetails?.stackingPattern?.isOptimalStacking ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} text-sm font-medium`}>
                           {carton.orientationDetails?.stackingPattern?.isOptimalStacking ? "Yes" : "No"}
                         </Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Volume Efficiency</Text>
-                        <Text className={`${theme.text} text-sm font-medium`}>{carton.efficiency?.volumeEfficiency}%</Text>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Volume Efficiency</Text>
+                        <Text className="text-gray-900 dark:text-gray-100 text-sm font-medium">{carton.efficiency?.volumeEfficiency}%</Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Weight Utilization</Text>
-                        <Text className={`${theme.text} text-sm font-medium`}>{carton.efficiency?.weightUtilization}%</Text>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Weight Utilization</Text>
+                        <Text className="text-gray-900 dark:text-gray-100 text-sm font-medium">{carton.efficiency?.weightUtilization}%</Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Space Optimality</Text>
-                        <Text className={`${theme.successText} text-sm font-medium`}>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Space Optimality</Text>
+                        <Text className="text-green-600 dark:text-green-400 text-sm font-medium">
                           {carton.packingMetrics?.spaceOptimality || "Good"}
                         </Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Stacking Safety</Text>
-                        <Text className={`${carton.stackingInfo?.stackingSafety ? theme.successText : theme.errorText} text-sm font-medium`}>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Stacking Safety</Text>
+                        <Text className={`${carton.stackingInfo?.stackingSafety ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} text-sm font-medium`}>
                           {carton.stackingInfo?.stackingSafety ? "Safe" : "Unsafe"}
                         </Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className={`${theme.textMuted} text-sm`}>Carton Utilization</Text>
-                        <Text className={`${theme.text} text-sm font-medium`}>
+                        <Text className="text-gray-500 dark:text-gray-400 text-sm">Carton Utilization</Text>
+                        <Text className="text-gray-900 dark:text-gray-100 text-sm font-medium">
                           {((carton.packingMetrics?.cartonUtilization || 0) * 100).toFixed(1)}%
                         </Text>
                       </View>
                     </View>
-                    {index < 2 && <View className={`h-px ${theme.border} border-t mt-3`} />}
+                    {index < 2 && <View className="h-px bg-gray-200 dark:bg-gray-700 border-t mt-3" />}
                   </View>
                 ))}
                 {result.packingResults.length > 3 && (
-                  <Text className={`${theme.textMuted} text-sm text-center`}>
+                  <Text className="text-gray-500 dark:text-gray-400 text-sm text-center">
                     +{result.packingResults.length - 3} more cartons with similar configuration
                   </Text>
                 )}
@@ -419,12 +420,12 @@ export default function Analysis() {
 
             {/* Optimization Details */}
             {result.summary?.optimizationApplied && (
-              <View className={`${theme.cardBg} p-5 rounded-2xl ${theme.border} border mb-4`}>
-                <Text className={`${theme.text} text-xl font-bold mb-3`}>Optimization Features</Text>
+              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+                <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Optimization Features</Text>
                 <View className="space-y-2">
                   {Object.entries(result.summary.optimizationApplied).map(([key, value]: [string, any]) => (
                     <View key={key} className="flex-row justify-between items-center">
-                      <Text className={`${theme.textMuted} capitalize`}>
+                      <Text className="text-gray-500 dark:text-gray-400 capitalize">
                         {key.replace(/([A-Z])/g, ' $1').trim()}
                       </Text>
                       <View className={`w-4 h-4 rounded-full ${value ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -433,8 +434,8 @@ export default function Analysis() {
                 </View>
                 <View className="mt-3 pt-3 border-t border-gray-300">
                   <View className="flex-row justify-between">
-                    <Text className={`${theme.textMuted}`}>Algorithm Used</Text>
-                    <Text className={`${theme.text} font-medium capitalize`}>
+                    <Text className="text-gray-500 dark:text-gray-400">Algorithm Used</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium capitalize">
                       {result.summary.algorithmUsed || "Standard"}
                     </Text>
                   </View>
@@ -444,41 +445,41 @@ export default function Analysis() {
 
             {/* Advanced Metrics */}
             {result.analytics?.packingQuality && (
-              <View className={`${theme.cardBg} p-5 rounded-2xl ${theme.border} border mb-4`}>
-                <Text className={`${theme.text} text-xl font-bold mb-3`}>Advanced Analytics</Text>
+              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+                <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Advanced Analytics</Text>
                 <View className="space-y-3">
                   <View>
                     <View className="flex-row justify-between mb-1">
-                      <Text className={`${theme.textMuted}`}>Waste Analysis</Text>
-                      <Text className={`${theme.text} font-medium`}>
+                      <Text className="text-gray-500 dark:text-gray-400">Waste Analysis</Text>
+                      <Text className="text-gray-900 dark:text-gray-100 font-medium">
                         {result.analytics.packingQuality.wasteAnalysis?.wastePercentage?.toFixed(1)}% waste
                       </Text>
                     </View>
-                    <Text className={`${theme.textMuted} text-xs`}>
+                    <Text className="text-gray-500 dark:text-gray-400 text-xs">
                       Total waste: {(result.analytics.packingQuality.wasteAnalysis?.totalWasteVolume / 1000000)?.toFixed(2)} L
                     </Text>
                   </View>
 
                   <View>
                     <View className="flex-row justify-between mb-1">
-                      <Text className={`${theme.textMuted}`}>Stacking Analysis</Text>
-                      <Text className={`${theme.text} font-medium`}>
+                      <Text className="text-gray-500 dark:text-gray-400">Stacking Analysis</Text>
+                      <Text className="text-gray-900 dark:text-gray-100 font-medium">
                         {result.analytics.packingQuality.stackingAnalysis?.avgStackLayers} avg layers
                       </Text>
                     </View>
-                    <Text className={`${theme.textMuted} text-xs`}>
+                    <Text className="text-gray-500 dark:text-gray-400 text-xs">
                       {result.analytics.packingQuality.stackingAnalysis?.totalStackedCartons} stacked cartons
                     </Text>
                   </View>
 
                   <View>
                     <View className="flex-row justify-between mb-1">
-                      <Text className={`${theme.textMuted}`}>Fragile Handling</Text>
-                      <Text className={`${theme.text} font-medium`}>
+                      <Text className="text-gray-500 dark:text-gray-400">Fragile Handling</Text>
+                      <Text className="text-gray-900 dark:text-gray-100 font-medium">
                         {result.productInfo?.isFragile ? "Applied" : "Not Required"}
                       </Text>
                     </View>
-                    <Text className={`${theme.textMuted} text-xs`}>
+                    <Text className="text-gray-500 dark:text-gray-400 text-xs">
                       Can rotate: {result.productInfo?.canRotate ? "Yes" : "No"}
                     </Text>
                   </View>
@@ -488,11 +489,11 @@ export default function Analysis() {
 
             {/* Recommendations */}
             {result.analytics?.recommendations?.length > 0 && (
-              <View className={`${theme.cardBg} p-5 rounded-2xl ${theme.border} border mb-4`}>
-                <Text className={`${theme.text} text-xl font-bold mb-3`}>Recommendations</Text>
+              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+                <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Recommendations</Text>
                 {result.analytics.recommendations.map((rec: any, index: number) => (
                   <View key={index} style={{ 
-                    backgroundColor: theme.warningBg, 
+                    backgroundColor: isDark ? '#92400e' : '#fef3c7', 
                     padding: 12, 
                     borderRadius: 8, 
                     marginBottom: 8 
@@ -500,7 +501,7 @@ export default function Analysis() {
                     <View className="flex-row items-center mb-1">
                       <View className={`w-2 h-2 rounded-full ${rec.priority === 'HIGH' ? 'bg-red-500' : rec.priority === 'MEDIUM' ? 'bg-yellow-500' : 'bg-green-500'} mr-2`} />
                       <Text style={{ 
-                        color: theme.warningText, 
+                        color: isDark ? '#fbbf24' : '#92400e', 
                         fontWeight: '500', 
                         fontSize: 14 
                       }}>
@@ -508,7 +509,7 @@ export default function Analysis() {
                       </Text>
                     </View>
                     <Text style={{ 
-                      color: theme.warningText, 
+                      color: isDark ? '#fbbf24' : '#92400e', 
                       fontSize: 14 
                     }}>
                       {rec.message}
@@ -520,24 +521,24 @@ export default function Analysis() {
 
             {/* Environmental Impact */}
             {result.analytics?.sustainability && (
-              <View className={`${theme.cardBg} p-5 rounded-2xl ${theme.border} border mb-4`}>
-                <Text className={`${theme.text} text-xl font-bold mb-3`}>Environmental Impact</Text>
+              <View className="bg-white dark:bg-gray-800 p-5 rounded-2xl border-gray-200 dark:border-gray-700 border mb-4">
+                <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold mb-3">Environmental Impact</Text>
                 <View className="space-y-2">
                   <View className="flex-row justify-between">
-                    <Text className={`${theme.textMuted}`}>Carbon Footprint</Text>
-                    <Text className={`${theme.text} font-medium`}>
+                    <Text className="text-gray-500 dark:text-gray-400">Carbon Footprint</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium">
                       {result.analytics.sustainability.carbonFootprint?.totalFootprint} kg CO₂
                     </Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text className={`${theme.textMuted}`}>Packing Density</Text>
-                    <Text className={`${theme.text} font-medium`}>
+                    <Text className="text-gray-500 dark:text-gray-400">Packing Density</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium">
                       {(result.analytics.sustainability.packingDensity * 100)?.toFixed(2)}%
                     </Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text className={`${theme.textMuted}`}>Waste Volume</Text>
-                    <Text className={`${theme.text} font-medium`}>
+                    <Text className="text-gray-500 dark:text-gray-400">Waste Volume</Text>
+                    <Text className="text-gray-900 dark:text-gray-100 font-medium">
                       {(result.analytics.sustainability.totalWasteVolume / 1000000)?.toFixed(2)} L
                     </Text>
                   </View>
@@ -551,7 +552,7 @@ export default function Analysis() {
             <TouchableOpacity
               style={{
                 flex: 1,
-                backgroundColor: theme.border,
+                backgroundColor: isDark ? '#374151' : '#e5e7eb',
                 paddingVertical: 16,
                 borderRadius: 16
               }}
@@ -562,10 +563,10 @@ export default function Analysis() {
                 setQuantity("1");
               }}
             >
-              <Text className={`${theme.text} font-bold text-center text-lg`}>Start Over</Text>
+              <Text className="text-gray-900 dark:text-gray-100 font-bold text-center text-lg">Start Over</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 ${theme.success} py-4 rounded-2xl`}
+              className="flex-1 bg-green-600 dark:bg-green-500 py-4 rounded-2xl"
               onPress={() => {
                 Alert.alert(
                   "Confirm Packing",
@@ -620,12 +621,12 @@ export default function Analysis() {
     <View style={{ 
       flexDirection: 'row', 
       marginBottom: 16, 
-      backgroundColor: theme.border, 
+      backgroundColor: isDark ? '#374151' : '#e5e7eb', 
       borderRadius: 16, 
       padding: 4 
     }}>
       <Pressable
-        className={`flex-1 py-3 rounded-xl ${tab === 0 ? theme.tabActive : 'transparent'}`}
+        className={`flex-1 py-3 rounded-xl ${tab === 0 ? (isDark ? 'bg-gray-700' : 'bg-white') : 'transparent'}`}
         onPress={() => {
           // Always reset everything when going to Select Item
           clearResult();
@@ -634,12 +635,12 @@ export default function Analysis() {
           setQuantity("1");
         }}
       >
-        <Text className={`text-center font-bold text-sm ${tab === 0 ? theme.tabTextActive : theme.tabTextInactive}`}>
+        <Text className={`text-center font-bold text-sm ${tab === 0 ? (isDark ? 'text-white' : 'text-blue-700') : (isDark ? 'text-gray-400' : 'text-gray-500')}`}>
           Select Item
         </Text>
       </Pressable>
       <Pressable
-        className={`flex-1 py-3 rounded-xl ${tab === 1 ? theme.tabActive : 'transparent'}`}
+        className={`flex-1 py-3 rounded-xl ${tab === 1 ? (isDark ? 'bg-gray-700' : 'bg-white') : 'transparent'}`}
         onPress={() => {
           if (selectedItem) {
             // If coming from Result, reset result
@@ -651,12 +652,12 @@ export default function Analysis() {
         }}
         disabled={!selectedItem}
       >
-        <Text className={`text-center font-bold text-sm ${tab === 1 ? theme.tabTextActive : theme.tabTextInactive}`}>
+        <Text className={`text-center font-bold text-sm ${tab === 1 ? (isDark ? 'text-white' : 'text-blue-700') : (isDark ? 'text-gray-400' : 'text-gray-500')}`}>
           Quantity
         </Text>
       </Pressable>
       <Pressable
-        className={`flex-1 py-3 rounded-xl ${tab === 2 ? theme.tabActive : 'transparent'}`}
+        className={`flex-1 py-3 rounded-xl ${tab === 2 ? (isDark ? 'bg-gray-700' : 'bg-white') : 'transparent'}`}
         onPress={() => {
           if (result) {
             setTab(2);
@@ -664,7 +665,7 @@ export default function Analysis() {
         }}
         disabled={!result}
       >
-        <Text className={`text-center font-bold text-sm ${tab === 2 ? theme.tabTextActive : theme.tabTextInactive}`}>
+        <Text className={`text-center font-bold text-sm ${tab === 2 ? (isDark ? 'text-white' : 'text-blue-700') : (isDark ? 'text-gray-400' : 'text-gray-500')}`}>
           Results
         </Text>
       </Pressable>
@@ -672,7 +673,7 @@ export default function Analysis() {
   );
 
   return (
-    <SafeAreaView className={`flex-1 ${theme.bg}`}>
+    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
       <StatusBar style="auto" translucent={true} />
       <KeyboardAvoidingView
         className="flex-1"
@@ -681,10 +682,10 @@ export default function Analysis() {
       >
         <View className="px-6 py-4 flex-1 mb-20">
           <View className="mb-6">
-            <Text className={`text-4xl font-bold ${theme.text} text-center`}>
+            <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100 text-center">
               Packing Analysis
             </Text>
-            <Text className={`${theme.textMuted} text-center mt-2`}>
+            <Text className="text-gray-500 dark:text-gray-400 text-center mt-2">
               Optimize your shipping costs
             </Text>
           </View>
@@ -692,14 +693,14 @@ export default function Analysis() {
           {tab === 0 && renderSelectItem()}
           {tab === 1 && selectedItem && (
             <View className="flex-1 ">
-              <View className={`${theme.cardBg} p-4 rounded-2xl ${theme.border} border-2 mb-6`}>
-                <Text className={`${theme.textMuted} text-sm mb-2`}>Selected Product</Text>
-                <Text className={`${theme.text} text-2xl font-bold mb-2`}>{selectedItem.productName}</Text>
-                <Text className={`${theme.textSecondary}`}>
+              <View className="bg-white dark:bg-gray-800 p-4 rounded-2xl border-2 border-gray-200 dark:border-gray-700 mb-6">
+                <Text className="text-gray-500 dark:text-gray-400 text-sm mb-2">Selected Product</Text>
+                <Text className="text-gray-900 dark:text-gray-100 text-2xl font-bold mb-2">{selectedItem.productName}</Text>
+                <Text className="text-gray-600 dark:text-gray-300">
                   Available: {selectedItem.quantity} units
                 </Text>
                 <TouchableOpacity
-                  className="mt-4 py-2 px-2 bg-blue-100 rounded-lg self-start"
+                  className="mt-4 py-2 px-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg self-start"
                   onPress={() => {
                     setTab(0);
                     clearResult();
@@ -707,11 +708,11 @@ export default function Analysis() {
                     setQuantity("1");
                   }}
                 >
-                  <Text className="text-blue-700 text-sm font-medium">Change Product</Text>
+                  <Text className="text-blue-700 dark:text-blue-300 text-sm font-medium">Change Product</Text>
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
-                className={`${theme.success} py-4 rounded-2xl`}
+                className="bg-green-600 py-4 rounded-2xl"
                 onPress={() => setQuantityModalVisible(true)}
               >
                 <Text className="text-white font-bold text-center text-xl">Set Quantity</Text>

@@ -1,18 +1,18 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { apiService } from "@/services/api";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    useWindowDimensions,
-    View
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useWindowDimensions,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -21,7 +21,8 @@ export default function ProfileScreen() {
   const { height } = useWindowDimensions();
 
   // Theme integration
-  const theme = useAppTheme();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -120,22 +121,22 @@ export default function ProfileScreen() {
     }
     return (
       <View className="mb-4">
-        <Text className={`${theme.textMuted} text-xs mb-1 flex-row items-center`}>
-          <Ionicons name={icon as any} size={14} color={theme.textMuted} /> {label}
+        <Text className="text-gray-500 dark:text-gray-400 text-xs mb-1 flex-row items-center">
+          <Ionicons name={icon as any} size={14} color={isDark ? "#9CA3AF" : "#6B7280"} /> {label}
         </Text>
 
         {isEditing && key !== "email" ? (
           <TextInput
-            className={`${theme.cardBg} ${theme.text} p-3 rounded-lg ${theme.border} border`}
+            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 rounded-lg border-gray-200 dark:border-gray-700 border"
             value={editedUser[key as keyof typeof editedUser]}
             onChangeText={(text) =>
               setEditedUser({ ...editedUser, [key]: text })
             }
             placeholder={`Enter ${label.toLowerCase()}`}
-            placeholderTextColor={theme.textMuted}
+            placeholderTextColor={isDark ? "#9CA3AF" : "#6B7280"}
           />
         ) : (
-          <Text className={`${theme.textSecondary} ml-5`}>
+          <Text className="text-gray-700 dark:text-gray-300 ml-5">
             {displayValue || `No ${label.toLowerCase()} provided`}
           </Text>
         )}
@@ -144,27 +145,27 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className={`flex-1 ${theme.bg}`}>
+    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <StatusBar style="light" translucent={true} />
       <ScrollView className="flex-1">
         {/* Header with avatar */}
         <View
           style={{ height: height * 0.25 }}
-          className={`${theme.cardBg} px-6 pt-6 pb-12 items-center justify-center`}
+          className="bg-white dark:bg-gray-800 px-6 pt-6 pb-12 items-center justify-center"
         >
           <View className="items-center">
-            <View className={`w-24 h-24 rounded-full ${theme.cardBg} items-center justify-center border-2 border-blue-500`}>
-              <Text className={`text-3xl font-semibold ${theme.accentText}`}>
+            <View className="w-24 h-24 rounded-full bg-white dark:bg-gray-800 items-center justify-center border-2 border-blue-500">
+              <Text className="text-3xl font-semibold text-blue-600 dark:text-blue-400">
                 {getInitials(user?.name)}
               </Text>
             </View>
-            <Text className={`text-xl font-bold ${theme.text} mt-3`}>
+            <Text className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-3">
               {user?.name || "User"}
             </Text>
 
             {!isEditing && (
               <TouchableOpacity
-                className={`mt-2 ${theme.accent} px-4 py-2 rounded-full flex-row items-center`}
+                className="mt-2 bg-blue-600 dark:bg-blue-500 px-4 py-2 rounded-full flex-row items-center"
                 onPress={() => setIsEditing(true)}
               >
                 <Ionicons name="create-outline" size={16} color="#fff" />
@@ -176,13 +177,13 @@ export default function ProfileScreen() {
 
         <View className="px-6 pt-6 pb-10">
           {/* Profile Information Card */}
-          <View className={`${theme.cardBg} rounded-xl shadow-md p-5 mb-6 ${theme.border} border`}>
+          <View className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 mb-6 border-gray-200 dark:border-gray-700 border">
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-row items-center">
                 {/* <View className="w-8 h-8 rounded-full bg-blue-600 items-center justify-center">
                   <Ionicons name="person" size={18} color="#ffffff" />
                 </View> */}
-                <Text className={`text-lg font-semibold ${theme.text} ml-2`}>
+                <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 ml-2">
                   Personal Information
                 </Text>
               </View>
@@ -190,13 +191,13 @@ export default function ProfileScreen() {
               {isEditing && (
                 <View className="flex-row space-x-2 gap-2">
                   <TouchableOpacity
-                    className={`${theme.cardBg} p-2 rounded-lg ${theme.border} border`}
+                    className="bg-white dark:bg-gray-800 p-2 rounded-lg border-gray-200 dark:border-gray-700 border"
                     onPress={() => setIsEditing(false)}
                   >
-                    <Ionicons name="close" size={18} color={theme.textSecondary} />
+                    <Ionicons name="close" size={18} color={isDark ? "#9CA3AF" : "#6B7280"} />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    className={`${theme.accent} p-2 rounded-lg`}
+                    className="bg-blue-600 dark:bg-blue-500 p-2 rounded-lg"
                     onPress={handleSave}
                     disabled={isSaving}
                   >
@@ -230,7 +231,7 @@ export default function ProfileScreen() {
             </View>
           </TouchableOpacity>
 
-          <Text className={`${theme.textMuted} text-xs text-center`}>
+          <Text className="text-gray-500 dark:text-gray-400 text-xs text-center">
             ShipWise App v1.0.0
           </Text>
         </View>

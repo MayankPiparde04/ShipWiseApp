@@ -1,4 +1,4 @@
-import { useAppTheme } from "@/hooks/useAppTheme";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 import { useInventory } from "@/contexts/InventoryContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,7 +19,8 @@ import {
 } from "react-native";
 
 export default function App() {
-  const theme = useAppTheme();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
@@ -268,7 +269,7 @@ export default function App() {
     <View className="flex-1 bg-black">
       {isPredicting && (
         <View className="absolute inset-0 z-50 bg-black/80 justify-center items-center">
-                              <ActivityIndicator size="large" color={theme.accent} />
+                              <ActivityIndicator size="large" color={isDark ? "#3B82F6" : "#2563EB"} />
           <Text className="text-white mt-4 text-lg">
             Predicting item dimensions...
           </Text>
@@ -338,7 +339,7 @@ export default function App() {
       </View>
 
       {/* Controls section - 20% of height */}
-      <View style={[{ backgroundColor: theme.overlay }, { height: '20%', paddingTop: 8 }]}>
+      <View style={[{ backgroundColor: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.6)' }, { height: '20%', paddingTop: 8 }]}>
         {viewMode === "capture" ? (
           // Camera controls for capture mode - improved alignment
           <View className="flex-row justify-around items-center px-4 py-3">
@@ -348,7 +349,7 @@ export default function App() {
                   width: 56,
                   height: 56,
                   borderRadius: 28,
-                  backgroundColor: theme.cardBg,
+                  backgroundColor: isDark ? '#1F2937' : '#374151',
                   justifyContent: 'center',
                   alignItems: 'center',
                   shadowOpacity: 0.3,
@@ -374,7 +375,7 @@ export default function App() {
                   width: 56,
                   height: 56,
                   borderRadius: 28,
-                  backgroundColor: theme.cardBg,
+                  backgroundColor: isDark ? '#1F2937' : '#374151',
                   justifyContent: 'center',
                   alignItems: 'center',
                   shadowOpacity: 0.3,
@@ -396,7 +397,7 @@ export default function App() {
                   width: 64,
                   height: 64,
                   borderRadius: 32,
-                  backgroundColor: theme.errorBg,
+                  backgroundColor: '#DC2626',
                   justifyContent: 'center',
                   alignItems: 'center',
                   shadowOpacity: 0.3,
@@ -415,7 +416,7 @@ export default function App() {
                   width: 64,
                   height: 64,
                   borderRadius: 32,
-                  backgroundColor: theme.successBg,
+                  backgroundColor: '#16A34A',
                   justifyContent: 'center',
                   alignItems: 'center',
                   shadowOpacity: 0.3,
