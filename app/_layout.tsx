@@ -55,11 +55,11 @@ function RootLayoutNav() {
 
   if (isConnected === false) {
     return (
-      <View className="flex-1 justify-center items-center bg-white dark:bg-gray-900 px-6">
-        <Text className="text-2xl font-bold text-gray-800 dark:text-white mb-4 text-center">
+      <View className="flex-1 justify-center items-center bg-white/70 dark:bg-gray-950 px-6">
+        <Text className="text-3xl font-bold text-gray-800 dark:text-white mb-4 text-center">
           🚫 No Internet Connection
         </Text>
-        <Text className="text-base text-gray-600 dark:text-gray-300 text-center">
+        <Text className="text-lg text-gray-600 dark:text-gray-300 text-center">
           Please check your connection and try again.
         </Text>
       </View>
@@ -68,7 +68,7 @@ function RootLayoutNav() {
 
   if (isLoading || isConnected === null) {
     return (
-      <View className="flex-1 justify-center items-center bg-white dark:bg-gray-900">
+      <View className="flex-1 justify-center items-center bg-white/70 dark:bg-gray-950">
         <ActivityIndicator size="large" color="#8b5cf6" />
         <Text className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-4">Loading...</Text>
       </View>
