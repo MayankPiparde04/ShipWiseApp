@@ -181,7 +181,7 @@ export default function Analysis() {
   // Tab 3: Show Result
   const renderResult = () => (
     <View style={{ flex: 1 }}>
-      <Text className="text-3xl font-bold text-gray-950 dark:text-gray-100/70 mb-6">Packing Analysis</Text>
+      <Text className="text-3xl font-bold text-gray-950 dark:text-gray-100/70 mb-4">Packing Analysis</Text>
       {loading && (
         <View className="items-center py-8">
           <ActivityIndicator size="large" color="#8b5cf6" />
@@ -197,11 +197,11 @@ export default function Analysis() {
       {result && (
         <>
           <ScrollView
-            className="flex-1 mb-6"
+            className="flex-1 mb-4"
             showsVerticalScrollIndicator={false}
           >
             {/* Summary Cards */}
-            <View className="flex-row flex-wrap gap-3 mb-6">
+            <View className="flex-row flex-wrap gap-3 mb-4">
               <View className="bg-gray-100/40 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-w-[140px]">
                 <Text className="text-green-600 dark:text-green-400 text-2xl font-bold">
                   {result.summary?.totalCartonsUsed || result.packingResults?.length || 0}
@@ -538,7 +538,7 @@ export default function Analysis() {
           </ScrollView>
 
           {/* Action Buttons */}
-          <View className="flex-row space-x-4 gap-2 mb-24">
+          <View className="flex-row space-x-4 gap-2">
             <TouchableOpacity
               style={{
                 flex: 1,
@@ -556,7 +556,7 @@ export default function Analysis() {
               <Text className="text-gray-900 dark:text-gray-100 font-bold text-center text-lg">Start Over</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="flex-1 bg-green-600 dark:bg-green-500 py-4 rounded-2xl"
+              className="flex-1 bg-green-600 dark:bg-green-500 justify-center rounded-2xl"
               onPress={() => {
                 Alert.alert(
                   "Confirm Packing",
@@ -663,14 +663,14 @@ export default function Analysis() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white/40 dark:bg-gray-950">
+    <SafeAreaView className="flex-1 bg-white/40 dark:bg-gray-950 pb-4">
       <StatusBar style="auto" translucent={true} />
       <KeyboardAvoidingView
-        className="flex-1"
+        className="flex-1 "
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-        <View className="px-6 py-4 flex-1 mb-20">
+        <View className="px-6 py-2 flex-1 mb-20">
           <View className="mb-6">
             <Text className="text-4xl font-bold text-gray-900 dark:text-gray-100 text-center">
               Packing Analysis

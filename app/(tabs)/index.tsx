@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBoxes } from "@/contexts/BoxContext";
 import { useInventory } from "@/contexts/InventoryContext";
 import { useColorScheme } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { StatusBar } from "expo-status-bar";
 import { BoxIcon, Package, Search, TrendingUp } from "lucide-react-native";
@@ -131,131 +132,137 @@ export default function Home() {
     paddingLeft: 4,
     marginLeft: 0,
   };
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView className="flex-1 bg-white/70 dark:bg-gray-950 top-2">
-      <StatusBar
-        style="auto"
-        translucent={true}
-        className="bg-white/70 dark:bg-gray-950"
-      />
+    <SafeAreaView className="flex-1 bg-white/70 dark:bg-gray-950">
+      <StatusBar style="auto" translucent />
+
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 80}
       >
+        {/* 🔒 Fixed Top Section */}
+        <View
+          className="px-4 pb-4 pt-12 bg-white/70 dark:bg-gray-950 z-10"
+          style={{
+            paddingTop: insets.top + 10,
+            borderBottomWidth: 1,
+            borderBottomColor: colorScheme === "dark" ? "#474747" : "#c2c2c2", // white or gray-300
+          }}
+        >
+          <Text className="text-gray-900 dark:text-gray-100 text-2xl font-semibold">
+            Hello, {user?.name?.split(" ")[0] || "User"}
+          </Text>
+          <Text className="text-gray-500 text-lg dark:text-gray-400">
+            Welcome back to ShipWise
+          </Text>
+
+          {/* <View className="bg-gray-100/40 dark:bg-gray-700/90 border border-gray-400 dark:border-gray-600 rounded-2xl p-3 flex-row items-center my-3 space-x-3">
+            <Search color="#6b7280" size={20} />
+            <Text className="text-gray-500 dark:text-gray-400 pl-2">
+              Search items, boxes...
+            </Text>
+          </View> */}
+        </View>
+
+        {/* 📜 Scrollable Content Below */}
         <ScrollView
-          className="flex-1 px-4 pt-6"
+          className="flex-1 px-4"
           contentContainerStyle={{
             flexGrow: 1,
+            paddingTop: 8, // Slight spacing below the top
           }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="flex-1 py-6 space-y-6">
-            <View>
-              <Text className="text-gray-900 dark:text-gray-100 text-2xl font-semibold">
-                Hello, {user?.name?.split(" ")[0] || "User"}
-              </Text>
-              <Text className="text-gray-500 text-lg dark:text-gray-400">
-                Welcome back to ShipWise
-              </Text>
+          {loading ? (
+            <ActivityIndicator size="large" color="#0369a1" />
+          ) : (
+            <View className="space-y-6">
+              {/* KPIs and rest of the content here */}
+              <View className="space-y-4">
+                <Text className="text-gray-900  dark:text-gray-100 text-xl font-medium text-center py-2">
+                  KPIs
+                </Text>
+                <View className="flex-row justify-between">
+                  <View className="bg-gray-100/70 dark:bg-gray-800 border border-gray-400 dark:border-gray-600 p-4 rounded-2xl w-[30%] items-center">
+                    <Package color="#0369a1" size={32} />
+                    <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold">
+                      {items.length}
+                    </Text>
+                    <Text className="text-gray-500 dark:text-gray-400 text-sm">
+                      Items
+                    </Text>
+                  </View>
+                  <View className="bg-gray-100/70 dark:bg-gray-800 border border-gray-400 dark:border-gray-600 p-4 rounded-2xl w-[30%] items-center">
+                    <BoxIcon color="#0369a1" size={32} />
+                    <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold">
+                      {boxes.length}
+                    </Text>
+                    <Text className="text-gray-500 dark:text-gray-400 text-sm">
+                      Boxes
+                    </Text>
+                  </View>
+                  <View className="bg-gray-100/70 dark:bg-gray-800 border border-gray-400 dark:border-gray-600 p-4 rounded-2xl w-[30%] items-center">
+                    <TrendingUp color="#0369a1" size={32} />
+                    <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold">
+                      {totalQuantity}
+                    </Text>
+                    <Text className="text-gray-500 dark:text-gray-400 text-xs">
+                      Units in Stock
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Add Item Graph */}
+              <View className="space-y-4">
+                <Text className="text-gray-900 dark:text-gray-100 text-lg font-medium text-center py-2">
+                  Items Added
+                </Text>
+                <View className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden">
+                  <BarChart
+                    data={formatChartData(addItemData)}
+                    width={chartWidth + 12}
+                    height={220}
+                    yAxisLabel=""
+                    yAxisSuffix=""
+                    fromZero={true}
+                    chartConfig={chartConfig}
+                    style={chartStyle}
+                    withInnerLines={false}
+                    showValuesOnTopOfBars={true}
+                    withHorizontalLabels={true}
+                    withVerticalLabels={true}
+                  />
+                </View>
+              </View>
+
+              {/* Sell Item Graph */}
+              <View className="space-y-4 mb-20">
+                <Text className="text-gray-900 dark:text-gray-100 text-lg font-medium text-center py-2">
+                  Items Sold
+                </Text>
+                <View className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden">
+                  <BarChart
+                    data={formatChartData(sellItemData)}
+                    width={chartWidth + 12}
+                    height={220}
+                    yAxisLabel=""
+                    yAxisSuffix=""
+                    fromZero={true}
+                    chartConfig={chartConfig}
+                    style={chartStyle}
+                    withInnerLines={false}
+                    showValuesOnTopOfBars={true}
+                    withHorizontalLabels={true}
+                    withVerticalLabels={true}
+                  />
+                </View>
+              </View>
             </View>
-
-            <View className="bg-gray-100/40 dark:bg-gray-700/90 border border-gray-400 dark:border-gray-600 rounded-2xl p-3 flex-row items-center my-3 space-x-3">
-              <Search color="#6b7280" size={20} />
-              <Text className="text-gray-500 dark:text-gray-400 pl-2">
-                Search items, boxes...
-              </Text>
-            </View>
-
-            {loading ? (
-              <ActivityIndicator size="large" color="#0369a1" />
-            ) : (
-              <>
-                {/* KPIs */}
-                <View className="space-y-4">
-                  <Text className="text-gray-900 dark:text-gray-100 text-xl font-medium text-center py-2">
-                    KPIs
-                  </Text>
-                  <View className="flex-row justify-between">
-                    <View className="bg-gray-100/70 dark:bg-gray-800 border border-gray-400 dark:border-gray-600 p-4 rounded-2xl w-[30%] items-center">
-                      <Package color="#0369a1" size={32} />
-                      <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold">
-                        {items.length}
-                      </Text>
-                      <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                        Items
-                      </Text>
-                    </View>
-                    <View className="bg-gray-100/70 dark:bg-gray-800 border border-gray-400 dark:border-gray-600 p-4 rounded-2xl w-[30%] items-center">
-                      <BoxIcon color="#0369a1" size={32} />
-                      <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold">
-                        {boxes.length}
-                      </Text>
-                      <Text className="text-gray-500 dark:text-gray-400 text-sm">
-                        Boxes
-                      </Text>
-                    </View>
-                    <View className="bg-gray-100/70 dark:bg-gray-800 border border-gray-400 dark:border-gray-600 p-4 rounded-2xl w-[30%] items-center">
-                      <TrendingUp color="#0369a1" size={32} />
-                      <Text className="text-gray-900 dark:text-gray-100 text-xl font-bold">
-                        {totalQuantity}
-                      </Text>
-                      <Text className="text-gray-500 dark:text-gray-400 text-xs">
-                        Units in Stock
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                {/* Add Item Graph */}
-                <View className="space-y-4">
-                  <Text className="text-gray-900 dark:text-gray-100 text-lg font-medium text-center py-2">
-                    Items Added
-                  </Text>
-                  <View className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden">
-                    <BarChart
-                      data={formatChartData(addItemData)}
-                      width={chartWidth + 12}
-                      height={220}
-                      yAxisLabel=""
-                      yAxisSuffix=""
-                      fromZero={true}
-                      chartConfig={chartConfig}
-                      style={chartStyle}
-                      withInnerLines={false}
-                      showValuesOnTopOfBars={true}
-                      withHorizontalLabels={true}
-                      withVerticalLabels={true}
-                    />
-                  </View>
-                </View>
-
-                {/* Sell Item Graph */}
-                <View className="space-y-4 mb-20">
-                  <Text className="text-gray-900 dark:text-gray-100 text-lg font-medium text-center py-2">
-                    Items Sold
-                  </Text>
-                  <View className="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden">
-                    <BarChart
-                      data={formatChartData(sellItemData)}
-                      width={chartWidth + 12}
-                      height={220}
-                      yAxisLabel=""
-                      yAxisSuffix=""
-                      fromZero={true}
-                      chartConfig={chartConfig}
-                      style={chartStyle}
-                      withInnerLines={false}
-                      showValuesOnTopOfBars={true}
-                      withHorizontalLabels={true}
-                      withVerticalLabels={true}
-                    />
-                  </View>
-                </View>
-              </>
-            )}
-          </View>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

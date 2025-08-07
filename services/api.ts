@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BASE_URL = "https://shipwise.tech/api";
+const BASE_URL = "http://10.13.47.130:5000/api";
 
 interface ApiResponse<T = any> {
   success: boolean;

@@ -583,6 +583,7 @@ export default function Inventory() {
         <StatusBar style="auto" />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
           className="flex-1"
           enabled={!isAddingItem}
         >
